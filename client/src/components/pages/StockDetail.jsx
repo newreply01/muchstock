@@ -43,6 +43,7 @@ import RealtimeView from '../charts/RealtimeView'
 import TrendView from '../charts/TrendView'
 import TradingSignalsView from '../charts/TradingSignalsView'
 import WaveView from '../charts/WaveView'
+import StockDashboard from '../charts/StockDashboard'
 import AlertsView from '../shared/AlertsView'
 import MainForceView from '../charts/MainForceView'
 import FinancialStatementsView from '../charts/FinancialStatementsView'
@@ -52,20 +53,14 @@ import StockCompareView from '../charts/StockCompareView'
 import EventCalendar from '../shared/EventCalendar'
 import BrokerTracking from '../charts/BrokerTracking'
 import QuickDiagnosisView from '../charts/QuickDiagnosisView'
+import StockNewsEventsView from '../shared/StockNewsEventsView'
 
 const SIDEBAR_MENU = [
-    { id: 'overview', label: '總覽' },
-    { id: 'quick_diagnosis', label: '快速診斷' },
-    { id: 'realtime', label: '即時行情' },
-    { type: 'header', label: '技術分析' },
-    { id: 'kd', label: 'KD線圖' },
-    { id: 'macd', label: 'MACD圖表' },
-    { id: 'rsi', label: 'RSI分析' },
-    { id: 'dmi', label: 'DMI/ADX' },
-    { type: 'header', label: '深潛分析' },
+    { id: 'overview', label: '全景分析' },
+    { id: 'technical', label: '技術指標' },
     {
-        id: 'main_force',
-        label: '主力進出',
+        id: 'chips',
+        label: '籌碼大戶',
         children: [
             { id: 'institutional', label: '三大法人' },
             { id: 'force_detail', label: '主力明細' },
@@ -75,7 +70,7 @@ const SIDEBAR_MENU = [
     },
     {
         id: 'financials',
-        label: '財報股利',
+        label: '財務狀況',
         children: [
             {
                 id: 'profitability',
@@ -99,8 +94,7 @@ const SIDEBAR_MENU = [
             { id: 'dividend', label: '股利政策' }
         ]
     },
-    { id: 'news', label: '新聞公告' },
-    { id: 'events', label: '重要大事' }
+    { id: 'news_events', label: '新聞大事' }
 ];
 
 const CLASSIC_PATTERNS = [
@@ -124,13 +118,14 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
     const [institutionalData, setInstitutionalData] = useState([])
     const [loading, setLoading] = useState(true)
     const [loadingChips, setLoadingChips] = useState(false)
-    const [activeTab, setActiveTab] = useState('realtime')
+    const [activeTab, setActiveTab] = useState('overview')
     const [activeSubTab, setActiveSubTab] = useState(null)
     const [activeSubSubTab, setActiveSubSubTab] = useState(null)
     const [activePatterns, setActivePatterns] = useState([])
     const [indicatorStatus, setIndicatorStatus] = useState({ rsi: null, close: null, ma20: null })
     const [activePeriod, setActivePeriod] = useState('日K')
     const [activeFilter, setActiveFilter] = useState('all')
+    const [activeIndicator, setActiveIndicator] = useState('kline')
 
     useEffect(() => {
         const fetchFinancials = async () => {
@@ -415,140 +410,9 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
 
                     {/* Main Scrollable Area */}
                     <div className="flex-1 overflow-y-auto p-6 bg-white relative">
-                        {activeTab === 'quick_diagnosis' ? (
-                            <QuickDiagnosisView symbol={stock.symbol} />
-                        ) : activeTab === 'overview' ? (
-                            <div className="space-y-8">
-                                {/* Stats Grid */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 pb-5 shadow-sm">
-                                        <div className="text-slate-500 text-xs mb-1 flex items-center gap-1 font-semibold uppercase tracking-wider">
-                                            <DollarSign className="w-3 h-3 text-brand-primary" /> 當前股價
-                                        </div>
-                                        <div className="text-2xl font-black text-slate-800">
-                                            {!isNaN(parseFloat(stock.close_price)) ? parseFloat(stock.close_price).toFixed(2) : '--'}
-                                        </div>
-                                        <div className={`text-xs mt-1 font-bold flex items-center gap-1 ${parseFloat(stock.change_percent) >= 0 ? 'text-red-500' : 'text-green-600'}`}>
-                                            {parseFloat(stock.change_percent) >= 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
-                                            {!isNaN(parseFloat(stock.change_percent)) ? Math.abs(parseFloat(stock.change_percent)).toFixed(2) : '--'}%
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 pb-5 shadow-sm">
-                                        <div className="text-slate-500 text-xs mb-1 flex items-center gap-1 font-semibold uppercase tracking-wider">
-                                            <BarChart3 className="w-3 h-3 text-brand-primary" /> 本益比 (PE)
-                                        </div>
-                                        <div className="text-2xl font-black text-slate-800">
-                                            {(() => {
-                                                const pe = parseFloat(stock?.pe_ratio) || parseFloat(financials?.info?.pe_ratio);
-                                                return pe && !isNaN(pe) ? pe.toFixed(2) : '--';
-                                            })()}
-                                        </div>
-                                        <div className="text-slate-400 text-[10px] mt-1 italic font-medium">
-                                            行業平均: --
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 pb-5 shadow-sm">
-                                        <div className="text-slate-500 text-xs mb-1 flex items-center gap-1 font-semibold uppercase tracking-wider">
-                                            <PieChart className="w-3 h-3 text-brand-primary" /> 殖利率
-                                        </div>
-                                        <div className="text-2xl font-black text-red-500">
-                                            {(() => {
-                                                const yieldVal = parseFloat(stock?.dividend_yield) || parseFloat(financials?.info?.dividend_yield);
-                                                return !isNaN(yieldVal) ? yieldVal.toFixed(2) + '%' : '--';
-                                            })()}
-                                        </div>
-                                        <div className="text-slate-400 text-[10px] mt-1 italic font-medium">
-                                            高於市場平均
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 pb-5 shadow-sm">
-                                        <div className="text-slate-500 text-xs mb-1 flex items-center gap-1 font-semibold uppercase tracking-wider">
-                                            <Calendar className="w-3 h-3 text-brand-primary" /> 淨值比 (PB)
-                                        </div>
-                                        <div className="text-2xl font-black text-slate-800">
-                                            {(() => {
-                                                const pb = parseFloat(stock?.pb_ratio) || parseFloat(financials?.info?.pb_ratio);
-                                                return pb && !isNaN(pb) ? pb.toFixed(2) : '--';
-                                            })()}
-                                        </div>
-                                        <div className="text-slate-400 text-[10px] mt-1 italic font-medium">
-                                            資產效率良好
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Charts */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-                                    {/* Revenue Chart */}
-                                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[350px]">
-                                        <h3 className="text-slate-800 font-bold mb-6 flex items-center gap-2">
-                                            <BarChart3 className="text-red-500 w-5 h-5" />
-                                            近一年每月營收 (億元)
-                                        </h3>
-                                        <div className="flex-1 w-full">
-                                            {loading ? (
-                                                <div className="h-full flex items-center justify-center text-slate-400 text-sm animate-pulse">加載中...</div>
-                                            ) : revenueData.length > 0 ? (
-                                                <ResponsiveContainer width="100%" height="100%">
-                                                    <BarChart data={revenueData}>
-                                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                                                        <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                                                        <Tooltip
-                                                            contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', color: '#1e293b', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                                            itemStyle={{ color: '#ef4444' }}
-                                                        />
-                                                        <Bar dataKey="revenue" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                                                    </BarChart>
-                                                </ResponsiveContainer>
-                                            ) : (
-                                                <div className="h-full flex items-center justify-center text-slate-400 text-sm italic bg-slate-50 rounded-xl border border-dashed border-slate-200">暫無營收歷史數據</div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* EPS Chart */}
-                                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[350px]">
-                                        <h3 className="text-slate-800 font-bold mb-6 flex items-center gap-2">
-                                            <TrendingUp className="text-blue-600 w-5 h-5" />
-                                            近三季 EPS
-                                        </h3>
-                                        <div className="flex-1 w-full">
-                                            {loading ? (
-                                                <div className="h-full flex items-center justify-center text-slate-400 text-sm animate-pulse">加載中...</div>
-                                            ) : epsData.length > 0 ? (
-                                                <ResponsiveContainer width="100%" height="100%">
-                                                    <LineChart data={epsData}>
-                                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                                                        <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                                                        <Tooltip
-                                                            contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', color: '#1e293b', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                                            itemStyle={{ color: '#2563eb' }}
-                                                        />
-                                                        <Legend verticalAlign="top" align="right" height={36} />
-                                                        <Line name="每股盈餘 (EPS)" type="monotone" dataKey="eps" stroke="#2563eb" strokeWidth={3} dot={{ fill: '#2563eb', r: 4 }} activeDot={{ r: 6, strokeWidth: 0 }} />
-                                                    </LineChart>
-                                                </ResponsiveContainer>
-                                            ) : (
-                                                <div className="h-full flex items-center justify-center text-slate-400 text-sm italic bg-slate-50 rounded-xl border border-dashed border-slate-200">暫無 EPS 歷史數據</div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                {/* Footer Info */}
-                                <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-xs text-slate-500 leading-relaxed font-medium">
-                                    數據來源: MuchStock 財經數據中心 (對接 FinMind API)。歷史財報每季更新一次，月營收每月 10 號前更新。
-                                    所有資訊僅供參考，不構成投資建議。
-                                </div>
-                            </div>
-                        ) : activeTab === 'main_force' ? (
+                        {activeTab === 'overview' ? (
+                            <StockDashboard stock={stock} />
+                        ) : activeTab === 'chips' ? (
                             <MainForceView
                                 symbol={stock.symbol}
                                 subTab={activeSubTab}
@@ -565,40 +429,59 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                 loading={loading}
                                 epsData={epsData}
                             />
-                        ) : activeTab === 'macd' ? (
-                            <MACDView symbol={stock.symbol} period={activePeriod} />
-                        ) : activeTab === 'kd' ? (
-                            <KDView symbol={stock.symbol} period={activePeriod} />
-                        ) : activeTab === 'rsi' ? (
-                            <RSIView symbol={stock.symbol} period={activePeriod} />
-                        ) : activeTab === 'dmi' ? (
-                            <DMIView symbol={stock.symbol} period={activePeriod} />
-                        ) : activeTab === 'news' ? (
+                        ) : activeTab === 'news_events' ? (
                             <div className="h-full min-h-[600px] flex flex-col">
-                                <NewsBoard />
+                                <StockNewsEventsView stock={stock} />
                             </div>
-                        ) : activeTab === 'events' ? (
-                            <EventCalendar symbol={stock.symbol} />
-                        ) : activeTab === 'realtime' ? (
-                            <RealtimeView stock={stock} />
-                        ) : activeSubTab === 'broker_trace' ? (
-                            <BrokerTracking symbol={stock.symbol} />
-                        ) : activeTab === 'alerts' ? (
-                            <AlertsView stock={stock} />
-                        ) : activeTab === 'kd' || activeTab === 'macd' || activeTab === 'rsi' || activeTab === 'dmi' ? (
-                            <div className="h-full w-full min-h-[600px] flex flex-col gap-6">
-                                <StockChart
-                                    stock={stock}
-                                    period={activePeriod}
-                                    onPatternsDetected={setActivePatterns}
-                                    onIndicatorStatus={setIndicatorStatus}
-                                />
+                        ) : activeTab === 'technical' ? (
+                            <div className="h-full w-full min-h-[600px] flex flex-col gap-6 animate-in fade-in duration-300">
+                                {/* Technical Sub-Indicator Selector Bar */}
+                                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar self-start">
+                                    {[
+                                        { id: 'kline', label: '主圖 K 線與型態' },
+                                        { id: 'kd', label: 'KD 線圖' },
+                                        { id: 'macd', label: 'MACD 指標' },
+                                        { id: 'rsi', label: 'RSI 分析' },
+                                        { id: 'dmi', label: 'DMI/ADX' }
+                                    ].map(ind => (
+                                        <button
+                                            key={ind.id}
+                                            onClick={() => setActiveIndicator(ind.id)}
+                                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeIndicator === ind.id
+                                                ? 'bg-brand-primary text-white shadow-sm'
+                                                : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+                                                }`}
+                                        >
+                                            {ind.label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Render StockChart (Always active to detect patterns) */}
+                                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                                    <StockChart
+                                        stock={stock}
+                                        period={activePeriod}
+                                        onPatternsDetected={setActivePatterns}
+                                        onIndicatorStatus={setIndicatorStatus}
+                                    />
+                                </div>
+
+                                {/* Render active technical sub-indicator chart */}
+                                {activeIndicator !== 'kline' && (
+                                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                                        {activeIndicator === 'kd' && <KDView symbol={stock.symbol} period={activePeriod} />}
+                                        {activeIndicator === 'macd' && <MACDView symbol={stock.symbol} period={activePeriod} />}
+                                        {activeIndicator === 'rsi' && <RSIView symbol={stock.symbol} period={activePeriod} />}
+                                        {activeIndicator === 'dmi' && <DMIView symbol={stock.symbol} period={activePeriod} />}
+                                    </div>
+                                )}
 
                                 {/* Classic Patterns Replica */}
-                                <div className="space-y-4 mt-4">
+                                <div className="space-y-4 mt-2">
                                     <div className="flex items-center gap-3 px-2">
-                                        <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white font-bold italic">K</div>
-                                        <h2 className="text-xl font-black text-slate-800 tracking-tight">經典型態即時比對</h2>
+                                        <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-slate-800 flex items-center justify-center text-white font-bold italic border border-slate-700">K</div>
+                                        <h2 className="text-lg font-black text-slate-800 dark:text-white tracking-tight">經典型態即時比對</h2>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                         {CLASSIC_PATTERNS.filter(p => {
@@ -622,27 +505,27 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                             };
 
                                             return (
-                                                <div key={pat.id} className={`bg-white border rounded-2xl p-5 transition-all relative overflow-hidden group shadow-sm ${isDetected ? colorTheme.border : 'border-slate-200 hover:border-slate-300'}`}>
+                                                <div key={pat.id} className={`bg-white dark:bg-slate-850 border rounded-2xl p-5 transition-all relative overflow-hidden group shadow-sm ${isDetected ? colorTheme.border : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}>
                                                     <div className="flex justify-between items-start mb-4">
                                                         <div>
-                                                            <h3 className={`font-black text-lg leading-tight transition-colors ${isDetected ? colorTheme.text : 'text-slate-800'}`}>
+                                                            <h3 className={`font-black text-base leading-tight transition-colors ${isDetected ? colorTheme.text : 'text-slate-800 dark:text-white'}`}>
                                                                 {pat.name}
                                                             </h3>
-                                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">{pat.en}</p>
+                                                            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5">{pat.en}</p>
                                                         </div>
                                                         {isDetected ? (
-                                                            <div className={`flex items-center gap-1.5 text-[10px] font-black text-white ${colorTheme.bg} px-2.5 py-1 rounded-full shadow-sm animate-pulse`}>
+                                                            <div className={`flex items-center gap-1.5 text-[9px] font-black text-white ${colorTheme.bg} px-2 py-0.5 rounded-full shadow-sm animate-pulse`}>
                                                                 <CheckCircle2 className="w-3 h-3" />
                                                                 <span>ACTIVE</span>
                                                             </div>
                                                         ) : (
-                                                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-300">
+                                                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-300 dark:text-slate-600">
                                                                 <Circle className="w-3 h-3" />
                                                                 <span>INACTIVE</span>
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <p className="text-sm text-slate-500 font-medium leading-relaxed">{pat.desc}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">{pat.desc}</p>
                                                 </div>
                                             );
                                         })}

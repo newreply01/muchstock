@@ -1,0 +1,37 @@
+Checking 5 API keys...
+
+Testing Key 1/5...
+Testing Key 2/5...
+Testing Key 3/5...
+Testing Key 4/5...
+Testing Key 5/5...
+
+--- API Key Inventory Result ---
+
+Key 1 (AIzaSyD2...):
+  Gemma (models/gemma-4-31b-it): ✅ Success
+  Flash (models/gemini-1.5-flash): ❌ Failed
+    Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+-----------------------------------
+Key 2 (AIzaSyDH...):
+  Gemma (models/gemma-4-31b-it): ✅ Success
+  Flash (models/gemini-1.5-flash): ❌ Failed
+    Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+-----------------------------------
+Key 3 (AIzaSyDT...):
+  Gemma (models/gemma-4-31b-it): ❌ Failed
+    Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent: [403 Forbidden] Your project has been denied access. Please contact support.
+  Flash (models/gemini-1.5-flash): ❌ Failed
+    Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+-----------------------------------
+Key 4 (AIzaSyDj...):
+  Gemma (models/gemma-4-31b-it): ❌ Failed
+    Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent: [403 Forbidden] Your project has been denied access. Please contact support.
+  Flash (models/gemini-1.5-flash): ❌ Failed
+    Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+-----------------------------------
+Key 5 (AIzaSyAv...):
+  Gemma (models/gemma-4-31b-it): ✅ Success
+  Flash (models/gemini-1.5-flash): ❌ Failed
+    Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+-----------------------------------

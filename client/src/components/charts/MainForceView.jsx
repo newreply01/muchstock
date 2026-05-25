@@ -4,6 +4,38 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import ChipAnalysisChart from './ChipAnalysisChart';
 import { getBrokerTrading, getMarginTrading, getBrokerTrace } from '../../utils/api';
 
+const getBrokerBadge = (name) => {
+    // 隔日沖分點
+    const dayTraders = ["美商高盛", "摩根大通", "凱基-台北", "富邦-建國", "美林", "瑞士信貸", "摩根士丹利", "野村", "凱基-復興", "富邦-暖暖", "元大-土城東波"];
+    // 八大官股
+    const govBanks = ["合庫", "土銀", "臺灣金控", "兆豐", "華南永昌", "第一金", "彰銀", "台企銀", "臺灣金-台北", "第一金-台北", "合庫-台北", "華南永昌-台北", "兆豐-台北"];
+    // 波段主力
+    const swingWhales = ["元大-大同", "永豐金-南京", "元大-台北", "元富-台北", "國泰-敦南", "群益金鼎-台北"];
+
+    if (dayTraders.some(dt => name.includes(dt))) {
+        return (
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider bg-red-500/10 text-red-500 border border-red-500/20 shadow-sm animate-pulse whitespace-nowrap">
+                [隔日沖]
+            </span>
+        );
+    }
+    if (govBanks.some(gb => name.includes(gb))) {
+        return (
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-sm whitespace-nowrap">
+                [八大官股]
+            </span>
+        );
+    }
+    if (swingWhales.some(sw => name.includes(sw))) {
+        return (
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 shadow-sm whitespace-nowrap">
+                [波段大戶]
+            </span>
+        );
+    }
+    return null;
+};
+
 export default function MainForceView({ symbol, subTab, institutionalData, loadingChips, period = '日K' }) {
     const [brokerData, setBrokerData] = useState({ buyers: [], sellers: [], date: null });
     const [marginData, setMarginData] = useState([]);
@@ -122,7 +154,10 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                                     <div key={idx} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
                                         <div className="flex items-center gap-3">
                                             <span className="text-[10px] font-bold text-slate-300 w-4">{idx + 1}</span>
-                                            <span className="text-sm font-bold text-slate-700">{broker.name}</span>
+                                            <span className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                                                {broker.name}
+                                                {getBrokerBadge(broker.name)}
+                                            </span>
                                         </div>
                                         <div className="text-right">
                                             <div className="text-xs font-black text-red-500">+{broker.net_vol.toLocaleString()}</div>
@@ -147,7 +182,10 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                                     <div key={idx} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
                                         <div className="flex items-center gap-3">
                                             <span className="text-[10px] font-bold text-slate-300 w-4">{idx + 1}</span>
-                                            <span className="text-sm font-bold text-slate-700">{broker.name}</span>
+                                            <span className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                                                {broker.name}
+                                                {getBrokerBadge(broker.name)}
+                                            </span>
                                         </div>
                                         <div className="text-right">
                                             <div className="text-xs font-black text-green-600">{broker.net_vol.toLocaleString()}</div>

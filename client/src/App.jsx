@@ -1,32 +1,27 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import Layout from './components/layout/Layout'
+import MarketHub from './components/pages/MarketHub'
+import ScreenerHub from './components/pages/ScreenerHub'
+import TradingHub from './components/pages/TradingHub'
+import AdminHub from './components/pages/AdminHub'
 import MarketStats from './components/pages/MarketStats'
-import ScreenerConfigPage from './components/pages/ScreenerConfigPage'
-import PatternAnalysisDashboard from './components/pages/PatternAnalysisDashboard'
-import InstitutionalRankView from './components/pages/InstitutionalRankView'
-import MarketSentimentView from './components/pages/MarketSentimentView'
-import ResultTable from './components/forms/ResultTable'
-import NewsBoard from './components/pages/NewsBoard'
 import StockDetail from './components/pages/StockDetail'
-import WatchlistDashboard from './components/pages/WatchlistDashboard'
 import ComparisonChart from './components/charts/ComparisonChart'
 import ProfilePage from './components/pages/ProfilePage'
 import LoginModal from './components/modals/LoginModal'
-import MarketDashboard from './components/pages/MarketDashboard'
-import TradingDashboard from './components/pages/TradingDashboard'
-import RealtimeExplorer from './components/pages/RealtimeExplorer'
-import HealthCheckRanking from './components/pages/HealthCheckRanking'
+import NewsBoard from './components/pages/NewsBoard'
 import MonitorPage from './components/pages/MonitorPage'
-import PortfolioDashboard from './components/pages/PortfolioDashboard'
-import AdminUserManagement from './components/pages/AdminUserManagement'
-import AIPromptManager from './components/pages/AIPromptManager'
-import PositionAnalysis from './components/pages/PositionAnalysis'
 import { screenStocks, getStats, getWatchlists, addStockToWatchlist, removeStockFromWatchlist } from './utils/api'
 import { useAuth } from './context/AuthContext';
 import { useGlobalFilters } from './context/GlobalFilterContext'
 
 function App() {
+  const isCloudDeployment = 
+    window.location.hostname.includes('zeabur.app') || 
+    window.location.hostname.includes('zeabur.com') || 
+    window.location.hostname.includes('vercel.app');
+
   const navigate = useNavigate()
   const location = useLocation()
   const { requireLogin, user, showLoginModal, setShowLoginModal } = useAuth()
@@ -115,23 +110,14 @@ function App() {
       }
 
       const routesMap = {
-        'market-overview': '/',
-        'screener-config': '/screener',
-        'stock-detail': `/stock/${mainStock?.symbol || '2330'}`,
-        'watchlist': '/watchlist',
-        'portfolio': '/portfolio',
-        'institutional': '/institutional',
-        'sentiment': '/sentiment',
-        'dashboard': '/dashboard',
+        'market': '/',
+        'screener': '/screener',
         'trading': '/trading',
-        'explorer': '/explorer',
-        'health-ranking': '/health-ranking',
-        'monitor': '/monitor',
-        'admin-users': '/admin/users',
-        'admin-prompts': '/admin/prompts',
-        'position-analysis': '/position-analysis',
+        'admin': '/admin',
+        'stock-detail': `/stock/${mainStock?.symbol || '2330'}`,
+        'news': '/news',
         'profile': '/profile',
-        'news': '/news'
+        'monitor': '/monitor'
       };
       
       navigate(routesMap[targetView] || '/');
@@ -186,24 +172,15 @@ function App() {
   useEffect(() => { fetchStats(); fetchData() }, [fetchData, fetchStats])
 
   const getActiveView = (path) => {
-    if (path === '/') return 'market-overview';
-    if (path.startsWith('/screener')) return 'screener-config';
-    if (path.startsWith('/stock/')) return 'stock-detail';
-    if (path.startsWith('/watchlist')) return 'watchlist';
-    if (path.startsWith('/portfolio')) return 'portfolio';
-    if (path.startsWith('/institutional')) return 'institutional';
-    if (path.startsWith('/sentiment')) return 'sentiment';
-    if (path.startsWith('/dashboard')) return 'dashboard';
+    if (path === '/') return 'market';
+    if (path.startsWith('/screener')) return 'screener';
     if (path.startsWith('/trading')) return 'trading';
-    if (path.startsWith('/explorer')) return 'explorer';
-    if (path.startsWith('/health-ranking')) return 'health-ranking';
-    if (path.startsWith('/monitor')) return 'monitor';
-    if (path.startsWith('/admin/users')) return 'admin-users';
-    if (path.startsWith('/admin/prompts')) return 'admin-prompts';
-    if (path.startsWith('/position-analysis')) return 'position-analysis';
-    if (path.startsWith('/profile')) return 'profile';
+    if (path.startsWith('/admin')) return 'admin';
+    if (path.startsWith('/stock/')) return 'stock-detail';
     if (path.startsWith('/news')) return 'news';
-    return 'market-overview';
+    if (path.startsWith('/profile')) return 'profile';
+    if (path.startsWith('/monitor')) return 'monitor';
+    return 'market';
   };
   const activeViewName = getActiveView(location.pathname);
 
@@ -212,12 +189,23 @@ function App() {
       <MarketStats stats={stats} fallbackDate={results?.latestDate} />
       <div className="max-w-[1600px] mx-auto px-4 py-8">
         <Routes>
+          <Route path="/" element={<MarketHub onStockSelect={(s) => { setMainStock(s); setDetailStock(null); navigate(`/stock/${s.symbol}`); }} watchedSymbols={watchedSymbols} onToggleWatchlist={toggleWatchlist} />} />
+          <Route path="/news" element={<div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300"><NewsBoard /></div>} />
+          <Route path="/monitor" element={
+            user?.role === 'admin' || (!isCloudDeployment && !user) ? (
+              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
+                <MonitorPage />
+              </div>
+            ) : (
+              <Navigate to="/" replace />
+            )
+          } />
+          
           <Route path="/screener" element={
-            <ScreenerConfigPage
+            <ScreenerHub
               onFilter={(f) => { setFilters(f); setPage(1); }}
               onClear={() => { setFilters({}); setPage(1); setMainStock(null); }}
               filters={filters}
-              onBack={() => navigate('/dashboard')}
               results={results}
               loading={loading}
               sortBy={sortBy}
@@ -232,78 +220,39 @@ function App() {
               onStockClick={(s) => { setMainStock(s); setDetailStock(null); navigate(`/stock/\${s.symbol}`); }}
               watchedSymbols={watchedSymbols}
               onToggleWatchlist={toggleWatchlist}
+              mainStock={mainStock}
+              activePatterns={activePatterns}
+              setActivePatterns={setActivePatterns}
+              onCompare={setActiveCompareSymbols}
+              activeCompareSymbols={activeCompareSymbols}
             />
           } />
-          <Route path="/watchlist" element={
-            <WatchlistDashboard
-              onStockClick={(s) => { setMainStock(s); setDetailStock(s); }}
-              watchedSymbols={watchedSymbols}
-              onToggleWatchlist={toggleWatchlist}
-            />
-          } />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/portfolio" element={
-            <PortfolioDashboard 
-              onStockClick={(s) => { setMainStock(s); setDetailStock(s); navigate(`/stock/\${s.symbol}`); }}
-            />
-          } />
-          <Route path="/institutional" element={
-            <InstitutionalRankView
-              watchedSymbols={watchedSymbols}
-              onToggleWatchlist={toggleWatchlist}
-            />
-          } />
-          <Route path="/sentiment" element={<MarketSentimentView />} />
-          <Route path="/" element={<MarketDashboard onStockSelect={(s) => { setMainStock(s); setDetailStock(null); navigate(`/stock/\${s.symbol}`); }} />} />
+
           <Route path="/trading" element={
-            <TradingDashboard 
-              watchlists={watchlists} 
-              watchedSymbols={watchedSymbols} 
+            <TradingHub
+              onStockSelect={(s) => { setMainStock(s); setDetailStock(null); navigate(`/stock/\${s.symbol}`); }}
+              watchedSymbols={watchedSymbols}
+              onToggleWatchlist={toggleWatchlist}
+              watchlists={watchlists}
+              onRefreshWatchlists={fetchUserWatchlists}
+              requireLogin={requireLogin}
             />
           } />
-          <Route path="/explorer" element={<RealtimeExplorer onStockSelect={(s) => { setMainStock(s); setDetailStock(null); navigate(`/stock/\${s.symbol}`); }} />} />
-          <Route path="/health-ranking" element={<HealthCheckRanking onSelectStock={(s) => { setMainStock(s); setDetailStock(null); navigate(`/stock/\${s.symbol}`); }} />} />
-          <Route path="/monitor" element={<MonitorPage />} />
-          <Route path="/admin/users" element={<AdminUserManagement />} />
-          <Route path="/admin/prompts" element={<AIPromptManager />} />
-          <Route path="/position-analysis" element={<PositionAnalysis />} />
+
+          <Route path="/admin/*" element={
+            <AdminHub user={user} isCloudDeployment={window.location.hostname.includes('zeabur.app') || window.location.hostname.includes('zeabur.com') || window.location.hostname.includes('vercel.app')} />
+          } />
+          
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/stock/:symbol" element={
-            <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6">
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
               <StockDetail stock={mainStock} isInline={true} />
             </div>
           } />
-          <Route path="/dashboard" element={
-            <PatternAnalysisDashboard
-              selectedStock={mainStock}
-              symbol={mainStock?.symbol}
-              activePatterns={activePatterns}
-              onPatternsChange={setActivePatterns}
-              onStockSelect={(s) => { setMainStock(s); setDetailStock(null); navigate(`/stock/\${s.symbol}`); }}
-            >
-              <ResultTable
-                results={results}
-                loading={loading}
-                sortBy={sortBy}
-                sortDir={sortDir}
-                onSort={(c) => {
-                  if (sortBy === c) setSortDir(p => p === 'desc' ? 'asc' : 'desc');
-                  else { setSortBy(c); setSortDir('desc'); }
-                  setPage(1);
-                }}
-                page={page}
-                onPageChange={setPage}
-                onStockClick={(s) => { setMainStock(s); setDetailStock(null); navigate(`/stock/\${s.symbol}`); }}
-                watchedSymbols={watchedSymbols}
-                onToggleWatchlist={toggleWatchlist}
-                onCompare={setActiveCompareSymbols}
-              />
-            </PatternAnalysisDashboard>
-          } />
-          <Route path="/news" element={<NewsBoard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-      {detailStock && activeViewName !== 'dashboard' && (
+      {detailStock && activeViewName !== 'screener' && activeViewName !== 'market' && (
         <StockDetail
           stock={detailStock}
           onClose={() => setDetailStock(null)}

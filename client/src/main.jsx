@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext'
 import { GlobalFilterProvider } from './context/GlobalFilterContext'
+import { ThemeProvider } from './context/ThemeContext'
 import ErrorBoundary from './components/shared/ErrorBoundary'
 
 const rootElement = document.getElementById('root');
@@ -19,7 +20,9 @@ if (!rootElement) {
         <ErrorBoundary>
           <AuthProvider>
             <GlobalFilterProvider>
-              <App />
+              <ThemeProvider>
+                <App />
+              </ThemeProvider>
             </GlobalFilterProvider>
           </AuthProvider>
         </ErrorBoundary>

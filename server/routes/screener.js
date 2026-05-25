@@ -205,11 +205,22 @@ router.get('/stock/:symbol/events', async (req, res) => {
                 FROM corp_events
                 WHERE symbol = $1
                 UNION ALL
-                SELECT 'dividend' as category, '除息日' as type, 
+                SELECT 'dividend' as category, '除權息' as type, 
+                       TO_CHAR(date, 'YYYY-MM-DD') as date, 
+                       '現金股利 ' || COALESCE(cash_dividend, 0) || ' 元' || 
+                       CASE WHEN stock_dividend > 0 THEN ', 股票股利 ' || stock_dividend || ' 元' ELSE '' END as description
+                FROM fm_dividend_result
+                WHERE stock_id = $1
+                UNION ALL
+                SELECT 'dividend' as category, '公告配息' as type, 
                        (year + 1911)::text || '-01-01' as date, 
                        '配發現金股利 ' || cash_dividend || ' 元' as description
-                FROM dividend_policy
+                FROM dividend_policy p
                 WHERE symbol = $1
+                AND NOT EXISTS (
+                    SELECT 1 FROM fm_dividend_result r
+                    WHERE r.stock_id = $1 AND EXTRACT(YEAR FROM r.date) = (p.year + 1911)
+                )
             ) s
             ORDER BY s.date DESC
             LIMIT 20
@@ -506,8 +517,168 @@ router.get(['/stocks', '/screen'], async (req, res) => {
     }
 });
 
+// GET /api/stock/:symbol/ai-prediction - AI 漲跌機率預測
+router.get('/stock/:symbol/ai-prediction', async (req, res) => {
+    try {
+        const { symbol } = req.params;
+
+        // 取得近 20 日技術指標
+        const techSql = `
+            SELECT d.close_price, d.change_percent, d.volume,
+                   i.rsi_14, i.macd_hist, i.ma_5, i.ma_20, i.ma_60
+            FROM daily_prices d
+            LEFT JOIN indicators i ON d.symbol = i.symbol AND d.trade_date = i.trade_date
+            WHERE d.symbol = $1
+            ORDER BY d.trade_date DESC LIMIT 20
+        `;
+        const techRes = await query(techSql, [symbol]);
+        if (techRes.rows.length < 5) {
+            return res.json({ success: false, error: '資料不足' });
+        }
+
+        const latest = techRes.rows[0];
+        const rsi = parseFloat(latest.rsi_14) || 50;
+        const macdHist = parseFloat(latest.macd_hist) || 0;
+        const close = parseFloat(latest.close_price);
+        const ma5 = parseFloat(latest.ma_5) || close;
+        const ma20 = parseFloat(latest.ma_20) || close;
+
+        // 近 5 日法人
+        const instSql = `
+            SELECT COALESCE(SUM(sub.net), 0) as net_5d FROM (
+                SELECT (foreign_net + trust_net + dealer_net) as net
+                FROM institutional WHERE symbol = $1
+                ORDER BY trade_date DESC LIMIT 5
+            ) sub
+        `;
+        const instRes = await query(instSql, [symbol]);
+        const net5d = parseInt(instRes.rows[0]?.net_5d) || 0;
+
+        // 取得近 10 日法人買賣超以計算主力燈號
+        const inst10dSql = `
+            SELECT total_net, foreign_net, trust_net, dealer_net, trade_date
+            FROM institutional
+            WHERE symbol = $1
+            ORDER BY trade_date DESC LIMIT 10
+        `;
+        const inst10dRes = await query(inst10dSql, [symbol]);
+        const inst10d = inst10dRes.rows;
+
+        // 取得最新 AI 報告情緒分數 (對齊 AI 情緒與技術/籌碼預測)
+        let aiSentiment = 50;
+        const aiReportRes = await query(`
+            SELECT sentiment_score FROM ai_reports 
+            WHERE symbol = $1 
+            ORDER BY report_date DESC LIMIT 1
+        `, [symbol]);
+        if (aiReportRes.rows.length > 0) {
+            const rawScore = aiReportRes.rows[0].sentiment_score;
+            // 轉換為 0-100 正規化範圍 (有些舊數據可能存 0.0-1.0，需在此防呆)
+            if (rawScore <= 1.0 && rawScore >= 0.0) {
+                aiSentiment = Math.round(rawScore * 100);
+            } else {
+                aiSentiment = parseInt(rawScore) || 50;
+            }
+        }
+
+        // 計算近 5 日動量
+        const changes = techRes.rows.slice(0, 5).map(r => parseFloat(r.change_percent) || 0);
+        const avgChange = changes.reduce((a, b) => a + b, 0) / changes.length;
+
+        // 主力燈號判定邏輯
+        let mainForceStatus = '-';
+        let mainForceDesc = '觀察';
+        let mainForceReason = '主力買賣無常\n法人多空不明\n區間整理，建議觀察';
+
+        if (inst10d.length >= 3) {
+            const net10d = inst10d.reduce((sum, r) => sum + (parseInt(r.total_net) || 0), 0);
+            const isAboveMA20 = close >= ma20;
+
+            // 不同成交規模個股應有自適應門檻，此處以 500 張作為中大型股主力門檻基準
+            if (net10d > 800 && isAboveMA20) {
+                mainForceStatus = '多';
+                mainForceDesc = '多頭';
+                mainForceReason = `主力 10 日累計大買 ${net10d.toLocaleString()} 張\n法人買盤積極且站上月線\n偏多控盤，多頭佔優`;
+            } else if (net10d < -800 && !isAboveMA20) {
+                mainForceStatus = '空';
+                mainForceDesc = '空頭';
+                mainForceReason = `主力 10 日累計大賣 ${Math.abs(net10d).toLocaleString()} 張\n法人持續調節且跌破月線\n偏空操作，多單迴避`;
+            } else if (net10d > 200) {
+                mainForceStatus = '偏多';
+                mainForceDesc = '偏多';
+                mainForceReason = `主力 10 日累計買超 ${net10d.toLocaleString()} 張\n法人小幅布局\n高檔震盪，伺機突破`;
+            } else if (net10d < -200) {
+                mainForceStatus = '偏空';
+                mainForceDesc = '偏空';
+                mainForceReason = `主力 10 日累計賣超 ${Math.abs(net10d).toLocaleString()} 張\n法人調節賣壓\n高檔震盪，注意回檔`;
+            } else {
+                mainForceStatus = '-';
+                mainForceDesc = '觀察';
+                mainForceReason = `主力 10 日買賣互見 (累計 ${net10d.toLocaleString()} 張)\n法人動向不明\n區間整理，建議靜待訊號`;
+            }
+        }
+
+        // 多因子機率模型
+        let upScore = 50;
+        // RSI
+        if (rsi < 30) upScore += 12;
+        else if (rsi < 40) upScore += 6;
+        else if (rsi > 70) upScore -= 12;
+        else if (rsi > 60) upScore -= 4;
+        // MACD
+        if (macdHist > 0) upScore += 5;
+        else upScore -= 5;
+        // 均線位置
+        if (close > ma5 && ma5 > ma20) upScore += 8;
+        else if (close < ma5 && ma5 < ma20) upScore -= 8;
+        // 法人
+        if (net5d > 500) upScore += 6;
+        else if (net5d < -500) upScore -= 6;
+        // 動量
+        if (avgChange > 1) upScore += 4;
+        else if (avgChange < -1) upScore -= 4;
+
+        // 結合 AI 情緒微調 (最大影響 +/- 10 分)
+        const aiAdjustment = (aiSentiment - 50) * 0.2;
+        upScore += aiAdjustment;
+
+        // 限制範圍
+        upScore = Math.max(10, Math.min(85, upScore));
+        const flatScore = Math.max(5, 25 - Math.abs(upScore - 50) * 0.5);
+        const downScore = Math.max(5, 100 - upScore - flatScore);
+        const total = upScore + downScore + flatScore;
+
+        res.json({
+            success: true,
+            data: {
+                up: Math.round(upScore / total * 100),
+                down: Math.round(downScore / total * 100),
+                flat: Math.round(flatScore / total * 100),
+                factors: {
+                    rsi: parseFloat(rsi.toFixed(1)),
+                    macd_hist: parseFloat(macdHist.toFixed(2)),
+                    ma_position: close > ma20 ? '上方' : '下方',
+                    inst_net_5d: net5d,
+                    momentum_5d: parseFloat(avgChange.toFixed(2)),
+                    ai_sentiment: aiSentiment
+                },
+                main_force: {
+                    status: mainForceStatus,
+                    status_desc: mainForceDesc,
+                    reason: mainForceReason
+                },
+                updated_at: new Date().toISOString()
+            }
+        });
+    } catch (err) {
+        console.error('AI prediction failed:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // GET /api/stock/:symbol/ai-report
 router.get('/stock/:symbol/ai-report', async (req, res) => {
+
     try {
 
 
@@ -1688,7 +1859,7 @@ router.get('/health-check/backtest-stats', async (req, res) => {
             SELECT DISTINCT calc_date 
             FROM stock_health_scores 
             ORDER BY calc_date DESC 
-            LIMIT 15
+            LIMIT 25
         `);
         
         const dates = dateRes.rows.map(r => {
@@ -1696,14 +1867,17 @@ router.get('/health-check/backtest-stats', async (req, res) => {
             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         });
 
-        if (dates.length < 2) {
+        const requestedDays = parseInt(req.query.days, 10);
+        const LOOKAHEAD_DAYS = isNaN(requestedDays) ? 3 : requestedDays; // T+N 波段回測
+
+        if (dates.length <= LOOKAHEAD_DAYS) {
             return res.json({ success: true, data: [] });
         }
 
         const stats = [];
-        for (let i = 0; i < Math.min(dates.length - 1, 5); i++) {
-            const currDate = dates[i+1];
-            const nextDate = dates[i];
+        for (let i = 0; i < Math.min(dates.length - LOOKAHEAD_DAYS, 5); i++) {
+            const currDate = dates[i + LOOKAHEAD_DAYS]; // 評估起點 (T=0)
+            const nextDate = dates[i];                  // 回測終點 (T+3)
 
             // Find actual trade dates closest to calc_dates from daily_prices
             const actualDatesRes = await query(`

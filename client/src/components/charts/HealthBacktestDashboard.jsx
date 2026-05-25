@@ -29,14 +29,17 @@ export default function HealthBacktestDashboard() {
     const [categoryStocks, setCategoryStocks] = useState([]);
     const [listLoading, setListLoading] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [backtestDays, setBacktestDays] = useState(3);
 
     useEffect(() => {
         const fetchStats = async () => {
+            setLoading(true);
             try {
-                const res = await fetch(`${API_BASE}/health-check/backtest-stats`);
+                const res = await fetch(`${API_BASE}/health-check/backtest-stats?days=${backtestDays}`);
                 const json = await res.json();
                 if (json.success) {
                     setStats(json.data || []);
+                    setSelectedDateIdx(0); // Reset index on new fetch
                 }
             } catch (e) {
                 console.error('Backtest fetch error:', e);
@@ -45,7 +48,7 @@ export default function HealthBacktestDashboard() {
             }
         };
         fetchStats();
-    }, []);
+    }, [backtestDays]);
     
     const fetchCategoryStocks = async (item) => {
         setListLoading(true);
@@ -124,7 +127,19 @@ export default function HealthBacktestDashboard() {
                         Accuracy & Performance Backtest · {currentDay.recommend_date} 推薦對比 {currentDay.test_date} 表現
                     </p>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+                <div className="flex flex-col md:flex-row items-end md:items-center gap-4">
+                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                        {[3, 5, 7].map(days => (
+                            <button
+                                key={days}
+                                onClick={() => setBacktestDays(days)}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all ${backtestDays === days ? 'bg-indigo-600 shadow-sm text-white' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                T+{days}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
                     {stats.map((d, i) => (
                         <button
                             key={i}
@@ -136,6 +151,7 @@ export default function HealthBacktestDashboard() {
                     ))}
                 </div>
             </div>
+        </div>
 
             {/* Performance Trend Chart */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -267,7 +283,7 @@ export default function HealthBacktestDashboard() {
                 <div className="text-xs text-amber-700 font-medium leading-relaxed">
                     <p className="font-black text-sm mb-2 uppercase tracking-widest">回測邏輯與專用術語</p>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 list-disc pl-4">
-                        <li><strong>比較日</strong>：以「健診計算日」後的下一個交易日收盤價為準。</li>
+                        <li><strong>比較日</strong>：以「健診計算日」往後推算 {backtestDays} 個交易日的收盤價為準 (T+{backtestDays} 波段回測)。</li>
                         <li><strong>擊敗大盤勝率</strong>：該等級中，漲幅優於當日大盤（TAIEX）漲跌幅的個股比例。</li>
                         <li><strong>超額收益</strong>：該等級的平均報酬率減去當日大盤漲跌幅。</li>
                         <li><strong>N 樣本數</strong>：代表當日被歸類為該等級的股票總數。N &lt; 5 時結果僅供參考。</li>

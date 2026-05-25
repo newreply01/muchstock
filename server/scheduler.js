@@ -12,7 +12,7 @@ try {
     console.warn('Optional module historical_tick_sync not found, skipping related tasks.');
 }
 const { pool, query } = require('./db');
-const TickArchiver = require('./utils/tickArchiver');
+const DataLCM = require('./scripts/data_lcm');
 const { sync: syncToSupabase } = require('./scripts/sync_realtime_supabase');
 
 async function logScriptStatus(serviceName, status, message) {
@@ -197,17 +197,17 @@ function startScheduler() {
     });
     initTaskTracking('update_ingestion_stats', statsUpdateTask);
     
-    // 每日 08:30 進行 Tick 資料歸檔與清空 (開盤前)
-    const tickArchiveTask = cron.schedule('30 8 * * *', async () => {
-        console.log('🏗️ 定時排程開始 (08:30)：執行 Tick 資料歸檔與今日表清空...');
-        await runTaskSafely('tick_archiving', async () => {
-            await TickArchiver.archiveAndTruncate();
-        }, 'Tick 資料歸檔與清理');
+    // 每日 08:30 進行資料庫維護 (分割表建立、資料降階、過期資料清理)
+    const dataLcmTask = cron.schedule('30 8 * * *', async () => {
+        console.log('🏗️ 定時排程開始 (08:30)：執行 Data LCM 資料庫維護任務...');
+        await runTaskSafely('data_lcm', async () => {
+            await DataLCM.run();
+        }, '資料庫維護與生命週期管理');
     }, {
         scheduled: true,
         timezone: 'Asia/Taipei'
     });
-    initTaskTracking('tick_archiving', tickArchiveTask);
+    initTaskTracking('data_lcm', dataLcmTask);
 
     // 每交易日 07:50 盤前新聞掃描 + 重大新聞觸發 AI 報告更新
     const preMarketNewsTask = cron.schedule('50 7 * * 1-5', async () => {

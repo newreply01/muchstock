@@ -109,6 +109,11 @@ export async function getAIReport(symbol) {
     return apiRequest(`${API_BASE}/stock/${symbol}/ai-report`);
 }
 
+export async function getStockNews(symbol, limit = 10) {
+    if (!symbol) return [];
+    return apiRequest(`${API_BASE}/stock/${symbol}/news?limit=${limit}`);
+}
+
 export async function getUserSettings() {
     return apiRequest(`${API_BASE}/auth/settings`, {}, true);
 }

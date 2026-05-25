@@ -435,6 +435,25 @@ async function syncStockFinancials(symbol) {
             }
         } catch (err) { }
 
+        try {
+            const divResults = await fetchFinMind('TaiwanStockDividendResult', symbol);
+            for (const item of divResults) {
+                await client.query(`
+                    INSERT INTO fm_dividend_result (
+                        stock_id, date, before_price, after_price, stock_and_cash_dividend, rate_of_return, cash_dividend, stock_dividend
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                    ON CONFLICT (stock_id, date) DO UPDATE SET
+                        cash_dividend = EXCLUDED.cash_dividend,
+                        stock_dividend = EXCLUDED.stock_dividend
+                `, [
+                    symbol, item.date, 
+                    parseFloat(item.before_price || 0), parseFloat(item.after_price || 0),
+                    parseFloat(item.stock_and_cash_dividend || 0), parseFloat(item.rate_of_return || 0),
+                    parseFloat(item.cash_dividend || 0), parseFloat(item.stock_dividend || 0)
+                ]);
+            }
+        } catch (err) { }
+
         // Sync PER/PBR/Yield
         try {
             const perData = await fetchFinMind('TaiwanStockPER', symbol);

@@ -82,7 +82,7 @@ npx pm2 start ecosystem.config.cjs
 #### 2. 設定開機自動啟動 (Auto-startup)
 由於 WSL 已開啟 `systemd` 支援，可依照以下步驟設定：
 1. **產生啟動腳本**：`npx pm2 startup systemd -u xg --hp /home/xg`
-2. **執行指令**：複製並執行上述指令產生的 `sudo` 開頭指令。
+2. **執行指令**：複製並執行上述指令產生的 `sudo`開頭指令。
 3. **保存當前列表**：`npx pm2 save` (此步驟會將當前運行的程序保存至 `~/.pm2/dump.pm2`)。
 
 #### 3. 常用 PM2 指令
@@ -154,34 +154,46 @@ npx jest --testPathPattern='server/tests/auth.test.js'
 -   **時區處理**: 系統核心邏輯已強制轉換為 `Asia/Taipei`（台灣時間）。
 -   **Vercel 部署**: 支援 Vercel 雲端執行，請參考 `vercel.json` 配置。
 
-## 9. 資料庫維護與 Slim DB 遷移
+## 9. 資料庫維護與雲端同步 (Slim DB & Cloud Sync)
 
-為了符合雲端環境（如 Supabase）的空間限制，本專案提供精煉版資料庫導出方案：
+為了符合雲端環境 (如 Supabase) 的空間與效能限制，本專案提供「Slim DB」方案，將本地數 GB 的資料縮減至約 **250MB** 內，並透過優化後的策略進行同步。
 
-### Slim DB 導出邏輯 (2024+ 精選方案)
-- **腳本**: `server/scripts/gen_refined_slim_dump.js`
-- **起點**: 2024-01-01 至今。
-- **篩選**: 僅包含 4 位數代號個股與 00 開頭之 ETF（排除權證、CB 等發行標的）。
-- **優化**: 排除龐大的原始行情表 (`fm_stock_price`) 與歷史比率表 (`fm_stock_per`)，改以 `daily_prices` 摘要表為主。
-- **產出**: `refined_2024_slim.sql` (約 240MB)，適合部署至 500MB 限制之 Supabase。
+### 📊 Slim DB 數據規格 (方案 A - 全面補強版)
+*   **時間區間**：2024-01-01 至今。
+*   **標的篩選**：僅保留 4 位數代號個股與 00 開頭之 ETF。
+*   **籌碼數據補強**：
+    *   **個股法人**：包含 2024 年至今所有標的三大法人每日買賣細節 (`institutional`)。
+    *   **個股資券**：包含近 2.5 年個股融資融券、資券餘額明細 (`fm_margin_trading`)。
+    *   **大盤籌碼**：包含大盤法人與資券統計。
 
-### 本地清理
-- **腳本**: `server/scripts/cleanup_local_rows.js`
-- **功能**: 同步執行以上篩選邏輯至本地資料庫，並徹底刪除盤中即時資料表 (`realtime_ticks` 分區表)，可釋放 10GB 以上磁碟空間。
-171: 
-172: ## 10. 標的篩選邏輯 (Target Filtering)
-173: 
-174: 為確保 AI 生成資源的有效利用與系統效能，本系統在執行「資料掃描」、「AI 報告生成」與「資料暫存」時，會遵循以下篩選規則：
-175: 
-176: -   **包含對象 (Include)**:
-177:     -   **普通個股**: 代號為 4 位數純數字之股票（如 `2330`, `2454`）。
-178:     -   **ETF**: 代號以 `00` 開頭之受益憑證（如 `0050`, `0056`, `00919`）。
-179: -   **排除對象 (Exclude)**:
-180:     -   **權證 / 認購售 (Warrants)**: 5 位數或 6 位數之衍生性金融商品。
-181:     -   **可轉債 (CB)**: 代號末尾帶有英文字母或特殊格式。
-182:     -   **大盤 / 各類指數**: 僅作為參考數據，不生成獨立 AI 報告。
-183: 
-184: 此邏輯已整合至 `ai_generation_queue` 任務管理與資料庫清理腳本中。
+### 🔧 同步技術實作
+為了確保跨雲端同步的穩定性，系統採用以下技術：
+1.  **架構平面化 (Architecture Flattening)**：雲端 DB (Supabase) 的 `daily_prices` 與 `institutional` 會從本地的「分割表 (Partitioned Tables)」轉化為**「一般資料表」**。這能極大規避分割表在同步時的主鍵衝突與元數據報錯。
+2.  **年度分段導出 (Yearly Chunking)**：大型表格會按年度分拆導出，以規避 Supabase 的 Statement Timeout 限制。
+3.  **單向流式上傳**：透過管道將 SQL 內容直接流向 `psql` 終端，並設置 `ON_ERROR_STOP=1` 確保錯誤即時報警。
+
+### 🚀 同步操作流程
+```bash
+# 1. 產生平面化 SQL 備份
+node server/scripts/gen_refined_slim_v2.js
+
+# 2. 執行雲端同步 (包含硬重設與連線優化)
+bash upload_to_supabase.sh
+```
+
+## 10. 標的篩選邏輯 (Target Filtering)
+
+為確保 AI 生成資源的有效利用與系統效能，本系統在執行「資料掃描」、「AI 報告生成」與「資料暫存」時，會遵循以下篩選規則：
+
+-   **包含對象 (Include)**:
+    -   **普通個股**: 代號為 4 位數純數字之股票（如 `2330`, `2454`）。
+    -   **ETF**: 代號以 `00` 開頭之受益憑證（如 `0050`, `0056`, `00919`）。
+-   **排除對象 (Exclude)**:
+    -   **權證 / 認購售 (Warrants)**: 5 位數或 6 位數之衍生性金融商品。
+    -   **可轉債 (CB)**: 代號末尾帶有英文字母或特殊格式。
+    -   **大盤 / 各類指數**: 僅作為參考數據，不生成獨立 AI 報告。
+
+此邏輯已整合至 `ai_generation_queue` 任務管理與資料庫清理腳本中。
 
 ## 11. AI 報告生成分層架構 (Tiered AI Model)
 
@@ -240,29 +252,25 @@ SMTP_FROM_NAME=Stock Screener (系統名稱)
 3. **AI 語義分析**: 使用 Ollama (qwen3.5:9b) 進行利多/利空定性，產出 -1.0 至 +1.0 之情緒值。
 4. **近期熱度匯總 (3天)**: AI 報表生成時，會彙整過去 **3 天** 內該個股的所有情緒紀錄。
 
-## 15. 數據庫維護與雲端遷移 (Slim DB)
+## 14. 資料庫優化與生命週期管理 (Database Optimization & Data LCM)
 
-為了符合雲端環境（如 Supabase）的空間限制，本專案提供了精煉版資料庫導出方案，可將本地數 GB 的資料縮減至約 250MB 內。
+為應對每日數百萬筆的即時行情數據，系統於 2026-05-02 導入了全新的資料庫管理架構：
 
-### Slim DB 生成與上傳流程
+### 📈 即時行情每日分割 (Daily Partitioning)
+-   **對象**: `realtime_ticks` 資料表。
+-   **機制**: 採用 PostgreSQL 原生分區，按日 (`trade_time`) 自動切分。
+-   **優勢**:
+    -   **高效寫入**: 每日數據寫入獨立分區，避免單一索引過大。
+    -   **快速清理**: 過期數據可直接透過 `DROP TABLE` 移除，不消耗交易日誌空間。
 
-1. **產生精煉 SQL**:
-   執行以下腳本，它會自動排除龐大的歷史跳報與 2026 年以前的歷史價格，僅保留核心架構與近期數據。
-   ```bash
-   node server/scripts/gen_refined_slim_v2.js
-   ```
-   *產出檔案路徑: `/home/xg/stock-screener/refined_slim_v2.sql`*
-
-2. **部署至 Supabase**:
-   確認 `.env` 中的 `SUPABASE_URL` 已設定正確。使用以下指令執行遷移：
-   ```bash
-   # 請將 [PASSWORD] 與 [PROJECT-ID] 替換為您的實際資料
-   psql "postgresql://postgres.[PROJECT-ID]:[PASSWORD]@aws-1-us-east-1.pooler.supabase.com:5432/postgres" -f refined_slim_v2.sql
-   ```
-
-### 備註：常見連線問題
-- **Tenant not found**: 如果出現此錯誤，代表 Supabase 專案可能處於「暫停 (Paused)」狀態。請先至 Supabase Dashboard 點擊「Resume Project」。
-- **連接超時**: 請檢查本地防火牆，並確保已允許出口連線至 port 5432/6543。
+### 🕒 資料生命週期管理 (Data LCM)
+-   **核心指令**: `node server/scripts/data_lcm.js`
+-   **自動化流程 (每日 08:30)**:
+    1.  **自動建表**: 預先建立未來 7 天所需之 `realtime_ticks_YYYYMMDD` 分區。
+    2.  **資料降階 (Downsampling)**: 將 7 天前的逐筆成交明細彙總為 **1 分鐘 K 線**，存入 `daily_prices_1m`。
+    3.  **過期清理**:
+        -   移除 14 天前的 `realtime_ticks` 原始明細分區。
+        -   清理 `fm_*` 備份表中超過 30 天的舊資料。
 
 ---
-*最後更新日期: 2026-04-10*
+*最後更新日期: 2026-05-02*

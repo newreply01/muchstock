@@ -17,7 +17,10 @@ async function processNextTask(batchSize = 1) {
             SET status = 'processing', start_at = NOW()
             WHERE (report_date, symbol) IN (
                 SELECT report_date, symbol FROM ai_generation_queue 
-                WHERE status = 'pending' OR (status = 'failed' AND retry_count < 2)
+                WHERE status = 'pending' 
+                   OR (status = 'failed' 
+                       AND retry_count < 5 
+                       AND (completed_at IS NULL OR completed_at < NOW() - (INTERVAL '1 minute' * POWER(2, retry_count))))
                 ORDER BY report_date DESC, priority_value DESC LIMIT $1
                 FOR UPDATE SKIP LOCKED
             )

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-anue-red: #EE3124;
   --color-anue-dark: #1A1A1A;
@@ -67,4 +69,88 @@
 
 .ai-section-content blockquote p {
   @apply text-indigo-700 mb-0;
+}
+
+/* ─── Global Dark Mode Theme Adaptation Override ────────────────── */
+.dark {
+  /* 1. Backgrounds Override */
+  .bg-white {
+    background-color: #0f172a !important; /* slate-900 */
+  }
+  .bg-white\/95 {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+  }
+  .bg-white\/90 {
+    background-color: rgba(15, 23, 42, 0.9) !important;
+  }
+  .bg-white\/80 {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+  }
+  .bg-white\/50 {
+    background-color: rgba(15, 23, 42, 0.5) !important;
+  }
+  .bg-slate-50, .bg-gray-50 {
+    background-color: #1e293b !important; /* slate-800 */
+  }
+  .bg-slate-50\/50, .bg-gray-50\/50 {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+  }
+  .bg-slate-100, .bg-gray-100 {
+    background-color: #1e293b !important;
+  }
+  .bg-slate-100\/50, .bg-gray-100\/50 {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+  }
+  
+  /* 2. Text Colors Override */
+  .text-gray-900, .text-slate-900, .text-slate-800, .text-gray-800, .text-slate-700, .text-gray-700 {
+    color: #f8fafc !important; /* slate-50 */
+  }
+  .text-gray-600, .text-slate-600, .text-gray-500, .text-slate-500 {
+    color: #94a3b8 !important; /* slate-400 */
+  }
+  .text-gray-400, .text-slate-400 {
+    color: #64748b !important; /* slate-500 */
+  }
+
+  /* 3. Borders Override */
+  .border-gray-200, .border-slate-200, .border-gray-100, .border-slate-100, .border-gray-300, .border-slate-300 {
+    border-color: #1e293b !important; /* slate-800 */
+  }
+
+  /* 4. Table Overrides */
+  table, tr, td, th {
+    border-color: #1e293b !important;
+  }
+  tr:hover {
+    background-color: rgba(30, 41, 59, 0.3) !important;
+  }
+
+  /* 5. SVG and Recharts Charts Adaptation */
+  svg line, svg path.recharts-cartesian-grid-line {
+    stroke: rgba(255, 255, 255, 0.08) !important;
+  }
+  text.recharts-cartesian-axis-tick-value {
+    fill: #94a3b8 !important;
+  }
+  .recharts-tooltip-cursor {
+    fill: rgba(255, 255, 255, 0.03) !important;
+  }
+
+  /* 6. Form Inputs & Autocomplete Search Bar Adaptation */
+  input, select, textarea {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+  }
+  input::placeholder {
+    color: #64748b !important;
+  }
+  
+  /* Autocomplete Dropdown list */
+  .absolute.bg-white {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+  }
 }

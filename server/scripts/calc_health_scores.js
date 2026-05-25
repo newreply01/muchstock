@@ -375,6 +375,8 @@ async function calcAllScores() {
         const epsPositiveRate = recentEps.length >= 4
             ? recentEps.filter(e => parseFloat(e.value) > 0).length / recentEps.length
             : 0.5; // neutral if insufficient data
+            
+        const isLoss = epsRows.length > 0 && parseFloat(epsRows[0].value) < 0;
 
         rawData.push({
             sym, name: stock.name, industry: stock.industry, market: stock.market,
@@ -393,6 +395,7 @@ async function calcAllScores() {
             hasDeRatio: deRatio > 0,
             hasEpsStability: recentEps.length >= 4,
             hasShares: outstandingShares > 0,
+            isLoss: isLoss,
         });
     }
 
@@ -413,6 +416,13 @@ async function calcAllScores() {
 
     // Value: PE↓ (lower PE = cheaper, only positive PE stocks participate)
     const peScores = calcPercentileScores(rawData.map(r => ({ symbol: r.sym, value: r.pe, hasData: r.hasPe })), false);
+    
+    // Fix missing PE scores (calcPercentileScores assigns 50 by default to missing data)
+    rawData.forEach(r => {
+        if (!r.hasPe) {
+            peScores[r.sym] = r.isLoss ? 10 : 30; // 10 for loss-making, 30 for missing data
+        }
+    });
 
     // Dividend: DY↑ + Avg Cash Dividend↑
     const dyScores = calcPercentileScores(rawData.map(r => ({ symbol: r.sym, value: r.dy, hasData: true })), true);
@@ -485,10 +495,10 @@ async function calcAllScores() {
             if (raw.closePrice > ma5 && ma5 > ma20) bullVotes++;
             else if (raw.closePrice < ma5 && ma5 < ma20) bearVotes++;
         }
-        // Signal 2: RSI超賣/超買 — 低檔反彈 / 高檔過熱
+        // Signal 2: RSI動能濾網 — 動能轉強 / 動能偏弱
         if (!isNaN(rsi)) {
-            if (rsi < 35) bullVotes++;        // 超賣，反彈機率高
-            else if (rsi > 65) bearVotes++;   // 超買，回落風險高
+            if (rsi >= 55) bullVotes++;        // 強勢動能，偏多
+            else if (rsi <= 45) bearVotes++;   // 弱勢動能，偏空
         }
         // Signal 3: KD交叉 — 黃金交叉看多 / 死亡交叉看空
         if (!isNaN(k) && !isNaN(d)) {

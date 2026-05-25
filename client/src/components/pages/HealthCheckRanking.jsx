@@ -4,14 +4,7 @@ import { API_BASE } from '../../utils/api';
 import { useGlobalFilters } from '../../context/GlobalFilterContext';
 import GlobalFilterBar from '../forms/GlobalFilterBar';
 import StockSearchAutocomplete from '../forms/StockSearchAutocomplete';
-import HealthCheckView from '../charts/HealthCheckView';
-import ValuationRiverView from '../charts/ValuationRiverView';
 import StockCompareView from '../charts/StockCompareView';
-import TrendView from '../charts/TrendView';
-import StockChart from '../charts/StockChart';
-import AIReportView from '../modals/AIReportView';
-import QuickDiagnosisView from '../charts/QuickDiagnosisView';
-import StockAnalyzer from '../charts/StockAnalyzer';
 import HealthBacktestDashboard from '../charts/HealthBacktestDashboard';
 
 const GRADE_STYLES = {
@@ -105,13 +98,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
 
     const TABS = [
         { id: 'ranking', label: '健診排行', icon: Award },
-        { id: 'analyzer', label: '股票分析 (Beta)', icon: Brain },
-        { id: 'health', label: '健診分析', icon: Shield },
-        { id: 'ai_report', label: 'AI分析報告', icon: Activity },
         { id: 'backtest', label: '回測監控', icon: Target },
-        { id: 'valuation', label: '估價模型', icon: Coins },
-        { id: 'trend', label: '趨勢強弱', icon: Activity },
-        { id: 'chart', label: '股價量圖', icon: BarChart3 },
         { id: 'pk', label: '個股 PK', icon: Users }
     ];
 
@@ -450,8 +437,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                                             key={stock.symbol} 
                                             className="border-b border-slate-100 hover:bg-teal-50/50 cursor-pointer transition-colors"
                                             onClick={() => {
-                                                setSelectedStock({ symbol: stock.symbol, name: stock.name, industry: stock.industry, market: stock.market });
-                                                setActiveTab('health');
+                                                window.dispatchEvent(new CustomEvent('muchstock-select', { detail: { symbol: stock.symbol, name: stock.name, industry: stock.industry, market: stock.market } }));
                                             }}
                                         >
                                             <td className="px-4 py-3 text-slate-400 font-bold sticky left-0 bg-white z-10">{rank}</td>
@@ -553,31 +539,16 @@ export default function HealthCheckRanking({ onSelectStock }) {
                     </>
                 ) : (
                     <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden min-h-[700px]">
-                        {!selectedStock && activeTab !== 'pk' ? (
+                        {!selectedStock && activeTab === 'pk' ? (
                             <div className="h-[600px] flex flex-col items-center justify-center text-slate-400 p-10 text-center">
                                 <Search className="w-12 h-12 text-teal-200 mb-4" />
                                 <h3 className="text-xl font-bold text-slate-700">尚未選擇分析標的</h3>
-                                <p className="text-sm mt-2">請從排行中點擊股票進行分析</p>
+                                <p className="text-sm mt-2">請從排行中點擊股票加入 PK</p>
                             </div>
-                        ) : activeTab === 'health' ? (
-                            <div className="p-0">
-                                <QuickDiagnosisView symbol={selectedStock.symbol} />
-                                <HealthCheckView symbol={selectedStock.symbol} />
-                            </div>
-                        ) : activeTab === 'analyzer' ? (
-                            <div className="p-8"><StockAnalyzer symbol={selectedStock.symbol} /></div>
-                        ) : activeTab === 'ai_report' ? (
-                            <div className="p-0"><AIReportView symbol={selectedStock.symbol} name={selectedStock.name} /></div>
                         ) : activeTab === 'backtest' ? (
                             <div className="p-0"><HealthBacktestDashboard /></div>
-                        ) : activeTab === 'valuation' ? (
-                            <div className="p-8"><ValuationRiverView symbol={selectedStock.symbol} /></div>
                         ) : activeTab === 'pk' ? (
                             <div className="p-0"><StockCompareView initialSymbols={selectedStock ? [selectedStock.symbol] : []} /></div>
-                        ) : activeTab === 'trend' ? (
-                            <div className="p-0"><TrendView stock={selectedStock} /></div>
-                        ) : activeTab === 'chart' ? (
-                            <div className="p-8 min-h-[800px]"><StockChart stock={selectedStock} /></div>
                         ) : null}
                     </div>
                 )}

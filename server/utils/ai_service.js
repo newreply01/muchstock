@@ -617,17 +617,20 @@ ${promptTemplate}
             for (let retry = 0; retry < maxRetries; retry++) {
                 const { instance: retryGenAI, keyHint: retryHint, keyIndex } = getGenAIInstance();
                 try {
-                    const model = retryGenAI.getGenerativeModel({ model: "gemma-4-31b-it" });
+                    const modelName = "models/gemma-4-31b-it";
+                    const model = retryGenAI.getGenerativeModel({ model: modelName });
                     const result = await model.generateContent(finalPrompt);
                     finalContent = result.response.text();
                     gemmaSuccess = true;
                     break;
                 } catch (keyErr) {
-                    if (keyErr.message && (keyErr.message.includes('403') || keyErr.message.includes('denied access'))) {
+                    const errDetail = keyErr.message || String(keyErr);
+                    if (errDetail.includes('403') || errDetail.includes('400') || errDetail.includes('API_KEY_INVALID') || errDetail.includes('denied access')) {
                         markKeyBlocked(keyIndex);
-                        console.log(`[AI Service] Key ${retryHint} blocked, trying next...`);
+                        console.error(`[AI Service] Key ${retryHint} blocked due to error: ${errDetail}`);
                         continue;
                     }
+                    console.error(`[AI Service] Key ${retryHint} unexpected error:`, errDetail);
                     throw keyErr; // 其他錯誤直接拋出
                 }
             }
