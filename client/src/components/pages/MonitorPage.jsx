@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Database, Server, Clock, RefreshCw, AlertCircle, Calendar, Search, FileText, BarChart2, ChevronRight } from 'lucide-react';
 import StructuredReportView from '../shared/StructuredReportView';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function MonitorPage() {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [activeTab, setActiveTab] = useState('system'); // 'system' | 'ai-reports'
     const [statusData, setStatusData] = useState(null);
     const [statsData, setStatsData] = useState([]);
@@ -735,32 +738,52 @@ export default function MonitorPage() {
                             </div>
                         ) : reportData ? (
                             <>
-                                <div className="bg-slate-900 p-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className={`p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors duration-300 ${
+                                    isDark 
+                                        ? 'bg-slate-900 border-slate-800 text-white' 
+                                        : 'bg-slate-50 border-slate-200 text-slate-800'
+                                }`}>
                                     <div className="flex items-center gap-4">
                                         <button 
                                             onClick={() => setSelectedStock(null)}
-                                            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors group"
+                                            className={`p-2 rounded-xl transition-colors group ${
+                                                isDark ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-200/50 hover:bg-slate-200'
+                                            }`}
                                             title="返回總覽"
                                         >
-                                            <ChevronRight className="w-5 h-5 rotate-180 text-white" />
+                                            <ChevronRight className={`w-5 h-5 rotate-180 transition-colors ${isDark ? 'text-white' : 'text-slate-700'}`} />
                                         </button>
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <h2 className="text-2xl font-bold">{selectedStock.symbol} {selectedStock.name}</h2>
-                                                <span className="text-sm opacity-60 bg-white/10 px-2 py-0.5 rounded-full">{selectedStock.industry}</span>
+                                                <span className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+                                                    isDark ? 'opacity-80 bg-white/10 text-white' : 'bg-slate-200 text-slate-600 font-bold'
+                                                }`}>{selectedStock.industry}</span>
                                             </div>
-                                            <div className="text-sm opacity-60 flex items-center gap-2">
+                                            <div className={`text-sm flex items-center gap-2 transition-colors ${
+                                                isDark ? 'opacity-60 text-white' : 'text-slate-500'
+                                            }`}>
                                                 <Calendar className="w-4 h-4" />
                                                 分析基準日: {reportData.report_date}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 bg-white/10 p-3 px-5 rounded-2xl border border-white/10">
+                                    <div className={`flex items-center gap-4 p-3 px-5 rounded-2xl border transition-all ${
+                                        isDark 
+                                            ? 'bg-white/10 border-white/10' 
+                                            : 'bg-slate-100 border-slate-200/80 shadow-sm'
+                                    }`}>
                                         <div className="text-right">
-                                            <div className="text-[10px] opacity-60 uppercase tracking-wider font-bold">情緒綜合評分</div>
-                                            <div className="text-xs opacity-40 font-bold uppercase tracking-widest mt-0.5">Sentiment Score</div>
+                                            <div className={`text-[10px] uppercase tracking-wider font-bold transition-colors ${
+                                                isDark ? 'opacity-60 text-white' : 'text-slate-500'
+                                            }`}>情緒綜合評分</div>
+                                            <div className={`text-xs uppercase tracking-widest mt-0.5 transition-colors ${
+                                                isDark ? 'opacity-40 text-white' : 'text-slate-400'
+                                            }`}>Sentiment Score</div>
                                         </div>
-                                        <div className="w-12 h-12 rounded-full border-4 border-brand-primary flex items-center justify-center text-sm font-black text-white bg-brand-primary/10 shadow-lg shadow-brand-primary/20">
+                                        <div className={`w-12 h-12 rounded-full border-4 border-brand-primary flex items-center justify-center text-sm font-black shadow-lg shadow-brand-primary/20 ${
+                                            isDark ? 'text-white bg-brand-primary/10' : 'text-brand-primary bg-brand-primary/5'
+                                        }`}>
                                             {(reportData.sentiment_score * 100).toFixed(0)}
                                         </div>
                                     </div>
