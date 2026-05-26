@@ -548,7 +548,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     {/* 1. Main Candlestick Chart */}
                     <div className="relative border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/10">
                         <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                            <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 bg-white/90 dark:bg-slate-900/90 px-2 py-0.5 rounded border border-slate-100 dark:border-slate-800 uppercase tracking-tighter">Daily Candlestick (日K線 / 布林通道)</span>
+                            <span className="text-xs md:text-sm font-black text-slate-500 dark:text-slate-400 bg-white/90 dark:bg-slate-900/90 px-3 py-1 rounded-lg border border-slate-100 dark:border-slate-800 uppercase tracking-tighter">Daily Candlestick (日K線 / 布林通道)</span>
                         </div>
                         <div ref={mainChartRef} className="w-full" />
                     </div>
@@ -556,10 +556,10 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     {/* 2. KD & RSI Oscillator Chart */}
                     <div className="relative border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/10" style={{ display: displayKdRsi }}>
                         <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                            <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 bg-indigo-50/90 dark:bg-slate-900/90 px-2 py-0.5 rounded-full border border-indigo-100 dark:border-slate-800 uppercase tracking-tighter">KD & RSI 擺動指標</span>
+                            <span className="text-xs md:text-sm font-black text-indigo-500 dark:text-indigo-400 bg-indigo-50/90 dark:bg-slate-900/90 px-3 py-1 rounded-full border border-indigo-100 dark:border-slate-800 uppercase tracking-tighter">KD & RSI 擺動指標</span>
                         </div>
                         {/* Chart Legend info */}
-                        <div className="absolute top-2 right-2 z-10 pointer-events-none flex gap-3 text-[9px] font-black">
+                        <div className="absolute top-2 right-2 z-10 pointer-events-none flex gap-3 text-xs md:text-sm font-black">
                             {showKD && <span className="text-blue-500">K/D</span>}
                             {showRSI && <span className="text-purple-500">RSI(14)</span>}
                         </div>
@@ -569,7 +569,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     {/* 3. MACD Chart */}
                     <div className="relative border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/10" style={{ display: showMACD ? 'block' : 'none' }}>
                         <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                            <span className="text-[9px] font-black text-orange-600 dark:text-orange-400 bg-orange-50/90 dark:bg-slate-900/90 px-2 py-0.5 rounded-full border border-orange-100 dark:border-slate-800 uppercase tracking-tighter">MACD (12, 26, 9)</span>
+                            <span className="text-xs md:text-sm font-black text-orange-600 dark:text-orange-400 bg-orange-50/90 dark:bg-slate-900/90 px-3 py-1 rounded-full border border-orange-100 dark:border-slate-800 uppercase tracking-tighter">MACD (12, 26, 9)</span>
                         </div>
                         <div ref={macdChartRef} className="w-full" />
                     </div>
@@ -577,7 +577,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     {/* 4. DMI Chart */}
                     <div className="relative border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/10" style={{ display: showDMI ? 'block' : 'none' }}>
                         <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50/90 dark:bg-slate-900/90 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-slate-800 uppercase tracking-tighter">DMI / ADX 趨勢指標</span>
+                            <span className="text-xs md:text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50/90 dark:bg-slate-900/90 px-3 py-1 rounded-full border border-emerald-100 dark:border-slate-800 uppercase tracking-tighter">DMI / ADX 趨勢指標</span>
                         </div>
                         <div ref={dmiChartRef} className="w-full" />
                     </div>
