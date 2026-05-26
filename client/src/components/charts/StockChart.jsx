@@ -533,10 +533,10 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                 {detectedPatterns.length > 0 && (
                     <div className="flex items-center gap-3 bg-brand-primary/5 border border-brand-primary/10 dark:border-brand-primary/20 p-3 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
                         <CheckCircle2 className="w-5 h-5 text-brand-primary" />
-                        <div className="flex flex-wrap gap-2">
-                            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 tracking-tight">K線型態偵測(近20日):</span>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm md:text-base font-bold text-slate-600 dark:text-slate-300 tracking-tight">K線型態偵測(近20日):</span>
                             {detectedPatterns.map((p, idx) => (
-                                <span key={idx} className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${p.type === 'bullish' ? 'bg-red-50 dark:bg-red-950/20 text-red-500 border-red-100 dark:border-red-900/30' : 'bg-green-50 dark:bg-green-950/20 text-green-600 border-green-100 dark:border-green-900/30'}`}>
+                                <span key={idx} className={`text-xs md:text-sm font-black px-3.5 py-1 rounded-full border ${p.type === 'bullish' ? 'bg-red-50 dark:bg-red-950/20 text-red-500 border-red-100 dark:border-red-900/30' : 'bg-green-50 dark:bg-green-950/20 text-green-600 border-green-100 dark:border-green-900/30'}`}>
                                     {p.name}
                                 </span>
                             ))}

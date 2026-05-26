@@ -582,7 +582,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                         isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-150 text-slate-850'
                                     }`}>
                                         <div className={`p-6 md:p-8 flex-1 ${isDark ? 'bg-slate-950/20' : 'bg-slate-50/10'}`}>
-                                            <div className="max-w-3xl mx-auto">
+                                            <div className="max-w-5xl mx-auto w-full">
                                                 <StructuredReportView reportText={reportData.content} />
                                             </div>
                                         </div>

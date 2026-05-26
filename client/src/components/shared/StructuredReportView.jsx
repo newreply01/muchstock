@@ -413,7 +413,7 @@ function TradingAdviceCard({ advice, isDark }) {
                     <h3 className={`font-black text-sm ${titleClass}`}>具體操盤建議</h3>
                 </div>
             </div>
-            <div className={`grid grid-cols-1 md:grid-cols-3 gap-px ${gridBgClass}`}>
+            <div className={`grid grid-cols-1 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-px ${gridBgClass}`}>
                 {items.map(item => item.value && (
                     <div key={item.key} className={`${itemBgClass} p-5 flex flex-col gap-3`}>
                         <div className="flex items-center gap-2">
@@ -461,71 +461,80 @@ export default function StructuredReportView({ reportText, compact = false }) {
     const hasScores = parsed.mainScore !== null;
 
     return (
-        <div className="flex flex-col gap-4">
-
-            {/* ── Score overview card ── */}
-            {hasScores && (
-                <div className={`rounded-2xl border overflow-hidden shadow-sm transition-colors duration-300 ${
-                    isDark ? 'bg-slate-900/40 border-slate-800 text-white' : 'bg-white border-slate-200'
-                }`}>
-                    <div className={`flex items-center gap-3 px-5 py-3.5 border-b ${
-                        isDark ? 'border-slate-800 bg-gradient-to-r from-rose-950/20 to-slate-900/20' : 'border-slate-100 bg-gradient-to-r from-rose-50 to-white'
-                    }`}>
-                        <div className="p-2 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 shadow-sm">
-                            <Brain className="w-4 h-4 text-white" />
-                        </div>
-                        <div>
-                            <div className="text-[9px] font-black tracking-[0.2em] text-rose-400 uppercase">AI Score</div>
-                            <h3 className={`font-black text-sm ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>多空評分總覽</h3>
-                        </div>
-                    </div>
-                    <div className={`p-6 flex ${compact ? 'flex-col items-center gap-6' : 'flex-col md:flex-row items-center gap-8'}`}>
-                        {/* Circular gauge */}
-                        <div className="flex-shrink-0">
-                            <ScoreGauge score={parsed.mainScore} isDark={isDark} />
-                        </div>
-
-                        {/* Radar chart */}
-                        {radarData.length > 0 && !compact && (
-                            <div className="w-full md:w-[200px] h-[180px] flex-shrink-0">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="65%">
-                                        <PolarGrid stroke={isDark ? '#334155' : '#e2e8f0'} />
-                                        <PolarAngleAxis dataKey="subject"
-                                            tick={{ fontSize: 11, fontWeight: 700, fill: isDark ? '#94a3b8' : '#64748b' }} />
-                                        <Radar dataKey="score" stroke="#6366f1" fill="#6366f1"
-                                            fillOpacity={isDark ? 0.25 : 0.15} strokeWidth={2}
-                                            dot={{ r: 4, fill: '#6366f1', strokeWidth: 2, stroke: isDark ? '#0f172a' : '#fff' }} />
-                                    </RadarChart>
-                                </ResponsiveContainer>
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+            {/* ── Left Column: AI Score & Trading Advice ── */}
+            {(hasScores || parsed.tradingAdvice.entry || parsed.tradingAdvice.target || parsed.tradingAdvice.stop) && (
+                <div className="w-full lg:w-[40%] xl:w-[38%] flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
+                    {/* ── Score overview card ── */}
+                    {hasScores && (
+                        <div className={`rounded-2xl border overflow-hidden shadow-sm transition-colors duration-300 ${
+                            isDark ? 'bg-slate-900/40 border-slate-800 text-white' : 'bg-white border-slate-200'
+                        }`}>
+                            <div className={`flex items-center gap-3 px-5 py-3.5 border-b ${
+                                isDark ? 'border-slate-800 bg-gradient-to-r from-rose-950/20 to-slate-900/20' : 'border-slate-100 bg-gradient-to-r from-rose-50 to-white'
+                            }`}>
+                                <div className="p-2 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 shadow-sm">
+                                    <Brain className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <div className="text-[9px] font-black tracking-[0.2em] text-rose-400 uppercase">AI Score</div>
+                                    <h3 className={`font-black text-sm ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>多空評分總覽</h3>
+                                </div>
                             </div>
-                        )}
+                            <div className="p-5 flex flex-col gap-6">
+                                {/* Gauge & Radar side-by-side or stacked based on width */}
+                                <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center justify-center xl:justify-around gap-6 w-full">
+                                    {/* Circular gauge */}
+                                    <div className="flex-shrink-0">
+                                        <ScoreGauge score={parsed.mainScore} isDark={isDark} />
+                                    </div>
 
-                        {/* Sub-score bars */}
-                        <div className="flex-1 w-full space-y-4">
-                            {parsed.subScores.map(s => <SubScoreBar key={s.name} {...s} isDark={isDark} />)}
+                                    {/* Radar chart */}
+                                    {radarData.length > 0 && !compact && (
+                                        <div className="w-full sm:w-[180px] lg:w-full xl:w-[180px] h-[160px] flex-shrink-0">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="60%">
+                                                    <PolarGrid stroke={isDark ? '#334155' : '#e2e8f0'} />
+                                                    <PolarAngleAxis dataKey="subject"
+                                                        tick={{ fontSize: 10, fontWeight: 700, fill: isDark ? '#94a3b8' : '#64748b' }} />
+                                                    <Radar dataKey="score" stroke="#6366f1" fill="#6366f1"
+                                                        fillOpacity={isDark ? 0.25 : 0.15} strokeWidth={2}
+                                                        dot={{ r: 3, fill: '#6366f1', strokeWidth: 1.5, stroke: isDark ? '#0f172a' : '#fff' }} />
+                                                </RadarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Sub-score bars */}
+                                <div className="w-full space-y-3.5 border-t border-slate-100 dark:border-slate-800/80 pt-4">
+                                    {parsed.subScores.map(s => <SubScoreBar key={s.name} {...s} isDark={isDark} />)}
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    )}
+
+                    {/* ── Trading advice ── */}
+                    <TradingAdviceCard advice={parsed.tradingAdvice} isDark={isDark} />
                 </div>
             )}
 
-            {/* ── Section cards ── */}
-            {parsed.sections
-                .filter(s => s.number !== parsed.scoreSectionNum && SECTION_META[s.number])
-                .map((s, idx) => (
-                    <SectionCard
-                        key={s.number}
-                        number={s.number}
-                        title={s.title}
-                        content={s.content}
-                        defaultOpen={true}
-                        isDark={isDark}
-                    />
-                ))
-            }
-
-            {/* ── Trading advice ── */}
-            <TradingAdviceCard advice={parsed.tradingAdvice} isDark={isDark} />
+            {/* ── Right Column: Section cards ── */}
+            <div className="flex-1 w-full flex flex-col gap-6">
+                {parsed.sections
+                    .filter(s => s.number !== parsed.scoreSectionNum && SECTION_META[s.number])
+                    .map((s, idx) => (
+                        <SectionCard
+                            key={s.number}
+                            number={s.number}
+                            title={s.title}
+                            content={s.content}
+                            defaultOpen={true}
+                            isDark={isDark}
+                        />
+                    ))
+                }
+            </div>
         </div>
     );
 }
