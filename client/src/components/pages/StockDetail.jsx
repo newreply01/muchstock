@@ -116,6 +116,80 @@ const CLASSIC_PATTERNS = [
     { id: 'three_inside_down', name: '三內降', type: 'bearish', en: 'Three Inside Down', desc: '母子型態後隔日收低，空頭確認' }
 ];
 
+const getTaipeiTime = () => {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+    });
+    
+    const parts = formatter.formatToParts(now);
+    const dateMap = {};
+    parts.forEach(p => { dateMap[p.type] = p.value; });
+    
+    const year = parseInt(dateMap.year);
+    const month = parseInt(dateMap.month);
+    const day = parseInt(dateMap.day);
+    const hour = parseInt(dateMap.hour);
+    const minute = parseInt(dateMap.minute);
+    
+    const localDate = new Date(year, month - 1, day, hour, minute);
+    
+    return {
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        dayOfWeek: localDate.getDay(), // 0 = 週日, 1 = 週一, ..., 6 = 週六
+        formattedDate: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    };
+};
+
+const getDefaultReportDate = () => {
+    const tpe = getTaipeiTime();
+    const baseDate = new Date(tpe.year, tpe.month - 1, tpe.day);
+    
+    const formatDate = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const r = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${r}`;
+    };
+
+    // 1. 週末 (非交易日) 直接退回至週五
+    if (tpe.dayOfWeek === 6) { // 週六 -> 退 1 天到週五
+        const target = new Date(baseDate);
+        target.setDate(target.getDate() - 1);
+        return formatDate(target);
+    }
+    if (tpe.dayOfWeek === 0) { // 週日 -> 退 2 天到週五
+        const target = new Date(baseDate);
+        target.setDate(target.getDate() - 2);
+        return formatDate(target);
+    }
+
+    // 2. 週一至週五 (交易日)
+    if (tpe.hour < 14) {
+        // 下午 14:00 前，預設為上一個交易日
+        const target = new Date(baseDate);
+        if (tpe.dayOfWeek === 1) { // 週一 -> 退 3 天到上週五
+            target.setDate(target.getDate() - 3);
+        } else { // 週二至週五 -> 退 1 天到昨天
+            target.setDate(target.getDate() - 1);
+        }
+        return formatDate(target);
+    }
+
+    // 下午 14:00 後，預設為今日
+    return tpe.formattedDate;
+};
+
 export default function StockDetail({ stock, onClose, isInline = false }) {
     const [financials, setFinancials] = useState(null)
     const [institutionalData, setInstitutionalData] = useState([])
@@ -133,7 +207,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
     // AI 報告雙主題與載入狀態定義
     const { theme } = useTheme()
     const isDark = theme === 'dark'
-    const [reportDate, setReportDate] = useState(() => new Date().toISOString().split('T')[0])
+    const [reportDate, setReportDate] = useState(() => getDefaultReportDate())
     const [reportData, setReportData] = useState(null)
     const [reportLoading, setReportLoading] = useState(false)
 
