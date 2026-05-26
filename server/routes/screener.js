@@ -1182,7 +1182,7 @@ router.get('/news', async (req, res) => {
         const sql = `
             SELECT news_id, category, title, summary, image_url, publish_at
             FROM news
-            WHERE category = $1
+            WHERE $1 = ANY(string_to_array(category, ','))
             ORDER BY publish_at DESC
             LIMIT $2
     `;

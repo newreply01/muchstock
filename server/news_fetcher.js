@@ -49,14 +49,29 @@ async function saveNews(newsItems, categoryId) {
             const publishAt = new Date(item.publishAt * 1000);
             const imageUrl = item.coverSrc?.['xs']?.src || item.coverSrc?.['s']?.src || item.coverSrc?.['m']?.src || '';
 
-            // 這裡我們先存 Summary，若需要全文可在之後擴充爬蟲
-            const res = await client.query(`
-                INSERT INTO news (news_id, category, title, summary, image_url, publish_at)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                ON CONFLICT (news_id) DO NOTHING
-            `, [newsId, categoryId, title, summary, imageUrl, publishAt]);
+            // 檢查該新聞是否已存在
+            const checkRes = await client.query('SELECT category FROM news WHERE news_id = $1', [newsId]);
+            let isNew = false;
 
-            if (res.rowCount > 0) {
+            if (checkRes.rows.length === 0) {
+                // 不存在，直接新增
+                await client.query(`
+                    INSERT INTO news (news_id, category, title, summary, image_url, publish_at)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                `, [newsId, categoryId, title, summary, imageUrl, publishAt]);
+                isNew = true;
+            } else {
+                // 已存在，若分類尚未加入則追加
+                const existingCategory = checkRes.rows[0].category;
+                if (existingCategory && !existingCategory.split(',').includes(categoryId)) {
+                    const newCategory = existingCategory + ',' + categoryId;
+                    await client.query(`
+                        UPDATE news SET category = $1 WHERE news_id = $2
+                    `, [newCategory, newsId]);
+                }
+            }
+
+            if (isNew) {
                 newCount++;
                 // 台股新聞類別且標題含股票代號 → 使用 AI 情緒分析（更精確）
                 // 其他類別 → 使用規則引擎（更快速）
