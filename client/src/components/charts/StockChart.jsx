@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart, CandlestickSeries, LineSeries, HistogramSeries } from 'lightweight-charts';
 import {
-    SMA, RSI, MACD,
+    SMA, RSI, MACD, Stochastic, ADX, BollingerBands,
     bullishengulfingpattern,
     bearishengulfingpattern,
     bullishhammerstick,
@@ -13,21 +13,42 @@ import {
     piercingline,
 } from 'technicalindicators';
 import { getHistory } from '../../utils/api';
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function StockChart({ stock, period = '日K', onPatternsDetected, onIndicatorStatus }) {
     const mainChartRef = useRef();
-    const rsiChartRef = useRef();
+    const kdRsiChartRef = useRef();
     const macdChartRef = useRef();
+    const dmiChartRef = useRef();
+
+    const mainChartInstance = useRef(null);
+    const kdRsiChartInstance = useRef(null);
+    const macdChartInstance = useRef(null);
+    const dmiChartInstance = useRef(null);
+
     const [loading, setLoading] = useState(true);
     const [detectedPatterns, setDetectedPatterns] = useState([]);
-    const mainChartInstance = useRef(null);
-    const rsiChartInstance = useRef(null);
-    const macdChartInstance = useRef(null);
+    
+    // 開關控制狀態
     const [showMA20, setShowMA20] = useState(true);
-    const [showRSI, setShowRSI] = useState(true);
+    const [showBB, setShowBB] = useState(true);
+    const [showKD, setShowKD] = useState(true);
     const [showMACD, setShowMACD] = useState(true);
+    const [showRSI, setShowRSI] = useState(true);
+    const [showDMI, setShowDMI] = useState(true);
+
+    // 各個 Series 的 Refs，以便單獨控制顯示/隱藏
     const maSeriesRef = useRef(null);
+    const bbUpperSeriesRef = useRef(null);
+    const bbMiddleSeriesRef = useRef(null);
+    const bbLowerSeriesRef = useRef(null);
+    const kSeriesRef = useRef(null);
+    const dSeriesRef = useRef(null);
+    const rsiSeriesRef = useRef(null);
+
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     useEffect(() => {
         if (onPatternsDetected) {
@@ -43,8 +64,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
         const renderCharts = async () => {
             setLoading(true);
             try {
-                let rawData = await getHistory(stock.symbol, 1000); // 獲取更多數據以支持週期轉換
-                console.log('StockChart: Received history rawData', { symbol: stock.symbol, count: rawData?.length, sample: rawData?.[0] });
+                let rawData = await getHistory(stock.symbol, 1000);
                 if (!isMounted || !rawData.length) {
                     setLoading(false);
                     return;
@@ -56,11 +76,10 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     const result = [];
                     let current = null;
 
-                    data.forEach((d, idx) => {
+                    data.forEach((d) => {
                         const date = new Date(d.time);
                         let key;
                         if (p === '週K') {
-                            // 使用本地時間計算週一
                             const day = date.getDay();
                             const diff = date.getDate() - day + (day === 0 ? -6 : 1);
                             const monday = new Date(date);
@@ -112,31 +131,22 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                 const highs = candleData.map(d => d.high);
                 const lows = candleData.map(d => d.low);
 
-                // --- Pattern Detection (Historical Markers & Recent Active) ---
+                // --- Pattern Detection ---
                 const markers = [];
-                const recentPatterns = []; // patterns detected in last X trading days
-                const RECENT_WINDOW = 20; // extended from 5 to 20 to capture more technical patterns
+                const recentPatterns = [];
+                const RECENT_WINDOW = 20;
 
-                // Helper: safely check a pattern (some functions require different data lengths)
                 const safeCheck = (fn, input) => {
                     try { return fn(input); } catch (e) { return false; }
                 };
 
                 if (candleData.length >= 5) {
                     for (let i = 4; i < candleData.length; i++) {
-                        // Use 5-candle window for patterns that need more data
                         const input5 = {
                             open: opens.slice(i - 4, i + 1),
                             high: highs.slice(i - 4, i + 1),
                             low: lows.slice(i - 4, i + 1),
                             close: closes.slice(i - 4, i + 1)
-                        };
-                        // Also prepare 3-candle window for simpler patterns
-                        const input3 = {
-                            open: opens.slice(i - 2, i + 1),
-                            high: highs.slice(i - 2, i + 1),
-                            low: lows.slice(i - 2, i + 1),
-                            close: closes.slice(i - 2, i + 1)
                         };
                         const time = candleData[i].time;
                         const isRecent = i >= candleData.length - RECENT_WINDOW;
@@ -158,11 +168,9 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                             } else if (p.type === 'bearish') {
                                 markers.push({ time, position: 'aboveBar', color: '#22c55e', shape: 'arrowDown', text: p.name });
                             }
-                            // Track patterns in the recent window (deduplicated by name, keeping latest)
                             if (isRecent) {
                                 const existingIdx = recentPatterns.findIndex(rp => rp.name === p.name);
                                 if (existingIdx > -1) {
-                                    // Update to latest date if found again
                                     recentPatterns[existingIdx].date = time;
                                 } else {
                                     recentPatterns.push({ ...p, date: time });
@@ -172,11 +180,9 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     }
                 }
                 setDetectedPatterns(recentPatterns);
-                if (onPatternsDetected) {
-                    onPatternsDetected(recentPatterns);
-                }
 
                 // --- Indicators Calculation ---
+                // 1. MA20
                 const ma20Data = [];
                 if (closes.length >= 20) {
                     const ma20Result = SMA.calculate({ period: 20, values: closes });
@@ -186,15 +192,38 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     }
                 }
 
-                const rsiData = [];
-                if (closes.length >= 14) {
-                    const rsiResult = RSI.calculate({ period: 14, values: closes });
-                    const rsiOffset = closes.length - rsiResult.length;
-                    for (let i = 0; i < rsiResult.length; i++) {
-                        rsiData.push({ time: candleData[i + rsiOffset].time, value: rsiResult[i] });
+                // 2. Bollinger Bands
+                const bbData = { upper: [], middle: [], lower: [] };
+                if (closes.length >= 20) {
+                    const bbResult = BollingerBands.calculate({ period: 20, values: closes, stdDev: 2 });
+                    const bbOffset = closes.length - bbResult.length;
+                    for (let i = 0; i < bbResult.length; i++) {
+                        const time = candleData[i + bbOffset].time;
+                        bbData.upper.push({ time, value: bbResult[i].upper });
+                        bbData.middle.push({ time, value: bbResult[i].middle });
+                        bbData.lower.push({ time, value: bbResult[i].lower });
                     }
                 }
 
+                // 3. KD (Stochastic)
+                const kdData = { k: [], d: [] };
+                if (closes.length >= 9) {
+                    const kdResult = Stochastic.calculate({
+                        high: highs,
+                        low: lows,
+                        close: closes,
+                        period: 9,
+                        signalPeriod: 3
+                    });
+                    const kdOffset = closes.length - kdResult.length;
+                    for (let i = 0; i < kdResult.length; i++) {
+                        const time = candleData[i + kdOffset].time;
+                        kdData.k.push({ time, value: kdResult[i].k });
+                        kdData.d.push({ time, value: kdResult[i].d });
+                    }
+                }
+
+                // 4. MACD
                 const macdData = { macd: [], signal: [], histogram: [] };
                 if (closes.length >= 26) {
                     const macdResult = MACD.calculate({
@@ -218,6 +247,34 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     }
                 }
 
+                // 5. RSI(14)
+                const rsiData = [];
+                if (closes.length >= 14) {
+                    const rsiResult = RSI.calculate({ period: 14, values: closes });
+                    const rsiOffset = closes.length - rsiResult.length;
+                    for (let i = 0; i < rsiResult.length; i++) {
+                        rsiData.push({ time: candleData[i + rsiOffset].time, value: rsiResult[i] });
+                    }
+                }
+
+                // 6. DMI / ADX
+                const dmiData = { pdi: [], mdi: [], adx: [] };
+                if (closes.length >= 14) {
+                    const adxResult = ADX.calculate({
+                        high: highs,
+                        low: lows,
+                        close: closes,
+                        period: 14
+                    });
+                    const adxOffset = closes.length - adxResult.length;
+                    for (let i = 0; i < adxResult.length; i++) {
+                        const time = candleData[i + adxOffset].time;
+                        dmiData.pdi.push({ time, value: adxResult[i].pdi });
+                        dmiData.mdi.push({ time, value: adxResult[i].mdi });
+                        dmiData.adx.push({ time, value: adxResult[i].adx });
+                    }
+                }
+
                 const lastIdx = candleData.length - 1;
                 if (onIndicatorStatus && lastIdx >= 0) {
                     onIndicatorStatus({
@@ -228,26 +285,38 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     });
                 }
 
-                // Cleanup existing chart instances AND force-clear DOM containers
+                // --- DOM Cleanup ---
                 if (mainChartInstance.current) { mainChartInstance.current.remove(); mainChartInstance.current = null; }
-                if (rsiChartInstance.current) { rsiChartInstance.current.remove(); rsiChartInstance.current = null; }
+                if (kdRsiChartInstance.current) { kdRsiChartInstance.current.remove(); kdRsiChartInstance.current = null; }
                 if (macdChartInstance.current) { macdChartInstance.current.remove(); macdChartInstance.current = null; }
-                // Force-clear any leftover DOM children to prevent chart stacking
-                if (mainChartRef.current) mainChartRef.current.innerHTML = '';
-                if (rsiChartRef.current) rsiChartRef.current.innerHTML = '';
-                if (macdChartRef.current) macdChartRef.current.innerHTML = '';
+                if (dmiChartInstance.current) { dmiChartInstance.current.remove(); dmiChartInstance.current = null; }
 
+                if (mainChartRef.current) mainChartRef.current.innerHTML = '';
+                if (kdRsiChartRef.current) kdRsiChartRef.current.innerHTML = '';
+                if (macdChartRef.current) macdChartRef.current.innerHTML = '';
+                if (dmiChartRef.current) dmiChartRef.current.innerHTML = '';
+
+                // --- Create Chart Options ---
                 const commonOptions = {
-                    layout: { background: { type: 'solid', color: '#ffffff' }, textColor: '#64748b', fontSize: 10 },
-                    grid: { vertLines: { color: '#f8fafc' }, horzLines: { color: '#f8fafc' } },
-                    rightPriceScale: { borderColor: '#f1f5f9', width: 60, borderVisible: false },
-                    timeScale: { borderColor: '#f1f5f9', borderVisible: false },
+                    layout: {
+                        background: { type: 'solid', color: isDark ? '#0f172a' : '#ffffff' },
+                        textColor: isDark ? '#94a3b8' : '#64748b',
+                        fontSize: 10
+                    },
+                    grid: {
+                        vertLines: { color: isDark ? '#1e293b' : '#f8fafc' },
+                        horzLines: { color: isDark ? '#1e293b' : '#f8fafc' }
+                    },
+                    rightPriceScale: { borderColor: isDark ? '#1e293b' : '#f1f5f9', width: 60, borderVisible: false },
+                    timeScale: { borderColor: isDark ? '#1e293b' : '#f1f5f9', borderVisible: false },
                     handleScroll: true,
                     handleScale: true,
                     crosshair: { mode: 1 },
                 };
 
-                // Create Main Chart
+                if (!isMounted) return;
+
+                // 1. Create Main Chart
                 const mainChart = createChart(mainChartRef.current, { ...commonOptions, height: 260 });
                 const candleSeries = mainChart.addSeries(CandlestickSeries, {
                     upColor: '#ef4444', downColor: '#22c55e', borderDownColor: '#22c55e',
@@ -258,42 +327,91 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     candleSeries.setMarkers(markers);
                 }
 
+                // MA20 Series
                 const maSeries = mainChart.addSeries(LineSeries, { color: '#3b82f6', lineWidth: 1, title: 'MA20' });
                 maSeries.setData(ma20Data);
                 maSeriesRef.current = maSeries;
 
+                // BBands Series
+                const bbUpperSeries = mainChart.addSeries(LineSeries, {
+                    color: isDark ? 'rgba(99, 102, 241, 0.45)' : 'rgba(99, 102, 241, 0.3)',
+                    lineWidth: 1.5, title: 'BB Upper'
+                });
+                bbUpperSeries.setData(bbData.upper);
+                bbUpperSeriesRef.current = bbUpperSeries;
+
+                const bbMiddleSeries = mainChart.addSeries(LineSeries, {
+                    color: isDark ? 'rgba(99, 102, 241, 0.65)' : 'rgba(99, 102, 241, 0.5)',
+                    lineWidth: 1, lineStyle: 2, title: 'BB Middle'
+                });
+                bbMiddleSeries.setData(bbData.middle);
+                bbMiddleSeriesRef.current = bbMiddleSeries;
+
+                const bbLowerSeries = mainChart.addSeries(LineSeries, {
+                    color: isDark ? 'rgba(99, 102, 241, 0.45)' : 'rgba(99, 102, 241, 0.3)',
+                    lineWidth: 1.5, title: 'BB Lower'
+                });
+                bbLowerSeries.setData(bbData.lower);
+                bbLowerSeriesRef.current = bbLowerSeries;
+
+                // Volume Series
                 const volumeSeries = mainChart.addSeries(HistogramSeries, {
                     priceFormat: { type: 'volume' }, priceScaleId: '',
                     scaleMargins: { top: 0.8, bottom: 0 }
                 });
                 volumeSeries.setData(volumeData);
 
-                // Create RSI Chart
-                const rsiChart = createChart(rsiChartRef.current, {
+                // 2. Create KD & RSI Chart (Oscillators)
+                const kdRsiChart = createChart(kdRsiChartRef.current, {
                     ...commonOptions,
-                    height: 100,
+                    height: 130,
                     timeScale: { ...commonOptions.timeScale, visible: false },
                 });
-                const rsiSeries = rsiChart.addSeries(LineSeries, { color: '#8b5cf6', lineWidth: 1, title: 'RSI(14)' });
+                // K Series
+                const kSeries = kdRsiChart.addSeries(LineSeries, { color: '#3b82f6', lineWidth: 1.5, title: 'K' });
+                kSeries.setData(kdData.k);
+                kSeriesRef.current = kSeries;
+                // D Series
+                const dSeries = kdRsiChart.addSeries(LineSeries, { color: '#f59e0b', lineWidth: 1.5, title: 'D' });
+                dSeries.setData(kdData.d);
+                dSeriesRef.current = dSeries;
+                // RSI Series inside KD chart
+                const rsiSeries = kdRsiChart.addSeries(LineSeries, { color: '#8b5cf6', lineWidth: 1.5, title: 'RSI(14)' });
                 rsiSeries.setData(rsiData);
-                rsiSeries.createPriceLine({ price: 70, color: '#fca5a5', lineWidth: 1, lineStyle: 2, title: '70' });
-                rsiSeries.createPriceLine({ price: 30, color: '#86efac', lineWidth: 1, lineStyle: 2, title: '30' });
+                rsiSeriesRef.current = rsiSeries;
 
-                // Create MACD Chart
+                // 80/20 Limits
+                kSeries.createPriceLine({ price: 80, color: isDark ? 'rgba(239, 68, 68, 0.4)' : '#fca5a5', lineWidth: 1, lineStyle: 2, title: '80/70' });
+                kSeries.createPriceLine({ price: 20, color: isDark ? 'rgba(34, 197, 94, 0.4)' : '#86efac', lineWidth: 1, lineStyle: 2, title: '20/30' });
+
+                // 3. Create MACD Chart
                 const macdChart = createChart(macdChartRef.current, {
                     ...commonOptions,
-                    height: 120,
+                    height: 130,
                     timeScale: { ...commonOptions.timeScale, visible: false },
                 });
-                const macdLineSeries = macdChart.addSeries(LineSeries, { color: '#2563eb', lineWidth: 1, title: 'MACD' });
+                const macdLineSeries = macdChart.addSeries(LineSeries, { color: '#2563eb', lineWidth: 1.5, title: 'MACD' });
                 macdLineSeries.setData(macdData.macd);
-                const signalLineSeries = macdChart.addSeries(LineSeries, { color: '#f97316', lineWidth: 1, title: 'Signal' });
+                const signalLineSeries = macdChart.addSeries(LineSeries, { color: '#f97316', lineWidth: 1.5, title: 'Signal' });
                 signalLineSeries.setData(macdData.signal);
                 const histSeries = macdChart.addSeries(HistogramSeries, { title: 'Hist' });
                 histSeries.setData(macdData.histogram);
 
-                // Sync Scrolling & Scaling
-                const charts = [mainChart, rsiChart, macdChart];
+                // 4. Create DMI Chart (ADX)
+                const dmiChart = createChart(dmiChartRef.current, {
+                    ...commonOptions,
+                    height: 140, // Slightly higher to accommodate timeScale labels at bottom
+                    timeScale: { ...commonOptions.timeScale, visible: true }, // Keep timeScale visible at bottom
+                });
+                const pdiSeries = dmiChart.addSeries(LineSeries, { color: '#ef4444', lineWidth: 1.5, title: '+DI' });
+                pdiSeries.setData(dmiData.pdi);
+                const mdiSeries = dmiChart.addSeries(LineSeries, { color: '#22c55e', lineWidth: 1.5, title: '-DI' });
+                mdiSeries.setData(dmiData.mdi);
+                const adxSeries = dmiChart.addSeries(LineSeries, { color: isDark ? '#94a3b8' : '#64748b', lineWidth: 1.5, title: 'ADX' });
+                adxSeries.setData(dmiData.adx);
+
+                // --- Sync Scrolling & Scaling ---
+                const charts = [mainChart, kdRsiChart, macdChart, dmiChart];
                 charts.forEach(c => {
                     c.timeScale().subscribeVisibleLogicalRangeChange(range => {
                         charts.filter(other => other !== c).forEach(other => {
@@ -303,15 +421,17 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                 });
 
                 mainChartInstance.current = mainChart;
-                rsiChartInstance.current = rsiChart;
+                kdRsiChartInstance.current = kdRsiChart;
                 macdChartInstance.current = macdChart;
+                dmiChartInstance.current = dmiChart;
 
                 const handleResize = () => {
                     const width = mainChartRef.current?.clientWidth;
                     if (width) {
                         mainChart.applyOptions({ width });
-                        rsiChart.applyOptions({ width });
+                        kdRsiChart.applyOptions({ width });
                         macdChart.applyOptions({ width });
+                        dmiChart.applyOptions({ width });
                     }
                 };
                 window.addEventListener('resize', handleResize);
@@ -328,20 +448,36 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
         return () => {
             isMounted = false;
             if (mainChartInstance.current) { mainChartInstance.current.remove(); mainChartInstance.current = null; }
-            if (rsiChartInstance.current) { rsiChartInstance.current.remove(); rsiChartInstance.current = null; }
+            if (kdRsiChartInstance.current) { kdRsiChartInstance.current.remove(); kdRsiChartInstance.current = null; }
             if (macdChartInstance.current) { macdChartInstance.current.remove(); macdChartInstance.current = null; }
-            if (mainChartRef.current) mainChartRef.current.innerHTML = '';
-            if (rsiChartRef.current) rsiChartRef.current.innerHTML = '';
-            if (macdChartRef.current) macdChartRef.current.innerHTML = '';
-        };
-    }, [stock, period]);
+            if (dmiChartInstance.current) { dmiChartInstance.current.remove(); dmiChartInstance.current = null; }
 
-    // Separate effect for MA20 visibility toggle (no chart re-creation)
+            if (mainChartRef.current) mainChartRef.current.innerHTML = '';
+            if (kdRsiChartRef.current) kdRsiChartRef.current.innerHTML = '';
+            if (macdChartRef.current) macdChartRef.current.innerHTML = '';
+            if (dmiChartRef.current) dmiChartRef.current.innerHTML = '';
+        };
+    }, [stock, period, isDark]);
+
+    // Separate effects for visibility toggles (prevents full chart re-creation)
     useEffect(() => {
-        if (maSeriesRef.current) {
-            maSeriesRef.current.applyOptions({ visible: showMA20 });
-        }
+        if (maSeriesRef.current) maSeriesRef.current.applyOptions({ visible: showMA20 });
     }, [showMA20]);
+
+    useEffect(() => {
+        if (bbUpperSeriesRef.current) bbUpperSeriesRef.current.applyOptions({ visible: showBB });
+        if (bbMiddleSeriesRef.current) bbMiddleSeriesRef.current.applyOptions({ visible: showBB });
+        if (bbLowerSeriesRef.current) bbLowerSeriesRef.current.applyOptions({ visible: showBB });
+    }, [showBB]);
+
+    useEffect(() => {
+        if (kSeriesRef.current) kSeriesRef.current.applyOptions({ visible: showKD });
+        if (dSeriesRef.current) dSeriesRef.current.applyOptions({ visible: showKD });
+    }, [showKD]);
+
+    useEffect(() => {
+        if (rsiSeriesRef.current) rsiSeriesRef.current.applyOptions({ visible: showRSI });
+    }, [showRSI]);
 
     if (!stock) return (
         <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 rounded-lg border border-dashed border-slate-200 min-h-[500px]">
@@ -350,24 +486,32 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
         </div>
     );
 
+    // kdRsiChart block visibility: if both KD and RSI are false, collapse the container
+    const displayKdRsi = (showKD || showRSI) ? 'block' : 'none';
+
     return (
-        <div className="w-full flex flex-col bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/30">
+        <div className="w-full flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm transition-colors duration-300">
+            {/* Chart Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/20 gap-4">
                 <div className="flex items-center gap-4">
                     <div className="bg-brand-primary w-2 h-8 rounded-full shadow-sm shadow-brand-primary/20"></div>
                     <div>
-                        <h3 className="font-black text-slate-800 text-xl tracking-tight leading-none">
-                            {stock.name} <span className="text-slate-400 font-bold ml-1 text-base">({stock.symbol})</span>
+                        <h3 className="font-black text-slate-800 dark:text-white text-xl tracking-tight leading-none">
+                            {stock.name} <span className="text-slate-400 dark:text-slate-500 font-bold ml-1 text-base">({stock.symbol})</span>
                         </h3>
-                        <div className="flex items-center gap-2 mt-1.5">
-                            <button onClick={() => setShowMA20(v => !v)} className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showMA20 ? 'text-blue-600 bg-blue-100 border-blue-200' : 'text-slate-400 bg-slate-100 border-slate-200 line-through'}`}>MA20</button>
-                            <button onClick={() => setShowRSI(v => !v)} className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showRSI ? 'text-purple-600 bg-purple-100 border-purple-200' : 'text-slate-400 bg-slate-100 border-slate-200 line-through'}`}>RSI</button>
-                            <button onClick={() => setShowMACD(v => !v)} className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showMACD ? 'text-orange-600 bg-orange-100 border-orange-200' : 'text-slate-400 bg-slate-100 border-slate-200 line-through'}`}>MACD</button>
+                        {/* Custom Indicators Switches */}
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <button onClick={() => setShowMA20(v => !v)} className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showMA20 ? 'text-blue-600 bg-blue-100 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900/50 dark:text-blue-400' : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'}`}>MA20</button>
+                            <button onClick={() => setShowBB(v => !v)} className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showBB ? 'text-indigo-600 bg-indigo-100 border-indigo-200 dark:bg-indigo-950/30 dark:border-indigo-900/50 dark:text-indigo-400' : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'}`}>BB 布林通道</button>
+                            <button onClick={() => setShowKD(v => !v)} className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showKD ? 'text-blue-500 bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900/50 dark:text-blue-400' : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'}`}>KD 隨機</button>
+                            <button onClick={() => setShowMACD(v => !v)} className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showMACD ? 'text-orange-600 bg-orange-100 border-orange-200 dark:bg-orange-950/30 dark:border-orange-900/50 dark:text-orange-400' : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'}`}>MACD</button>
+                            <button onClick={() => setShowRSI(v => !v)} className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showRSI ? 'text-purple-600 bg-purple-100 border-purple-200 dark:bg-purple-950/30 dark:border-purple-900/50 dark:text-purple-400' : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'}`}>RSI 強弱</button>
+                            <button onClick={() => setShowDMI(v => !v)} className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-tighter cursor-pointer transition-all border ${showDMI ? 'text-emerald-600 bg-emerald-100 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400' : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'}`}>DMI 趨勢</button>
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col items-end">
-                    <div className="text-2xl font-black text-slate-800 tracking-tighter">
+                <div className="flex flex-col items-end self-end sm:self-center">
+                    <div className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter">
                         {stock.close_price ? parseFloat(stock.close_price).toFixed(2) : '--'}
                     </div>
                     <div className={`text-sm font-black flex items-center justify-end gap-1 ${stock.change_percent && parseFloat(stock.change_percent) >= 0 ? 'text-red-500' : 'text-green-600'}`}>
@@ -376,25 +520,23 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                 </div>
             </div>
 
-            <div className="relative w-full p-4 space-y-4 bg-white/50">
+            {/* Charts Container */}
+            <div className="relative w-full p-4 space-y-4 bg-white/50 dark:bg-slate-900/50">
                 {loading && (
-                    <div className="absolute inset-0 z-20 bg-white/95 flex flex-col items-center justify-center backdrop-blur-sm">
-                        <div className="relative">
-                            <Loader2 className="w-12 h-12 animate-spin text-brand-primary" />
-                            <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-brand-primary">API</div>
-                        </div>
-                        <span className="text-[10px] font-black text-slate-400 mt-4 tracking-[0.3em] uppercase animate-pulse">Computing Indicators...</span>
+                    <div className="absolute inset-0 z-20 bg-white/95 dark:bg-slate-900/95 flex flex-col items-center justify-center backdrop-blur-sm rounded-b-2xl">
+                        <Loader2 className="w-12 h-12 animate-spin text-brand-primary" />
+                        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 mt-4 tracking-[0.3em] uppercase animate-pulse">Computing Integrated Charts...</span>
                     </div>
                 )}
 
                 {/* Patterns Detected Banner */}
                 {detectedPatterns.length > 0 && (
-                    <div className="flex items-center gap-3 bg-brand-primary/5 border border-brand-primary/10 p-3 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center gap-3 bg-brand-primary/5 border border-brand-primary/10 dark:border-brand-primary/20 p-3 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
                         <CheckCircle2 className="w-5 h-5 text-brand-primary" />
                         <div className="flex flex-wrap gap-2">
-                            <span className="text-xs font-bold text-slate-600 tracking-tight">K線型態偵測(近5日):</span>
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 tracking-tight">K線型態偵測(近20日):</span>
                             {detectedPatterns.map((p, idx) => (
-                                <span key={idx} className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${p.type === 'bullish' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                                <span key={idx} className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${p.type === 'bullish' ? 'bg-red-50 dark:bg-red-950/20 text-red-500 border-red-100 dark:border-red-900/30' : 'bg-green-50 dark:bg-green-950/20 text-green-600 border-green-100 dark:border-green-900/30'}`}>
                                     {p.name}
                                 </span>
                             ))}
@@ -402,45 +544,64 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     </div>
                 )}
 
-                <div className="space-y-2">
-                    <div className="relative">
-                        <div ref={mainChartRef} className="w-full" />
-                        <div className="absolute top-2 left-2 pointer-events-none">
-                            <span className="text-[10px] font-bold text-slate-400 bg-white/80 px-2 py-0.5 rounded border border-slate-100 uppercase">Daily Candlestick</span>
+                <div className="space-y-4">
+                    {/* 1. Main Candlestick Chart */}
+                    <div className="relative border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/10">
+                        <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                            <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 bg-white/90 dark:bg-slate-900/90 px-2 py-0.5 rounded border border-slate-100 dark:border-slate-800 uppercase tracking-tighter">Daily Candlestick (日K線 / 布林通道)</span>
                         </div>
+                        <div ref={mainChartRef} className="w-full" />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="relative border border-slate-100 rounded-xl overflow-hidden bg-slate-50/20" style={{ display: showRSI ? 'block' : 'none' }}>
-                            <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                                <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100 uppercase tracking-tighter">Relative Strength (RSI)</span>
-                            </div>
-                            <div ref={rsiChartRef} className="w-full" />
+                    {/* 2. KD & RSI Oscillator Chart */}
+                    <div className="relative border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/10" style={{ display: displayKdRsi }}>
+                        <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                            <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 bg-indigo-50/90 dark:bg-slate-900/90 px-2 py-0.5 rounded-full border border-indigo-100 dark:border-slate-800 uppercase tracking-tighter">KD & RSI 擺動指標</span>
                         </div>
+                        {/* Chart Legend info */}
+                        <div className="absolute top-2 right-2 z-10 pointer-events-none flex gap-3 text-[9px] font-black">
+                            {showKD && <span className="text-blue-500">K/D</span>}
+                            {showRSI && <span className="text-purple-500">RSI(14)</span>}
+                        </div>
+                        <div ref={kdRsiChartRef} className="w-full" />
+                    </div>
 
-                        <div className="relative border border-slate-100 rounded-xl overflow-hidden bg-slate-50/20" style={{ display: showMACD ? 'block' : 'none' }}>
-                            <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                                <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-tighter">Convergence Divergence (MACD)</span>
-                            </div>
-                            <div ref={macdChartRef} className="w-full" />
+                    {/* 3. MACD Chart */}
+                    <div className="relative border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/10" style={{ display: showMACD ? 'block' : 'none' }}>
+                        <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                            <span className="text-[9px] font-black text-orange-600 dark:text-orange-400 bg-orange-50/90 dark:bg-slate-900/90 px-2 py-0.5 rounded-full border border-orange-100 dark:border-slate-800 uppercase tracking-tighter">MACD (12, 26, 9)</span>
                         </div>
+                        <div ref={macdChartRef} className="w-full" />
+                    </div>
+
+                    {/* 4. DMI Chart */}
+                    <div className="relative border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/10" style={{ display: showDMI ? 'block' : 'none' }}>
+                        <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50/90 dark:bg-slate-900/90 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-slate-800 uppercase tracking-tighter">DMI / ADX 趨勢指標</span>
+                        </div>
+                        <div ref={dmiChartRef} className="w-full" />
                     </div>
                 </div>
             </div>
 
-            <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                <div className="flex items-center gap-6">
+            {/* Chart Footer Info */}
+            <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-950/20 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between text-[10px] gap-2">
+                <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm"></div>
-                        <span className="font-extrabold text-slate-600 uppercase tracking-tighter">EMA Fast/Slow (12, 26)</span>
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span className="font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-tighter">K線/KD (9, 3)</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-purple-500 shadow-sm"></div>
-                        <span className="font-extrabold text-slate-600 uppercase tracking-tighter">momentum Oscillator (14)</span>
+                        <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                        <span className="font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-tighter">RSI (14)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                        <span className="font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-tighter">BB (20, 2)</span>
                     </div>
                 </div>
-                <div className="font-bold text-slate-400 italic tracking-tight text-right">
-                    Inter-chart synchronization active. Pan or zoom any chart to adjust all perspectives.
+                <div className="font-bold text-slate-400 dark:text-slate-500 italic tracking-tight text-left md:text-right">
+                    多圖表聯動同步模式已啟用。拖曳或縮放任一圖表，所有指標將自動對齊時間軸。
                 </div>
             </div>
         </div>

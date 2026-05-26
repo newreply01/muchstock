@@ -35,11 +35,7 @@ import {
 import { getStockFinancials, getInstitutionalData } from '../../utils/api'
 import RevenueView from '../charts/RevenueView'
 import ValuationView from '../charts/ValuationView'
-import MACDView from '../charts/MACDView'
-import KDView from '../charts/KDView'
 import NewsBoard from './NewsBoard'
-import RSIView from '../charts/RSIView'
-import DMIView from '../charts/DMIView'
 import StockChart from '../charts/StockChart'
 import RealtimeView from '../charts/RealtimeView'
 import TrendView from '../charts/TrendView'
@@ -631,29 +627,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                             </div>
                         ) : activeTab === 'technical' ? (
                             <div className="h-full w-full min-h-[600px] flex flex-col gap-6 animate-in fade-in duration-300">
-                                {/* Technical Sub-Indicator Selector Bar */}
-                                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar self-start">
-                                    {[
-                                        { id: 'kline', label: '主圖 K 線與型態' },
-                                        { id: 'kd', label: 'KD 線圖' },
-                                        { id: 'macd', label: 'MACD 指標' },
-                                        { id: 'rsi', label: 'RSI 分析' },
-                                        { id: 'dmi', label: 'DMI/ADX' }
-                                    ].map(ind => (
-                                        <button
-                                            key={ind.id}
-                                            onClick={() => setActiveIndicator(ind.id)}
-                                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeIndicator === ind.id
-                                                ? 'bg-brand-primary text-white shadow-sm'
-                                                : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
-                                                }`}
-                                        >
-                                            {ind.label}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {/* Render StockChart (Always active to detect patterns) */}
+                                {/* Render Integrated StockChart */}
                                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
                                     <StockChart
                                         stock={stock}
@@ -662,16 +636,6 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                         onIndicatorStatus={setIndicatorStatus}
                                     />
                                 </div>
-
-                                {/* Render active technical sub-indicator chart */}
-                                {activeIndicator !== 'kline' && (
-                                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-                                        {activeIndicator === 'kd' && <KDView symbol={stock.symbol} period={activePeriod} />}
-                                        {activeIndicator === 'macd' && <MACDView symbol={stock.symbol} period={activePeriod} />}
-                                        {activeIndicator === 'rsi' && <RSIView symbol={stock.symbol} period={activePeriod} />}
-                                        {activeIndicator === 'dmi' && <DMIView symbol={stock.symbol} period={activePeriod} />}
-                                    </div>
-                                )}
 
                                 {/* Classic Patterns Replica */}
                                 <div className="space-y-4 mt-2">
