@@ -195,17 +195,25 @@ export default function MonitorPage() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 fade-in-20">
             {/* Tab Switcher */}
-            <div className="flex p-1 bg-gray-100 rounded-2xl w-fit">
+            <div className={`flex p-1 rounded-2xl w-fit transition-colors ${isDark ? 'bg-slate-800' : 'bg-gray-100'}`}>
                 <button
                     onClick={() => setActiveTab('system')}
-                    className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'system' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${
+                        activeTab === 'system'
+                            ? (isDark ? 'bg-slate-700 text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm')
+                            : (isDark ? 'text-slate-400 hover:text-slate-200' : 'text-gray-500 hover:text-gray-700')
+                    }`}
                 >
                     <Server className="w-4 h-4" />
                     系統健康狀態
                 </button>
                 <button
                     onClick={() => setActiveTab('ai-reports')}
-                    className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'ai-reports' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${
+                        activeTab === 'ai-reports'
+                            ? (isDark ? 'bg-slate-700 text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm')
+                            : (isDark ? 'text-slate-400 hover:text-slate-200' : 'text-gray-500 hover:text-gray-700')
+                    }`}
                 >
                     <FileText className="w-4 h-4" />
                     AI 投資報告查詢
@@ -215,20 +223,22 @@ export default function MonitorPage() {
             {activeTab === 'system' ? (
                 <>
                 {/* Header section */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+            <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl border shadow-sm transition-colors duration-300 ${
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+            }`}>
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+                    <h1 className={`text-2xl font-bold tracking-tight flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         <Activity className="w-6 h-6 text-brand-primary" />
                         系統監控中心
                     </h1>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                         監控資料庫、後端服務狀態，以及資料擷取排程的執行進度。
                     </p>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="text-right">
-                        <div className="text-xs text-gray-500">頁面最後更新時間</div>
-                        <div className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                        <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>頁面最後更新時間</div>
+                        <div className={`text-sm font-medium flex items-center gap-1 ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>
                             <Clock className="w-3.5 h-3.5" />
                             {lastFetchTime ? formatDate(lastFetchTime) : '載入中...'}
                         </div>
@@ -236,7 +246,9 @@ export default function MonitorPage() {
                     <button
                         onClick={fetchData}
                         disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                            isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        }`}
                     >
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                         <span>立即更新</span>
@@ -245,10 +257,12 @@ export default function MonitorPage() {
             </div>
 
             {error && (
-                <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3 text-red-700">
+                <div className={`border rounded-xl p-4 flex items-start gap-3 ${
+                    isDark ? 'bg-red-950/20 border-red-900 text-red-400' : 'bg-red-50 border-red-100 text-red-700'
+                }`}>
                     <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                     <div>
-                        <h3 className="font-medium text-red-800">資料載入失敗</h3>
+                        <h3 className={`font-medium ${isDark ? 'text-red-300' : 'text-red-800'}`}>資料載入失敗</h3>
                         <p className="text-sm mt-1">{error}</p>
                     </div>
                 </div>
@@ -257,45 +271,57 @@ export default function MonitorPage() {
             {statusData && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Database Status */}
-                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col pt-6">
+                    <div className={`p-5 rounded-2xl border shadow-sm flex flex-col pt-6 transition-colors duration-300 ${
+                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+                    }`}>
                         <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                isDark ? 'bg-blue-950/40 text-blue-400' : 'bg-blue-50 text-blue-600'
+                            }`}>
                                 <Database className="w-5 h-5" />
                             </div>
                             <StatusBadge status={statusData.status.database} />
                         </div>
-                        <h3 className="text-gray-500 text-sm font-medium">資料庫狀態</h3>
-                        <p className="text-xl font-bold text-gray-900 mt-1">PostgreSQL</p>
+                        <h3 className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>資料庫狀態</h3>
+                        <p className={`text-xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>PostgreSQL</p>
                     </div>
 
                     {/* Backend API Status */}
-                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col pt-6">
+                    <div className={`p-5 rounded-2xl border shadow-sm flex flex-col pt-6 transition-colors duration-300 ${
+                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+                    }`}>
                         <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                isDark ? 'bg-indigo-950/40 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
+                            }`}>
                                 <Server className="w-5 h-5" />
                             </div>
                             <StatusBadge status={statusData.status.backend} />
                         </div>
-                        <h3 className="text-gray-500 text-sm font-medium">後端 API 服務</h3>
-                        <p className="text-xl font-bold text-gray-900 mt-1">Node.js Express</p>
+                        <h3 className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>後端 API 服務</h3>
+                        <p className={`text-xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>Node.js Express</p>
                     </div>
 
                     {/* Scheduler Status */}
-                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col pt-6 lg:col-span-2">
+                    <div className={`p-5 rounded-2xl border shadow-sm flex flex-col pt-6 lg:col-span-2 transition-colors duration-300 ${
+                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+                    }`}>
                         <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                isDark ? 'bg-purple-950/40 text-purple-400' : 'bg-purple-50 text-purple-600'
+                            }`}>
                                 <Activity className="w-5 h-5" />
                             </div>
                             <StatusBadge status={statusData.status.scheduler} />
                         </div>
                         <div className="flex justify-between items-end">
                             <div>
-                                <h3 className="text-gray-500 text-sm font-medium">背景排程系統 (Scheduler)</h3>
-                                <p className="text-base font-bold text-gray-900 mt-1 truncate">負責執行所有的自動化資料同步任務</p>
+                                <h3 className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>背景排程系統 (Scheduler)</h3>
+                                <p className={`text-base font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>負責執行所有的自動化資料同步任務</p>
                             </div>
                             <div className="text-right">
-                                <div className="text-xs text-gray-400">上次檢查</div>
-                                <div className="text-sm font-medium text-gray-600">{formatDate(statusData.status.scheduler_last_check)}</div>
+                                <div className={`text-xs ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>上次檢查</div>
+                                <div className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>{formatDate(statusData.status.scheduler_last_check)}</div>
                             </div>
                         </div>
                     </div>
@@ -303,17 +329,21 @@ export default function MonitorPage() {
             )}
 
             {/* Ingestion Stats Chart (Bar Chart visualization) */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div className={`p-6 rounded-2xl border shadow-sm transition-colors duration-300 ${
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+            }`}>
                 <div className="flex items-center gap-2 mb-6">
                     <Calendar className="w-5 h-5 text-brand-primary" />
-                    <h2 className="text-lg font-bold text-gray-900">近 7 天資料擷取筆數 (寫入趨勢)</h2>
+                    <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>近 7 天資料擷取筆數 (寫入趨勢)</h2>
                 </div>
 
                 {statsData.length > 0 ? (
                     <div className="pt-10 pb-4 overflow-visible">
                         <div className="w-full">
                             {/* Simple Bar Chart Implementation using divs */}
-                            <div className="flex items-end gap-1 h-64 relative border-b border-gray-200 pb-2 overflow-visible">
+                            <div className={`flex items-end gap-1 h-64 relative border-b pb-2 overflow-visible ${
+                                isDark ? 'border-slate-800' : 'border-gray-200'
+                            }`}>
                                 {/* Find max value for scaling */}
                                 {(() => {
                                     const maxVal = Math.max(1, ...statsData.map(d =>
@@ -329,7 +359,9 @@ export default function MonitorPage() {
                                         return (
                                             <div key={idx} className="flex-1 flex flex-col items-center group relative h-full justify-end">
                                                 {/* Tooltip (now with space to render) */}
-                                                <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 shadow-xl border border-gray-700 text-white text-xs rounded-lg p-2.5 whitespace-nowrap z-[100] pointer-events-none transform -translate-x-1/2 left-1/2">
+                                                <div className={`absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-xl text-xs rounded-lg p-2.5 whitespace-nowrap z-[100] pointer-events-none transform -translate-x-1/2 left-1/2 border ${
+                                                    isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-gray-900 border-gray-800 text-white'
+                                                }`}>
                                                     <div className="font-bold border-b border-white/20 pb-1.5 mb-1.5 text-center">{day.date}</div>
                                                     <div className="flex justify-between gap-4">
                                                         <span className="text-gray-300">總寫入筆數:</span>
@@ -343,7 +375,9 @@ export default function MonitorPage() {
                                                 </div>
 
                                                 {/* Date Label */}
-                                                <div className="text-[10px] text-gray-500 mt-2 rotate-45 origin-left w-full h-8 flex-shrink-0 leading-none">{day.date.substring(5)}</div>
+                                                <div className={`text-[10px] mt-2 rotate-45 origin-left w-full h-8 flex-shrink-0 leading-none ${
+                                                    isDark ? 'text-slate-400' : 'text-gray-500'
+                                                }`}>{day.date.substring(5)}</div>
                                             </div>
                                         );
                                     });
@@ -352,22 +386,28 @@ export default function MonitorPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="h-64 flex items-center justify-center text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                    <div className={`h-64 flex items-center justify-center border border-dashed rounded-xl ${
+                        isDark ? 'text-slate-500 bg-slate-950/20 border-slate-800' : 'text-gray-400 bg-gray-50 border-gray-200'
+                    }`}>
                         {loading ? '載入中...' : '無可用資料'}
                     </div>
                 )}
             </div>
 
             {/* Daily Ingestion Details Table */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className={`p-6 rounded-2xl border shadow-sm mt-6 transition-colors duration-300 ${
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+            }`}>
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Database className="w-5 h-5 text-blue-500" />
                     每日資料擷取詳情
                 </h2>
 
-                <div className="overflow-x-auto rounded-xl border border-gray-200">
-                    <table className="w-full text-left text-sm text-gray-600">
-                        <thead className="bg-gray-50 border-b border-gray-200 text-gray-700">
+                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+                    <table className={`w-full text-left text-sm ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+                        <thead className={`border-b text-gray-700 ${
+                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 text-gray-700'
+                        }`}>
                             <tr>
                                 <th className="px-5 py-3 font-semibold">日期</th>
                                 <th className="px-5 py-3 font-semibold text-right">收盤</th>
@@ -378,29 +418,35 @@ export default function MonitorPage() {
                                 <th className="px-5 py-3 font-semibold text-right text-brand-primary">總計</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-gray-100'}`}>
                             {[...statsData].reverse().map((day, idx) => {
                                 const total = day.price_count + day.inst_count + day.margin_count + (day.news_count || 0) +
                                     (day.realtime_count || 0) + (day.stats_count || 0) + (day.health_count || 0);
                                 const isWeekend = new Date(day.date).getDay() === 0 || new Date(day.date).getDay() === 6;
                                 return (
-                                    <tr key={idx} className={`hover:bg-gray-50 transition-colors ${isWeekend ? 'bg-gray-50/50' : ''}`}>
-                                        <td className="px-5 py-3.5 font-medium text-gray-900 flex items-center gap-2">
+                                    <tr key={idx} className={`transition-colors ${
+                                        isDark 
+                                            ? (isWeekend ? 'bg-slate-950/20 hover:bg-slate-800/60' : 'hover:bg-slate-800/60') 
+                                            : (isWeekend ? 'bg-gray-50/50 hover:bg-gray-50' : 'hover:bg-gray-50')
+                                    }`}>
+                                        <td className={`px-5 py-3.5 font-medium flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                             {day.date}
-                                            {isWeekend && <span className="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded font-bold">週末</span>}
+                                            {isWeekend && <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                                                isDark ? 'bg-slate-800 text-slate-400' : 'bg-gray-200 text-gray-600'
+                                            }`}>週末</span>}
                                         </td>
-                                        <td className="px-5 py-3.5 text-right font-mono text-gray-900">{day.price_count.toLocaleString()}</td>
-                                        <td className="px-5 py-3.5 text-right font-mono text-gray-900">{(day.inst_count + day.margin_count).toLocaleString()}</td>
-                                        <td className="px-5 py-3.5 text-right font-mono text-blue-600 font-bold">{(day.realtime_count || 0).toLocaleString()}</td>
-                                        <td className="px-5 py-3.5 text-right font-mono text-indigo-600">{((day.stats_count || 0) + (day.health_count || 0)).toLocaleString()}</td>
-                                        <td className="px-5 py-3.5 text-right font-mono text-gray-500">{(day.news_count || 0).toLocaleString()}</td>
+                                        <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>{day.price_count.toLocaleString()}</td>
+                                        <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>{(day.inst_count + day.margin_count).toLocaleString()}</td>
+                                        <td className="px-5 py-3.5 text-right font-mono text-blue-500 font-bold">{(day.realtime_count || 0).toLocaleString()}</td>
+                                        <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>{((day.stats_count || 0) + (day.health_count || 0)).toLocaleString()}</td>
+                                        <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{(day.news_count || 0).toLocaleString()}</td>
                                         <td className="px-5 py-3.5 text-right font-mono font-bold text-brand-primary">{total.toLocaleString()}</td>
                                     </tr>
                                 );
                             })}
                             {!statsData.length && !loading && (
                                 <tr>
-                                    <td colSpan="6" className="px-5 py-8 text-center text-gray-500">尚無每日統計資料</td>
+                                    <td colSpan="7" className="px-5 py-8 text-center text-gray-500">尚無每日統計資料</td>
                                 </tr>
                             )}
                         </tbody>
@@ -409,15 +455,19 @@ export default function MonitorPage() {
             </div>
 
             {/* Synchronization Details Table */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className={`p-6 rounded-2xl border shadow-sm mt-6 transition-colors duration-300 ${
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+            }`}>
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Database className="w-5 h-5 text-blue-500" />
                     各項資料來源同步進度
                 </h2>
 
-                <div className="overflow-x-auto rounded-xl border border-gray-200">
-                    <table className="w-full text-left text-sm text-gray-600">
-                        <thead className="bg-gray-50 border-b border-gray-200 text-gray-700">
+                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+                    <table className={`w-full text-left text-sm ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+                        <thead className={`border-b text-gray-700 ${
+                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 text-gray-700'
+                        }`}>
                             <tr>
                                 <th className="px-5 py-3 font-semibold">資料集 (Dataset)</th>
                                 <th className="px-5 py-3 font-semibold">擷取程式</th>
@@ -426,28 +476,41 @@ export default function MonitorPage() {
                                 <th className="px-5 py-3 font-semibold text-right">狀態</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-gray-100'}`}>
                             {statusData?.sync_progress?.filter(d => DATASET_SCRIPT_MAP[d.id])?.map((item, idx) => {
                                 const isStale = new Date() - new Date(item.last_updated) > 3 * 24 * 60 * 60 * 1000;
                                 const scriptInfo = DATASET_SCRIPT_MAP[item.id] || { script: '未知', color: 'bg-gray-100 text-gray-600' };
 
+                                // 在深色模式下稍微調整標籤色彩
+                                const dynamicBadgeColor = isDark 
+                                    ? scriptInfo.color.replace('bg-blue-100 text-blue-800 border border-blue-200', 'bg-blue-950/60 text-blue-400 border border-blue-900/50')
+                                                       .replace('bg-green-100 text-green-800 border border-green-200', 'bg-green-950/60 text-green-400 border border-green-900/50')
+                                                       .replace('bg-purple-100 text-purple-800 border border-purple-200', 'bg-purple-950/60 text-purple-400 border border-purple-900/50')
+                                                       .replace('bg-orange-100 text-orange-800 border border-orange-200', 'bg-orange-950/60 text-orange-400 border border-orange-900/50')
+                                                       .replace('bg-indigo-100 text-indigo-800 border border-indigo-200', 'bg-indigo-950/60 text-indigo-400 border border-indigo-900/50')
+                                    : scriptInfo.color;
+
                                 return (
-                                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-5 py-3.5 font-medium text-gray-900">{item.dataset}</td>
+                                    <tr key={idx} className={`transition-colors ${isDark ? 'hover:bg-slate-800/60' : 'hover:bg-gray-50'}`}>
+                                        <td className={`px-5 py-3.5 font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.dataset}</td>
                                         <td className="px-5 py-3.5">
-                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${scriptInfo.color}`}>
+                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${dynamicBadgeColor}`}>
                                                 {scriptInfo.script}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3.5 text-blue-600 font-medium">{item.description}</td>
+                                        <td className={`px-5 py-3.5 font-medium ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>{item.description}</td>
                                         <td className="px-5 py-3.5">{formatDate(item.last_updated)}</td>
                                         <td className="px-5 py-3.5 text-right">
                                             {isStale ? (
-                                                <span className="inline-flex items-center gap-1 text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                                                    isDark ? 'text-yellow-400 bg-yellow-950/30' : 'text-yellow-600 bg-yellow-50'
+                                                }`}>
                                                     <AlertCircle className="w-3.5 h-3.5" /> 較久未更新
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center text-green-600 bg-green-50 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                                                    isDark ? 'text-green-400 bg-green-950/30' : 'text-green-600 bg-green-50'
+                                                }`}>
                                                     更新正常
                                                 </span>
                                             )}
@@ -466,15 +529,19 @@ export default function MonitorPage() {
             </div>
 
             {/* JS Script Monitoring Table */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className={`p-6 rounded-2xl border shadow-sm mt-6 transition-colors duration-300 ${
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+            }`}>
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Server className="w-5 h-5 text-indigo-500" />
                     各項背景擷取程式 (Script) 執行狀態
                 </h2>
 
-                <div className="overflow-x-auto rounded-xl border border-gray-200">
-                    <table className="w-full text-left text-sm text-gray-600">
-                        <thead className="bg-gray-50 border-b border-gray-200 text-gray-700">
+                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+                    <table className={`w-full text-left text-sm ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+                        <thead className={`border-b text-gray-700 ${
+                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 text-gray-700'
+                        }`}>
                             <tr>
                                 <th className="px-5 py-3 font-semibold">程式名稱 (.js)</th>
                                 <th className="px-5 py-3 font-semibold">用途說明</th>
@@ -483,7 +550,7 @@ export default function MonitorPage() {
                                 <th className="px-5 py-3 font-semibold text-right">最後執行時間</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-gray-100'}`}>
                             {KNOWN_SCRIPTS.map((def, idx) => {
                                 // Look up dynamic status from API
                                 const apiItem = statusData?.script_status?.find(s => s.script === def.script);
@@ -502,52 +569,60 @@ export default function MonitorPage() {
                                 }
 
                                 let liveBadge = (
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-gray-100 text-gray-500">
+                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider ${
+                                        isDark ? 'bg-slate-800 text-slate-400' : 'bg-gray-100 text-gray-500'
+                                    }`}>
                                         <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div> 未知狀態
                                     </span>
                                 );
 
                                 if (liveStatus === 'WAITING') {
                                     liveBadge = (
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider ${
+                                            isDark ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/50' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                        } shadow-sm`}>
                                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div> 排程已啟動 (待命/休市)
                                         </span>
                                     );
                                 } else if (liveStatus === 'RUNNING') {
                                     liveBadge = (
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-blue-50 text-blue-700 border border-blue-100 shadow-sm">
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider ${
+                                            isDark ? 'bg-blue-950/40 text-blue-400 border border-blue-900/50' : 'bg-blue-50 text-blue-700 border border-blue-100'
+                                        } shadow-sm`}>
                                             <div className="w-3 h-3 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div> 正在擷取資料中...
                                         </span>
                                     );
                                 } else if (liveStatus === 'NOT_SCHEDULED') {
                                     liveBadge = (
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-red-50 text-red-700">
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider ${
+                                            isDark ? 'bg-red-950/40 text-red-400' : 'bg-red-50 text-red-700'
+                                        }`}>
                                             <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div> {def.script === 'realtime_crawler.js' ? '服務未啟動' : '排程未載入'}
                                         </span>
                                     );
                                 }
 
-                                let dbStatusColor = 'text-gray-500';
-                                if (dbStatus === 'SUCCESS') dbStatusColor = 'text-green-600';
-                                if (dbStatus === 'FAILED') dbStatusColor = 'text-red-600';
+                                let dbStatusColor = isDark ? 'text-slate-400' : 'text-gray-500';
+                                if (dbStatus === 'SUCCESS') dbStatusColor = 'text-green-500 font-bold';
+                                if (dbStatus === 'FAILED') dbStatusColor = 'text-red-500 font-bold';
 
                                 return (
-                                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={idx} className={`transition-colors ${isDark ? 'hover:bg-slate-800/60' : 'hover:bg-gray-50'}`}>
                                         <td className="px-5 py-4">
-                                            <div className="font-bold text-gray-900">{def.script}</div>
+                                            <div className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{def.script}</div>
                                             <div className="mt-2">{liveBadge}</div>
                                         </td>
-                                        <td className="px-5 py-4 text-indigo-600 font-medium">{def.desc}</td>
-                                        <td className="px-5 py-4 text-gray-500 text-xs">{def.schedule}</td>
+                                        <td className={`px-5 py-4 font-medium ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>{def.desc}</td>
+                                        <td className={`px-5 py-4 text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{def.schedule}</td>
                                         <td className="px-5 py-4">
                                             <div className="flex flex-col gap-1">
                                                 <div className={`text-xs font-bold tracking-wider ${dbStatusColor}`}>
                                                     歷史狀態: {dbStatus}
                                                 </div>
-                                                <div className="text-xs text-gray-500 line-clamp-2" title={message}>{message}</div>
+                                                <div className={`text-xs line-clamp-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`} title={message}>{message}</div>
                                             </div>
                                         </td>
-                                        <td className="px-5 py-4 text-right font-mono text-xs text-gray-600">{formatDate(lastRun)}</td>
+                                        <td className={`px-5 py-4 text-right font-mono text-xs ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>{formatDate(lastRun)}</td>
                                     </tr>
                                 );
                             })}
@@ -559,16 +634,20 @@ export default function MonitorPage() {
             ) : (
                 <div className="space-y-6">
                     {/* Search & Filter Header */}
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className={`p-6 rounded-2xl border shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6 transition-colors duration-300 ${
+                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-805'
+                    }`}>
                         {/* Autocomplete Search */}
                         <div className="relative col-span-2">
-                            <label className="block text-sm font-bold text-gray-700 mb-2">搜尋個股 (代號或名稱)</label>
+                            <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-slate-205' : 'text-gray-700'}`}>搜尋個股 (代號或名稱)</label>
                             <div className="relative">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="text"
                                     placeholder="輸入如 2330 或 台積電..."
-                                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all font-medium"
+                                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all font-medium ${
+                                        isDark ? 'bg-slate-800 border-slate-700 text-white placeholder-slate-500' : 'bg-gray-50 border-gray-200 text-gray-800'
+                                    }`}
                                     value={selectedStock ? `${selectedStock.symbol} ${selectedStock.name}` : searchQuery}
                                     onChange={(e) => {
                                         setSearchQuery(e.target.value);
@@ -589,11 +668,15 @@ export default function MonitorPage() {
                             
                             {/* Dropdown Results */}
                             {showResults && filteredStocks.length > 0 && (
-                                <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                                <div className={`absolute z-50 w-full mt-2 border rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 ${
+                                    isDark ? 'bg-slate-800 border-slate-700 text-white shadow-slate-950/50' : 'bg-white border-gray-200'
+                                }`}>
                                     {filteredStocks.map(s => (
                                         <button
                                             key={s.symbol}
-                                            className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center justify-between transition-colors border-b last:border-0 border-gray-100"
+                                            className={`w-full px-4 py-3 text-left flex items-center justify-between transition-colors border-b last:border-0 ${
+                                                isDark ? 'hover:bg-slate-700/50 border-slate-700 text-white' : 'hover:bg-gray-50 border-gray-100 text-gray-800'
+                                            }`}
                                             onClick={() => {
                                                 setSelectedStock(s);
                                                 setShowResults(false);
@@ -601,10 +684,12 @@ export default function MonitorPage() {
                                             }}
                                         >
                                             <div>
-                                                <span className="font-bold text-gray-900 mr-2">{s.symbol}</span>
-                                                <span className="text-gray-600">{s.name}</span>
+                                                <span className={`font-bold mr-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{s.symbol}</span>
+                                                <span className={isDark ? 'text-slate-300' : 'text-gray-600'}>{s.name}</span>
                                             </div>
-                                            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{s.industry}</span>
+                                            <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                                isDark ? 'text-slate-400 bg-slate-700' : 'text-gray-400 bg-gray-100'
+                                            }`}>{s.industry}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -613,12 +698,14 @@ export default function MonitorPage() {
 
                         {/* Date Filter */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">報告日期</label>
+                            <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-slate-205' : 'text-gray-700'}`}>報告日期</label>
                             <div className="relative">
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="date"
-                                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all font-medium"
+                                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all font-medium ${
+                                        isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-gray-50 border-gray-200 text-gray-800'
+                                    }`}
                                     value={reportDate}
                                     onChange={(e) => setReportDate(e.target.value)}
                                 />
@@ -627,21 +714,25 @@ export default function MonitorPage() {
                     </div>
 
                     {/* Report Display */}
-                    <div className="bg-white min-h-[700px] rounded-3xl border border-gray-100 shadow-md overflow-hidden flex flex-col">
+                    <div className={`min-h-[700px] rounded-3xl border shadow-md overflow-hidden flex flex-col transition-colors duration-300 ${
+                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-800'
+                    }`}>
                         {!selectedStock ? (
                             <div className="flex-1 flex flex-col p-8">
                                 {/* Dashboard Controls */}
-                                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 border-b border-gray-100 pb-6">
+                                <div className={`flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 border-b pb-6 ${
+                                    isDark ? 'border-slate-800/80' : 'border-gray-100'
+                                }`}>
                                     <div>
-                                        <h3 className="text-xl font-black text-gray-900 flex items-center gap-2 mb-2">
+                                        <h3 className={`text-xl font-black flex items-center gap-2 mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                             <BarChart2 className="w-6 h-6 text-brand-primary" />
                                             全市場 AI 報告進度
                                         </h3>
                                         <div className="flex items-center gap-4">
-                                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                                                <span className="font-bold text-gray-700">{completionCount}</span> / {allStocks.length} 家已完成
+                                            <div className={`flex items-center gap-2 text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
+                                                <span className={`font-bold ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>{completionCount}</span> / {allStocks.length} 家已完成
                                             </div>
-                                            <div className="flex-1 w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                            <div className={`flex-1 w-32 h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-gray-100'}`}>
                                                 <div 
                                                     className="h-full bg-brand-primary transition-all duration-1000" 
                                                     style={{ width: `${completionRate}%` }}
@@ -653,7 +744,7 @@ export default function MonitorPage() {
 
                                     <div className="flex flex-wrap items-center gap-3">
                                         {/* Sort Controls */}
-                                        <div className="flex p-0.5 bg-gray-50 rounded-xl border border-gray-200">
+                                        <div className={`flex p-0.5 rounded-xl border ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-gray-50 border-gray-200'}`}>
                                             {[
                                                 { key: 'volume', label: '成交量', icon: <BarChart2 className="w-3 h-3"/> },
                                                 { key: 'symbol', label: '代號', icon: <Search className="w-3 h-3"/> },
@@ -665,7 +756,11 @@ export default function MonitorPage() {
                                                         if (sortKey === opt.key) setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
                                                         else { setSortKey(opt.key); setSortOrder('desc'); }
                                                     }}
-                                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${sortKey === opt.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                                        sortKey === opt.key 
+                                                            ? (isDark ? 'bg-slate-700 text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm') 
+                                                            : (isDark ? 'text-slate-400 hover:text-slate-200' : 'text-gray-400 hover:text-gray-600')
+                                                    }`}
                                                 >
                                                     {opt.icon}
                                                     {opt.label}
@@ -677,9 +772,17 @@ export default function MonitorPage() {
                                         {/* Filter Toggle */}
                                         <button
                                             onClick={() => setFilterOnlyCompleted(!filterOnlyCompleted)}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filterOnlyCompleted ? 'bg-green-50 border-green-200 text-green-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                                filterOnlyCompleted 
+                                                    ? (isDark ? 'bg-green-950/40 border-green-800/80 text-green-405' : 'bg-green-50 border-green-200 text-green-700') 
+                                                    : (isDark ? 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300')
+                                            }`}
                                         >
-                                            <div className={`w-2 h-2 rounded-full ${filterOnlyCompleted ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                                            <div className={`w-2 h-2 rounded-full ${
+                                                filterOnlyCompleted 
+                                                    ? 'bg-green-500 animate-pulse' 
+                                                    : (isDark ? 'bg-slate-600' : 'bg-gray-300')
+                                            }`}></div>
                                             僅顯示已完成
                                         </button>
                                     </div>
@@ -687,7 +790,9 @@ export default function MonitorPage() {
                                 
                                 {isStocksLoading ? (
                                     <div className="flex-1 flex flex-col items-center justify-center py-20">
-                                        <div className="w-10 h-10 border-4 border-gray-100 border-t-brand-primary rounded-full animate-spin"></div>
+                                        <div className={`w-10 h-10 border-4 rounded-full animate-spin ${
+                                            isDark ? 'border-slate-800 border-t-brand-primary' : 'border-gray-100 border-t-brand-primary'
+                                        }`}></div>
                                         <p className="mt-4 text-sm text-gray-400 font-bold">載入清單數據中...</p>
                                     </div>
                                 ) : (
@@ -697,26 +802,34 @@ export default function MonitorPage() {
                                                 <button
                                                     key={s.symbol}
                                                     onClick={() => setSelectedStock(s)}
-                                                    className={`group text-left p-4 rounded-3xl border transition-all duration-300 relative overflow-hidden ${s.has_report ? 'bg-white border-green-100 shadow-sm shadow-green-500/5 hover:border-green-300' : 'bg-gray-50 border-gray-100 hover:bg-white hover:border-brand-primary'}`}
+                                                    className={`group text-left p-4 rounded-3xl border transition-all duration-300 relative overflow-hidden ${
+                                                        s.has_report 
+                                                            ? (isDark ? 'bg-slate-800/80 border-green-900/50 shadow-sm shadow-green-950/10 hover:border-green-500' : 'bg-white border-green-100 shadow-sm shadow-green-500/5 hover:border-green-300') 
+                                                            : (isDark ? 'bg-slate-900/40 border-slate-800/80 hover:bg-slate-800 hover:border-brand-primary' : 'bg-gray-50 border-gray-100 hover:bg-white hover:border-brand-primary')
+                                                    }`}
                                                 >
                                                     {s.has_report && (
                                                         <div className="absolute top-3 right-3 w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-green-500/20 animate-in zoom-in duration-500">
                                                             <Activity className="w-3 h-3" />
                                                         </div>
                                                     )}
-                                                    <div className="text-xs font-black text-gray-400 mb-1 group-hover:text-brand-primary transition-colors flex items-center justify-between">
+                                                    <div className={`text-xs font-black mb-1 group-hover:text-brand-primary transition-colors flex items-center justify-between ${
+                                                        isDark ? 'text-slate-500' : 'text-gray-400'
+                                                    }`}>
                                                         {s.symbol}
                                                         {s.processed_at && (
-                                                            <span className="text-[9px] text-green-600/60 font-bold">
+                                                            <span className="text-[9px] text-green-500 font-bold">
                                                                 {new Date(s.processed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <div className="font-bold text-gray-900 group-hover:scale-105 transition-transform origin-left truncate mb-2">{s.name}</div>
+                                                    <div className={`font-bold group-hover:scale-105 transition-transform origin-left truncate mb-2 ${
+                                                        isDark ? 'text-white' : 'text-gray-900'
+                                                    }`}>{s.name}</div>
                                                     
                                                     <div className="flex items-center gap-1.5 opacity-60">
                                                         <BarChart2 className="w-3 h-3 text-gray-400" />
-                                                        <span className="text-[10px] font-bold text-gray-500">
+                                                        <span className={`text-[10px] font-bold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                                                             {(s.volume / 1000).toLocaleString(undefined, { maximumFractionDigits: 0 })} 張
                                                         </span>
                                                     </div>
@@ -791,7 +904,9 @@ export default function MonitorPage() {
                                 <div className="p-6 md:p-8 overflow-y-auto">
                                     <StructuredReportView reportText={reportData.content} />
                                 </div>
-                                <div className="p-6 bg-gray-50 border-t border-gray-100 text-center text-xs text-gray-400">
+                                <div className={`p-6 border-t text-center text-xs ${
+                                    isDark ? 'bg-slate-900/50 border-slate-800 text-slate-500' : 'bg-gray-50 border-gray-100 text-gray-400'
+                                }`}>
                                     本報告由台股智能篩選器 AI 自動生成，僅供研究參考，不構成任何投資建議。
                                 </div>
                             </>
