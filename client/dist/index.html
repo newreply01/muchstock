@@ -4,11 +4,22 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0ea5e9" />
     <title>MuchStock v2.1 | 智能台股篩選器</title>
-    <script type="module" crossorigin src="/assets/index-BbTQpDR0.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CafRNBeF.css">
+    <script type="module" crossorigin src="/assets/index-UDEncZXe.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CfvQabtv.css">
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+    </script>
   </body>
 </html>

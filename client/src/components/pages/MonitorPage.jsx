@@ -15,12 +15,13 @@ export default function MonitorPage() {
         setLoading(true);
         setError(null);
         try {
+            const ts = new Date().getTime();
             // Fetch status
-            const statusRes = await fetch('/api/monitor/status');
+            const statusRes = await fetch(`/api/monitor/status?t=${ts}`);
             const statusJson = await statusRes.json();
 
             // Fetch stats
-            const statsRes = await fetch('/api/monitor/ingestion-stats?days=7');
+            const statsRes = await fetch(`/api/monitor/ingestion-stats?days=7&t=${ts}`);
             const statsJson = await statsRes.json();
 
             if (statusJson.success) setStatusData(statusJson);
@@ -258,7 +259,7 @@ export default function MonitorPage() {
                                                 </div>
 
                                                 {/* Date Label */}
-                                                <div className={`text-[10px] mt-2 rotate-45 origin-left w-full h-8 flex-shrink-0 leading-none ${
+                                                <div className={`text-[10px] mt-2 text-center w-full h-5 flex-shrink-0 leading-none ${
                                                       isDark ? 'text-slate-400' : 'text-gray-500'
                                                 }`}>{day.date.substring(5)}</div>
                                             </div>
@@ -356,6 +357,7 @@ export default function MonitorPage() {
                                 <th className="px-5 py-3 font-semibold">擷取程式</th>
                                 <th className="px-5 py-3 font-semibold">排程說明</th>
                                 <th className="px-5 py-3 font-semibold">資料庫最後更新時間</th>
+                                <th className="px-5 py-3 font-semibold text-right">資料筆數</th>
                                 <th className="px-5 py-3 font-semibold text-right">狀態</th>
                             </tr>
                         </thead>
@@ -383,12 +385,19 @@ export default function MonitorPage() {
                                         </td>
                                         <td className={`px-5 py-3.5 font-medium ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>{item.description}</td>
                                         <td className="px-5 py-3.5">{formatDate(item.last_updated)}</td>
+                                        <td className="px-5 py-3.5 text-right font-mono font-medium">{item.data_count?.toLocaleString() || 0}</td>
                                         <td className="px-5 py-3.5 text-right">
                                             {isStale ? (
                                                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${
-                                                    isDark ? 'text-yellow-400 bg-yellow-950/30' : 'text-yellow-600 bg-yellow-50'
+                                                    isDark ? 'text-red-400 bg-red-950/30' : 'text-red-600 bg-red-50'
                                                 }`}>
                                                     <AlertCircle className="w-3.5 h-3.5" /> 較久未更新
+                                                </span>
+                                            ) : item.status === 'no_data' ? (
+                                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                                                    isDark ? 'text-yellow-400 bg-yellow-950/30' : 'text-yellow-600 bg-yellow-50'
+                                                }`}>
+                                                    <AlertCircle className="w-3.5 h-3.5" /> 無資料更新
                                                 </span>
                                             ) : (
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${
@@ -403,7 +412,7 @@ export default function MonitorPage() {
                             })}
                             {!statusData?.sync_progress?.length && !loading && (
                                 <tr>
-                                    <td colSpan="5" className="px-5 py-8 text-center text-gray-500">尚無同步紀錄</td>
+                                    <td colSpan="6" className="px-5 py-8 text-center text-gray-500">尚無同步紀錄</td>
                                 </tr>
                             )}
                         </tbody>

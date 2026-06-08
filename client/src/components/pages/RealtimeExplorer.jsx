@@ -217,8 +217,8 @@ const RealtimeExplorer = ({ onStockSelect }) => {
                                         <td className="py-1 px-2 text-slate-600">{formatPrice(tick.open_price)}</td>
                                         <td className="py-1 px-2 text-red-500 font-black">{formatPrice(tick.high_price)}</td>
                                         <td className="py-1 px-2 text-green-600 font-black">{formatPrice(tick.low_price)}</td>
-                                        <td className="py-1 px-2 font-black text-blue-600">{tick.trade_volume}</td>
-                                        <td className="py-1 px-2 font-black text-amber-600 bg-amber-50/50">{tick.volume}</td>
+                                        <td className="py-1 px-2 font-black text-blue-600">{tick.volume}</td>
+                                        <td className="py-1 px-2 font-black text-amber-600 bg-amber-50/50">{tick.trade_volume}</td>
                                         <td className="py-1 px-2 text-green-600">{tick.sell_intensity}%</td>
                                         <td className="py-1 px-2 text-red-500">{tick.buy_intensity}%</td>
                                     </tr>

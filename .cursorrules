@@ -1,0 +1,3 @@
+When developing the frontend or UI for this project, you MUST always follow the high-end UI design principles defined in `TASTE_SKILL.md` located in the root of this workspace. 
+
+Before generating any UI code, review `TASTE_SKILL.md` to ensure your designs adhere to the variance, motion, and visual density guidelines (avoiding "boring, generic slop"). Always aim for premium, high-quality, and modern UI.

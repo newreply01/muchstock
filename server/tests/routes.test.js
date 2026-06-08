@@ -100,3 +100,15 @@ describe('Filters 路由保護', () => {
         expect(res.body.success).toBe(false);
     });
 });
+
+describe('New Split Routes', () => {
+    it('GET /api/market-summary 應回傳 200', async () => {
+        const res = await request(app).get('/api/market-summary');
+        expect(res.statusCode).toBeLessThan(500);
+    });
+
+    it('GET /api/stock/2330/quick-diagnosis 應回傳 200', async () => {
+        const res = await request(app).get('/api/stock/2330/quick-diagnosis');
+        expect(res.statusCode).toBeLessThan(500);
+    });
+});

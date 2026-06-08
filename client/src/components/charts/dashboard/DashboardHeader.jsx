@@ -1,10 +1,10 @@
 import React from 'react';
 import StockSearchAutocomplete from '../../forms/StockSearchAutocomplete';
 
-export default function DashboardHeader({ stock, realtime }) {
+export default function DashboardHeader({ stock, realtime, connectionStatus }) {
     const price = realtime?.price || parseFloat(stock?.close_price) || 0;
-    const change = realtime?.change || parseFloat(stock?.change_amount) || 0;
-    const changePct = realtime?.changePercent || parseFloat(stock?.change_percent) || 0;
+    const change = realtime?.change_amount || realtime?.change || parseFloat(stock?.change_amount) || 0;
+    const changePct = realtime?.change_percent || realtime?.changePercent || parseFloat(stock?.change_percent) || 0;
     const volume = realtime?.volume || parseInt(stock?.volume) || 0;
     const isUp = Number(changePct) > 0;
     const isDown = Number(changePct) < 0;
@@ -13,9 +13,24 @@ export default function DashboardHeader({ stock, realtime }) {
     return (
         <div className="sd-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div className="sd-stock-name">
-                    {stock?.name}
-                    <span className="sd-stock-code">{stock?.symbol}</span>
+                <div className="sd-stock-name" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                        {stock?.name}
+                        <span className="sd-stock-code">{stock?.symbol}</span>
+                    </div>
+                    {connectionStatus && (
+                        <div 
+                            title={`即時連線狀態: ${connectionStatus}`}
+                            style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: '50%',
+                                backgroundColor: connectionStatus === 'connected' ? '#10b981' : connectionStatus === 'connecting' ? '#f59e0b' : '#ef4444',
+                                boxShadow: connectionStatus === 'connected' ? '0 0 8px #10b981' : 'none',
+                                animation: connectionStatus === 'connected' ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none'
+                            }}
+                        />
+                    )}
                 </div>
                 <span className={`sd-price-big ${colorClass}`}>
                     {Number(price).toFixed(2)}

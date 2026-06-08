@@ -61,7 +61,7 @@ const INDICATOR_TOOLTIPS = {
     }
 };
 
-export default function StockChart({ stock, period = '日K', onPatternsDetected, onIndicatorStatus }) {
+export default function StockChart({ stock, period = '日K', onPatternsDetected, onIndicatorStatus, realtimeTick }) {
     const mainChartRef = useRef();
     const kdRsiChartRef = useRef();
     const macdChartRef = useRef();
@@ -74,6 +74,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
 
     const [loading, setLoading] = useState(true);
     const [detectedPatterns, setDetectedPatterns] = useState([]);
+    const [latestChartData, setLatestChartData] = useState({ price: null, changePercent: null });
     
     // 開關控制狀態
     const [showMA20, setShowMA20] = useState(true);
@@ -175,6 +176,16 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                 const opens = candleData.map(d => d.open);
                 const highs = candleData.map(d => d.high);
                 const lows = candleData.map(d => d.low);
+
+                if (candleData.length >= 2) {
+                    const last = candleData[candleData.length - 1];
+                    const prev = candleData[candleData.length - 2];
+                    const changeAmt = last.close - prev.close;
+                    const changePct = (changeAmt / prev.close) * 100;
+                    setLatestChartData({ price: last.close, changePercent: changePct });
+                } else if (candleData.length === 1) {
+                    setLatestChartData({ price: candleData[0].close, changePercent: 0 });
+                }
 
                 // --- Pattern Detection ---
                 const markers = [];
@@ -650,10 +661,24 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                 </div>
                 <div className="flex flex-col items-end self-end sm:self-center">
                     <div className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter">
-                        {stock.close_price ? parseFloat(stock.close_price).toFixed(2) : '--'}
+                        {realtimeTick?.price 
+                            ? parseFloat(realtimeTick.price).toFixed(2) 
+                            : latestChartData.price 
+                                ? latestChartData.price.toFixed(2) 
+                                : (stock.close_price ? parseFloat(stock.close_price).toFixed(2) : '--')}
                     </div>
-                    <div className={`text-sm font-black flex items-center justify-end gap-1 ${stock.change_percent && parseFloat(stock.change_percent) >= 0 ? 'text-red-500' : 'text-green-600'}`}>
-                        {stock.change_percent ? `${parseFloat(stock.change_percent) >= 0 ? '▲' : '▼'}${Math.abs(parseFloat(stock.change_percent)).toFixed(2)}%` : '--'}
+                    <div className={`text-sm font-black flex items-center justify-end gap-1 ${
+                        (realtimeTick?.change_percent || realtimeTick?.changePercent || latestChartData.changePercent) !== null 
+                            ? ((realtimeTick?.change_percent || realtimeTick?.changePercent || latestChartData.changePercent) >= 0 ? 'text-red-500' : 'text-green-600') 
+                            : (stock.change_percent && parseFloat(stock.change_percent) >= 0 ? 'text-red-500' : 'text-green-600')
+                    }`}>
+                        {(() => {
+                            const pct = realtimeTick?.change_percent || realtimeTick?.changePercent || latestChartData.changePercent;
+                            if (pct !== null && pct !== undefined) {
+                                return `${pct >= 0 ? '▲' : '▼'}${Math.abs(pct).toFixed(2)}%`;
+                            }
+                            return stock.change_percent ? `${parseFloat(stock.change_percent) >= 0 ? '▲' : '▼'}${Math.abs(parseFloat(stock.change_percent)).toFixed(2)}%` : '--';
+                        })()}
                     </div>
                 </div>
             </div>

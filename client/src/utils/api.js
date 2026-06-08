@@ -123,9 +123,7 @@ export async function updateUserSettings(settings) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
-    });
-    if (!res.ok) throw new Error('更新使用者設定失敗');
-    return res.json();
+    }, true);
 }
 
 export async function getWatchlists() {
@@ -199,8 +197,6 @@ export async function getRealtimeBatch(symbols) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ symbols })
     });
-    if (!res.ok) throw new Error('獲取批量即時行情失敗');
-    return res.json();
 }
 
 export async function getMarketIndex() {
@@ -226,9 +222,7 @@ export async function getPromptTemplates() {
 }
 
 export async function getPromptTemplate(name) {
-    return apiRequest(`${API_BASE}/admin/prompts/${name}`);
-    if (!res.ok) throw new Error(`獲取提示詞模板 ${name} 失敗`);
-    return res.json();
+    return apiRequest(`${API_BASE}/admin/prompts/${name}`, {}, true);
 }
 
 export async function updatePromptTemplate(name, content, note) {
@@ -248,21 +242,21 @@ export async function getPromptHistory(name) {
 }
 
 export async function getPromptVersion(id) {
-    const res = await authFetch(`${API_BASE}/admin/prompts/version/${id}`, {}, true);
+    return authFetch(`${API_BASE}/admin/prompts/version/${id}`, {}, true).then(res => res.json());
 }
 
 export async function overwritePromptVersion(id, content, note) {
-    const res = await authFetch(`${API_BASE}/admin/prompts/version/${id}`, {
+    return authFetch(`${API_BASE}/admin/prompts/version/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, note })
-    });
+    }).then(res => res.json());
 }
 
 export async function deletePromptVersion(id) {
-    const res = await authFetch(`${API_BASE}/admin/prompts/version/${id}`, {
+    return authFetch(`${API_BASE}/admin/prompts/version/${id}`, {
         method: 'DELETE'
-    }, true);
+    }, true).then(res => res.json());
 }
 
 
@@ -296,6 +290,7 @@ export async function updateAnalysisSettings(weights) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(weights)
     }, true);
+    return res.json();
 }
 
 // ==================== 歷史評分走勢 API ====================

@@ -4,11 +4,12 @@ import {
     ArrowRight, ChevronRight, Info, Search, Filter, AlertCircle, ChevronDown, ChevronUp, BarChart3, Waves
 } from 'lucide-react';
 import { getRealtimeData, getQuickDiagnosis, API_BASE } from '../../utils/api';
-import { useGlobalFilters } from '../../context/GlobalFilterContext';
+import useGlobalStore from '../../store/useGlobalStore';
 import DiagnosisModal from '../modals/DiagnosisModal';
 
 export default function StockAnalyzer({ symbol }) {
-    const { market, industry, stockTypesForApi } = useGlobalFilters();
+    const { globalMarket: market, globalIndustry: industry, globalStockTypes } = useGlobalStore();
+    const stockTypesForApi = globalStockTypes.join(',');
     const [selectedFilter, setSelectedFilter] = useState(null);
     const [stocks, setStocks] = useState([]);
     const [loading, setLoading] = useState(false);

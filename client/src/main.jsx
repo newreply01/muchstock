@@ -1,12 +1,22 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext'
-import { GlobalFilterProvider } from './context/GlobalFilterContext'
 import { ThemeProvider } from './context/ThemeContext'
+import './i18n/config'
 import ErrorBoundary from './components/shared/ErrorBoundary'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+})
 
 const rootElement = document.getElementById('root');
 
@@ -18,13 +28,13 @@ if (!rootElement) {
     <StrictMode>
       <BrowserRouter>
         <ErrorBoundary>
-          <AuthProvider>
-            <GlobalFilterProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
               <ThemeProvider>
                 <App />
               </ThemeProvider>
-            </GlobalFilterProvider>
-          </AuthProvider>
+            </AuthProvider>
+          </QueryClientProvider>
         </ErrorBoundary>
       </BrowserRouter>
     </StrictMode>,

@@ -74,7 +74,8 @@ export function OvernightRiskPanel({ realtime, prediction, historyData, theme })
   
   const momentum = safeNum(prediction?.factors?.momentum_5d, 0);
   // realtime.volume 是張數(字串)，history volume 是股數(字串)，需統一為張數
-  const currentVolLots = safeNum(realtime?.volume, 0);
+  let currentVolLots = safeNum(realtime?.volume, 0);
+  if (currentVolLots > 1000000) currentVolLots /= 1000; // 防呆：確保是張數
   const avgVolLots = Array.isArray(historyData) && historyData.length > 0 
     ? historyData.slice(0,5).reduce((a,b) => a + safeNum(b.volume, 0) / 1000, 0) / Math.min(5, historyData.length)
     : currentVolLots;
@@ -137,13 +138,13 @@ export function SpeedStockRadarPanel({ diagnosis, prediction, theme }) {
   const diagScore = safeNum(diagnosis?.score, 50);
   const techDetail = safeNum(diagnosis?.rating?.details?.technical, 0);
   const sentDetail = safeNum(diagnosis?.rating?.details?.sentiment, 0);
-  const instNet = safeNum(prediction?.factors?.inst_net_5d, 0);
+  const instNetLots = safeNum(prediction?.factors?.inst_net_5d, 0);
   
   const data = [
     { subject: '趨勢強度', A: Math.min(100, Math.max(0, 50 + momentum * 12)) },
     { subject: '技術面', A: Math.min(100, Math.max(0, diagScore)) },
     { subject: 'RSI動能', A: Math.min(100, rsi) },
-    { subject: '法人籌碼', A: Math.min(100, Math.max(0, 50 + (instNet > 0 ? Math.min(50, instNet / 500000) : Math.max(-50, instNet / 500000)))) },
+    { subject: '法人籌碼', A: Math.min(100, Math.max(0, 50 + (instNetLots > 0 ? Math.min(50, instNetLots / 500) : Math.max(-50, instNetLots / 500)))) },
     { subject: '市場情緒', A: Math.min(100, Math.max(0, aiSent)) },
     { subject: '綜合評分', A: Math.min(100, Math.max(0, 50 + techDetail * 30 + sentDetail * 20)) }
   ];
@@ -308,18 +309,24 @@ export function MainForceCostChart({ historyData, theme }) {
   const data = [];
   if (Array.isArray(historyData) && historyData.length > 0) {
     const recent = historyData.slice(0, 10).reverse();
-    let sumMain = 0;
-    let sumRetail = 0;
+    let sumMainVol = 0;
+    let sumMainValue = 0;
+    let sumRetailValue = 0;
     recent.forEach((d, i) => {
       const closeP = safeNum(d.close);
       const highP = safeNum(d.high, closeP);
-      sumMain += closeP;
-      sumRetail += highP * 1.005; // 散戶追高微溢價
+      const lowP = safeNum(d.low, closeP);
+      const typicalPrice = (highP + lowP + closeP) / 3;
+      const rawVol = safeNum(d.volume, 0);
+      const vol = rawVol > 0 ? rawVol : 1000; // 防呆：如果成交量為 0，給予預設權重 1000 避免除以 0 導致 NaN
+      sumMainVol += vol;
+      sumMainValue += typicalPrice * vol;
+      sumRetailValue += highP * 1.005 * vol; // 散戶追高微溢價
       data.push({
         name: (d.time || d.date || '').substring(5) || `D${i+1}`,
         price: closeP,
-        main: parseFloat((sumMain / (i + 1)).toFixed(2)),
-        retail: parseFloat((sumRetail / (i + 1)).toFixed(2))
+        main: parseFloat((sumMainValue / sumMainVol).toFixed(2)),
+        retail: parseFloat((sumRetailValue / sumMainVol).toFixed(2))
       });
     });
   }
@@ -493,7 +500,7 @@ export function HealthGaugePanel({ prediction, diagnosis, theme }) {
       <div style={{ marginTop: '10px', padding: '4px', background: totalHealth > 65 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', border: `1px solid ${totalHealth > 65 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`, borderRadius: '4px', textAlign: 'center' }}>
         <div style={{ fontSize: '10px', color: 'var(--color-subtext)' }}>綜合健康評估</div>
         <div style={{ fontSize: '18px', fontWeight: 950, color: totalHealth > 70 ? 'var(--color-neon-red)' : totalHealth > 50 ? 'var(--color-neon-yellow)' : 'var(--color-neon-green)' }}>
-          {totalHealth > 75 ? '過熱' : totalHealth > 55 ? '健康' : totalHealth > 40 ? '整理' : '轉弱'}
+          {totalHealth > 75 ? '優良' : totalHealth > 55 ? '穩健' : totalHealth > 40 ? '普通' : '欠佳'}
         </div>
       </div>
     </div>
@@ -547,7 +554,7 @@ export function AlertLightsPanel({ prediction, theme }) {
   );
 }
 
-// ─── 10. 類神經 AI 預測路徑圖 ─────────────────────────────────────
+// ─── 10. AI 預測路徑圖 ─────────────────────────────────────
 export function NeuralPredictionChart({ historyData, realtime, prediction, theme }) {
   const isDark = theme === 'dark';
   
@@ -574,33 +581,52 @@ export function NeuralPredictionChart({ historyData, realtime, prediction, theme
   const up = safeNum(prediction?.up, 33);
   const down = safeNum(prediction?.down, 33);
   const netProb = (up - down) / 100;
-  
-  const points = [
-    { label: '未來3日', days: 3 },
-    { label: '未來5日', days: 5 },
-    { label: '未來10日', days: 10 }
-  ];
 
-  points.forEach(p => {
-    const drift = lastPrice * netProb * (p.days * 0.005);
-    const mid = lastPrice + drift;
-    const spread = lastPrice * 0.015 * Math.sqrt(p.days);
+  // 建立基於最後價格與最新日期的亂數種子，確保圖表重整時不會跳動
+  const dateStr = (historyData && historyData.length > 0) ? (historyData[0].time || historyData[0].date || '0') : '0';
+  const seed = Math.floor(lastPrice * 100) + parseInt(dateStr.replace(/\D/g, '') || '0');
+  
+  // 偽隨機產生器 (Mulberry32)
+  function mulberry32(a) {
+      return function() {
+        var t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      }
+  }
+  const randomFunc = mulberry32(seed);
+
+  let currentSimPrice = lastPrice;
+
+  // 逐日模擬未來 10 天的 K 線起伏
+  for (let i = 1; i <= 10; i++) {
+    // 每日確定性漂移
+    const dailyDrift = lastPrice * netProb * 0.005;
+    // 每日隨機震盪因子 (-1.5% 到 +1.5%)
+    const dailyShock = lastPrice * 0.015 * (randomFunc() * 2 - 1);
+    
+    currentSimPrice = currentSimPrice + dailyDrift + dailyShock;
+    
+    // 計算發散通道 (使用精確的漂移中軌來加減標準差)
+    const exactMid = lastPrice + (lastPrice * netProb * (i * 0.005));
+    const spread = lastPrice * 0.015 * Math.sqrt(i);
     
     data.push({
-      date: p.label,
-      predMid: parseFloat(mid.toFixed(2)),
-      predUpper: parseFloat((mid + spread).toFixed(2)),
-      predLower: parseFloat((mid - spread).toFixed(2))
+      date: `T+${i}`,
+      predMid: parseFloat(currentSimPrice.toFixed(2)),
+      predUpper: parseFloat((exactMid + spread).toFixed(2)),
+      predLower: parseFloat((exactMid - spread).toFixed(2))
     });
-  });
+  }
 
-  const allPrices = data.flatMap(d => [d.predLower || d.price, d.predUpper || d.price, d.price].filter(Boolean));
+  const allPrices = data.flatMap(d => [d.predLower || d.price, d.predUpper || d.price, d.price, d.predMid].filter(Boolean));
   const minP = Math.floor(Math.min(...allPrices) * 0.98);
   const maxP = Math.ceil(Math.max(...allPrices) * 1.02);
 
   return (
     <div className="sd-panel ecf-panel">
-      <div className="sd-title"><div className="sd-title-dot" />10 &nbsp; 類神經 AI 預測路徑圖</div>
+      <div className="sd-title"><div className="sd-title-dot" />10 &nbsp; AI 預測路徑圖</div>
       
       <div style={{ height: '140px', width: '100%', marginTop: '6px' }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -628,7 +654,7 @@ export function MarketSentimentPanel({ prediction, theme }) {
   
   const sentimentVal = safeNum(prediction?.factors?.ai_sentiment, 50);
   const angle = 180 - (sentimentVal / 100) * 180;
-  const instNet = safeNum(prediction?.factors?.inst_net_5d, 0);
+  const instNetLots = Math.round(safeNum(prediction?.factors?.inst_net_5d, 0));
   const momentum = safeNum(prediction?.factors?.momentum_5d, 0);
   
   const rsi = safeNum(prediction?.factors?.rsi, 50);
@@ -700,7 +726,7 @@ export function MarketSentimentPanel({ prediction, theme }) {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '2px' }}>
             <span style={{ color: 'var(--color-subtext)' }}>法人5日</span>
-            <span style={{ color: instNet > 0 ? 'var(--color-neon-red)' : 'var(--color-neon-green)', fontWeight: 800 }}>{formatVol(instNet)}</span>
+            <span style={{ color: instNetLots > 0 ? 'var(--color-neon-red)' : 'var(--color-neon-green)', fontWeight: 800 }}>{instNetLots.toLocaleString()} 張</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '2px' }}>
             <span style={{ color: 'var(--color-subtext)' }}>動能</span>

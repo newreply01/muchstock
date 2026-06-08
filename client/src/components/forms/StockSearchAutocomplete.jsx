@@ -8,6 +8,7 @@ export default function StockSearchAutocomplete({ onSelectStock }) {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const wrapperRef = useRef(null);
+    const inputRef = useRef(null);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -15,8 +16,18 @@ export default function StockSearchAutocomplete({ onSelectStock }) {
                 setIsOpen(false);
             }
         }
+        function handleKeyDown(event) {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+                event.preventDefault();
+                inputRef.current?.focus();
+            }
+        }
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
     }, []);
 
     useEffect(() => {
@@ -60,13 +71,17 @@ export default function StockSearchAutocomplete({ onSelectStock }) {
                     )}
                 </div>
                 <input
+                    ref={inputRef}
                     type="text"
-                    className="block w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 transition-all shadow-sm hover:shadow-md"
+                    className="block w-full pl-11 pr-14 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 transition-all shadow-sm hover:shadow-md"
                     placeholder="搜尋股票代號或名稱..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onFocus={() => { if (results.length > 0) setIsOpen(true) }}
                 />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-md hidden sm:block">Ctrl+K</span>
+                </div>
             </div>
 
             {isOpen && (

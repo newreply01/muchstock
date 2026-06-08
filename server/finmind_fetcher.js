@@ -52,13 +52,15 @@ function getTokenStatus() {
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-async function updateProgress(dataset, stockId = '') {
+async function updateProgress(dataset, stockId = '', count = -1) {
+    const status = count === 0 ? 'no_data' : 'done';
+    const finalCount = count < 0 ? 0 : count;
     try {
         await pool.query(
-            `INSERT INTO fm_sync_progress (dataset, stock_id, last_sync_date, status)
-             VALUES ($1, $2, NOW(), 'done')
-             ON CONFLICT (dataset, stock_id) DO UPDATE SET last_sync_date = NOW(), status = 'done'`,
-            [dataset, stockId]
+            `INSERT INTO fm_sync_progress (dataset, stock_id, last_sync_date, status, data_count)
+             VALUES ($1, $2, NOW(), $3, $4)
+             ON CONFLICT (dataset, stock_id) DO UPDATE SET last_sync_date = NOW(), status = $3, data_count = $4`,
+            [dataset, stockId, status, finalCount]
         );
     } catch (e) {
         console.error(`[Progress] Failed to update ${dataset}:`, e.message);
@@ -128,7 +130,7 @@ async function syncBrokerTrading(symbol, date) {
             `, [item.stock_id, item.date, item.broker, item.buy, item.sell]);
         }
         console.log(`✅ [FinMind] Synced broker trading for ${symbol}: ${data.length} records.`);
-        await updateProgress('TaiwanStockBrokerTrading', symbol);
+        await updateProgress('TaiwanStockBrokerTrading', symbol, data ? data.length : 0);
     } catch (err) {
         console.error(`❌ [FinMind] Failed to sync broker trading for ${symbol}:`, err.message);
     } finally {
@@ -381,8 +383,8 @@ async function syncDetailedFinancials(symbol) {
                     }
                 }
                 console.log(`✅ [FinMind] Synced ${dataset} for ${symbol}: ${data.length} items.`);
-                await updateProgress(dataset, symbol);
             }
+            await updateProgress(dataset, symbol, data ? data.length : 0);
         }
     } catch (err) {
         console.error(`❌ [FinMind] Failed to sync detailed financials for ${symbol}:`, err.message);
@@ -395,25 +397,6 @@ async function syncStockFinancials(symbol) {
     const client = await pool.connect();
     try {
         console.log(`🔄 [FinMind] Syncing financials for ${symbol}...`);
-
-        const revenues = await fetchFinMind('TaiwanStockMonthRevenue', symbol);
-        for (const item of revenues) {
-            await client.query(`
-                INSERT INTO monthly_revenue (symbol, revenue_year, revenue_month, revenue)
-                VALUES ($1, $2, $3, $4)
-                ON CONFLICT (symbol, revenue_year, revenue_month) 
-                DO UPDATE SET revenue = EXCLUDED.revenue
-            `, [symbol, item.revenue_year, item.revenue_month, item.revenue]);
-            
-            // Also write to fm_month_revenue for the analyzer
-            await client.query(`
-                INSERT INTO fm_month_revenue (stock_id, date, country, revenue, revenue_month, revenue_year)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                ON CONFLICT (stock_id, date) DO UPDATE SET
-                    revenue = EXCLUDED.revenue
-            `, [symbol, item.date, item.country, item.revenue, item.revenue_month, item.revenue_year]);
-        }
-        if (revenues.length > 0) await updateProgress('TaiwanStockMonthRevenue', symbol);
 
         await syncDetailedFinancials(symbol);
 
@@ -469,8 +452,8 @@ async function syncStockFinancials(symbol) {
                         dividend_yield = EXCLUDED.dividend_yield
                 `, [symbol, latest.date, parseFloat(latest.PER) || 0, parseFloat(latest.PBR) || 0, parseFloat(latest.dividend_yield) || 0]);
                 console.log(`✅ [FinMind] Updated fundamentals for ${symbol}`);
-                await updateProgress('TaiwanStockPER', symbol);
             }
+            await updateProgress('TaiwanStockPER', symbol, data ? data.length : 0);
         } catch (err) {
             console.error(`❌ [FinMind] Failed to sync PER for ${symbol}:`, err.message);
         }
@@ -478,7 +461,7 @@ async function syncStockFinancials(symbol) {
         // await syncBrokerTrading(symbol); // KEEP THIS (Unique)
         // await syncMarginTrading(symbol); // MOVED TO fetcher.js
         // await syncInstitutional(symbol); // MOVED TO fetcher.js
-        await syncHoldingSharesPer(symbol);
+        // syncHoldingSharesPer and syncMonthlyRevenue have been separated into their own tasks
         await syncDetailedFinancials(symbol);
         await syncFinancialRatios(symbol);
 
@@ -507,7 +490,7 @@ async function syncStockPER(symbol, date) {
             `, [symbol, item.date, item.PER, item.PBR, item.dividend_yield]);
         }
         console.log(`✅ [FinMind] Synced PE/PB for ${symbol}: ${data.length} records.`);
-        await updateProgress('TaiwanStockPER', symbol);
+        await updateProgress('TaiwanStockPER', symbol, data ? data.length : 0);
     } catch (err) {
         console.error(`❌ [FinMind] Failed to sync PE/PB for ${symbol}:`, err.message);
     } finally {
@@ -529,8 +512,8 @@ async function syncAllStocksFinancials() {
     }
 }
 
-async function syncDailyStocksData() {
-    console.log(`🚀 [FinMind] Starting daily data sync (Broker/PER/Holding)...`);
+async function syncDailyBrokerAndPER() {
+    console.log(`🚀 [FinMind] Starting daily data sync (Broker/PER)...`);
     console.log(getTokenStatus());
     const res = await pool.query(`
         SELECT symbol FROM stocks 
@@ -542,11 +525,70 @@ async function syncDailyStocksData() {
         const symbol = stocks[i].symbol;
         await syncBrokerTrading(symbol);
         await syncStockPER(symbol);
-        await syncHoldingSharesPer(symbol);
         // Faster sleep because we fetch fewer datasets per stock
         await sleep(2000); 
     }
     await updateProgress('FinMindDaily');
+}
+
+async function syncWeeklyHolding() {
+    console.log(`🚀 [FinMind] Starting weekly holding shares sync...`);
+    console.log(getTokenStatus());
+    const res = await pool.query(`
+        SELECT symbol FROM stocks 
+        WHERE symbol ~ '^[0-9]{4}$'
+        ORDER BY symbol ASC
+    `);
+    const stocks = res.rows;
+    for (let i = 0; i < stocks.length; i++) {
+        await syncHoldingSharesPer(stocks[i].symbol);
+        await sleep(1500); 
+    }
+}
+
+async function syncMonthlyRevenue(symbol) {
+    const client = await pool.connect();
+    try {
+        console.log(`🔄 [FinMind] Syncing monthly revenue for ${symbol}...`);
+        const revenues = await fetchFinMind('TaiwanStockMonthRevenue', symbol);
+        for (const item of revenues) {
+            await client.query(`
+                INSERT INTO monthly_revenue (symbol, revenue_year, revenue_month, revenue)
+                VALUES ($1, $2, $3, $4)
+                ON CONFLICT (symbol, revenue_year, revenue_month) 
+                DO UPDATE SET revenue = EXCLUDED.revenue
+            `, [symbol, item.revenue_year, item.revenue_month, item.revenue]);
+            
+            // Also write to fm_month_revenue for the analyzer
+            await client.query(`
+                INSERT INTO fm_month_revenue (stock_id, date, country, revenue, revenue_month, revenue_year)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                ON CONFLICT (stock_id, date) DO UPDATE SET
+                    revenue = EXCLUDED.revenue
+            `, [symbol, item.date, item.country, item.revenue, item.revenue_month, item.revenue_year]);
+        }
+        await updateProgress('TaiwanStockMonthRevenue', symbol, revenues ? revenues.length : 0);
+        console.log(`✅ [FinMind] Synced monthly revenue for ${symbol}: ${revenues.length} records.`);
+    } catch (err) {
+        console.error(`❌ [FinMind] Failed to sync monthly revenue for ${symbol}:`, err.message);
+    } finally {
+        client.release();
+    }
+}
+
+async function syncMonthlyRevenueBatch() {
+    console.log(`🚀 [FinMind] Starting daily monthly-revenue batch sync...`);
+    console.log(getTokenStatus());
+    const res = await pool.query(`
+        SELECT symbol FROM stocks 
+        WHERE symbol ~ '^[0-9]{4}$'
+        ORDER BY symbol ASC
+    `);
+    const stocks = res.rows;
+    for (let i = 0; i < stocks.length; i++) {
+        await syncMonthlyRevenue(stocks[i].symbol);
+        await sleep(1500); 
+    }
 }
 
 async function syncHoldingSharesPer(symbol, date) {
@@ -570,7 +612,7 @@ async function syncHoldingSharesPer(symbol, date) {
             count++;
         }
         console.log(`✅ [FinMind] Synced shareholding dist for ${symbol}: ${count} records.`);
-        await updateProgress('TaiwanStockHoldingSharesPer', symbol);
+        await updateProgress('TaiwanStockHoldingSharesPer', symbol, data ? data.length : 0);
     } catch (err) {
         console.error(`❌ [FinMind] Failed to sync shareholding dist for ${symbol}:`, err.message);
     } finally {
@@ -658,7 +700,9 @@ module.exports = {
     syncStockPER,
     syncHoldingSharesPer,
     syncTradingDate,
-    syncDailyStocksData,
+    syncDailyBrokerAndPER,
+    syncWeeklyHolding,
+    syncMonthlyRevenueBatch,
     syncTotalInstitutional,
     syncTotalMargin,
     syncBrokers

@@ -11,7 +11,9 @@ async function updateDailyStats(dateStr) {
     
     console.log(`[StatsAggregator] 正在統計 ${dateStr} 的寫入筆數...`);
 
-    try {
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
+        const isToday = dateStr === todayStr;
+
         // 為了效能，我們對各表使用 Promise.all 同時統計指定日期的筆數
         const queries = [
             // 0: price_count
@@ -26,14 +28,10 @@ async function updateDailyStats(dateStr) {
             // 3: news_count
             pool.query(`SELECT COUNT(*) as count FROM news WHERE publish_at >= $1::timestamp AND publish_at < $1::timestamp + INTERVAL '1 day'`, [dateStr]),
             
-            // 4: realtime_count
-            pool.query(`
-                SELECT SUM(count) as count FROM (
-                    SELECT COUNT(*) as count FROM realtime_ticks WHERE trade_time >= $1::timestamp AND trade_time < $1::timestamp + INTERVAL '1 day'
-                    UNION ALL
-                    SELECT COUNT(*) as count FROM realtime_ticks_history WHERE trade_time >= $1::timestamp AND trade_time < $1::timestamp + INTERVAL '1 day'
-                ) t
-            `, [dateStr]),
+            // 4: realtime_count (今天只查即時表，歷史天只查歷史表，避免 UNION ALL 掃描大表)
+            isToday 
+                ? pool.query(`SELECT COUNT(*) as count FROM realtime_ticks WHERE trade_time >= $1::timestamp AND trade_time < $1::timestamp + INTERVAL '1 day'`, [dateStr])
+                : pool.query(`SELECT COUNT(*) as count FROM realtime_ticks_history WHERE trade_time >= $1::timestamp AND trade_time < $1::timestamp + INTERVAL '1 day'`, [dateStr]),
             
             // 5: stats_count (fm_day_trading + fm_total_institutional + fm_total_margin)
             pool.query(`

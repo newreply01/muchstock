@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
     X,
     TrendingUp,
@@ -52,6 +52,7 @@ import EventCalendar from '../shared/EventCalendar'
 import BrokerTracking from '../charts/BrokerTracking'
 import QuickDiagnosisView from '../charts/QuickDiagnosisView'
 import StockNewsEventsView from '../shared/StockNewsEventsView'
+import { useSSE } from '../../hooks/useSSE'
 
 const SIDEBAR_MENU = [
     { id: 'overview', label: '全景分析' },
@@ -206,6 +207,10 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
     const [reportDate, setReportDate] = useState(() => getDefaultReportDate())
     const [reportData, setReportData] = useState(null)
     const [reportLoading, setReportLoading] = useState(false)
+    
+    // SSE Realtime Hook
+    const { data: sseData, connectionStatus } = useSSE(stock ? [stock.symbol] : []);
+    const realtimeTick = stock ? sseData[stock.symbol] : null;
 
     const fetchAIReport = async (symbol, date) => {
         if (!symbol || !date) return
@@ -271,19 +276,23 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
     if (!stock) return null
 
     // 格式化營收數據供圖表使用
-    const revenueData = financials?.revenue?.map(item => ({
-        name: `${item.revenue_year}/${item.revenue_month}`,
-        revenue: Math.round(parseFloat(item.revenue) / 100) / 100 // 單位：億
-    })).reverse() || []
+    const revenueData = useMemo(() => {
+        return financials?.revenue?.map(item => ({
+            name: `${item.revenue_year}/${item.revenue_month}`,
+            revenue: Math.round(parseFloat(item.revenue) / 100) / 100 // 單位：億
+        })).reverse() || [];
+    }, [financials?.revenue]);
 
     // 格式化 EPS 數據
-    const epsData = financials?.eps?.map(item => {
-        const dateStr = item.date ? new Date(item.date).toLocaleDateString('zh-TW', { year: '2-digit', month: '2-digit' }) : 'N/A';
-        return {
-            name: dateStr,
-            eps: parseFloat(item.value)
-        };
-    }).reverse() || []
+    const epsData = useMemo(() => {
+        return financials?.eps?.map(item => {
+            const dateStr = item.date ? new Date(item.date).toLocaleDateString('zh-TW', { year: '2-digit', month: '2-digit' }) : 'N/A';
+            return {
+                name: dateStr,
+                eps: parseFloat(item.value)
+            };
+        }).reverse() || [];
+    }, [financials?.eps]);
 
     const containerClasses = isInline
         ? "w-full bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden"
@@ -446,7 +455,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                     {/* Main Scrollable Area */}
                     <div className="flex-1 overflow-y-auto p-6 bg-white relative">
                         {activeTab === 'overview' ? (
-                            <StockDashboard stock={stock} />
+                            <StockDashboard stock={stock} realtimeTick={realtimeTick} connectionStatus={connectionStatus} />
                         ) : activeTab === 'ai_report' ? (
                             <div className="h-full flex flex-col gap-6 animate-in fade-in duration-300">
                                 {/* AI Report Date and Score Header */}
@@ -629,6 +638,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                         period={activePeriod}
                                         onPatternsDetected={setActivePatterns}
                                         onIndicatorStatus={setIndicatorStatus}
+                                        realtimeTick={realtimeTick}
                                     />
                                 </div>
 

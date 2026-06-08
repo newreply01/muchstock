@@ -6,7 +6,7 @@ import FundamentalFilters from '../forms/FundamentalFilters'
 import InstitutionalFilters from '../forms/InstitutionalFilters'
 import ResultTable from '../forms/ResultTable'
 import { useAuth } from '../../context/AuthContext';
-import { useGlobalFilters } from '../../context/GlobalFilterContext';
+import useGlobalStore from '../../store/useGlobalStore';
 import GlobalFilterBar from '../forms/GlobalFilterBar';
 
 const TABS = [
@@ -50,7 +50,9 @@ export default function ScreenerConfigPage({
     onToggleWatchlist
 }) {
     const { requireLogin } = useAuth();
-    const { marketForApi, stockTypesForApi } = useGlobalFilters();
+    const { globalMarket, globalStockTypes } = useGlobalStore();
+    const marketForApi = globalMarket === 'all' ? undefined : globalMarket;
+    const stockTypesForApi = globalStockTypes.join(',');
 
     const [activeTab, setActiveTab] = useState('strategies')
     const [localFilters, setLocalFilters] = useState({

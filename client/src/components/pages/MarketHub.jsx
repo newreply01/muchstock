@@ -12,6 +12,7 @@ export default function MarketHub({ onStockSelect, watchedSymbols, onToggleWatch
         { id: 'overview', label: '大盤概況', icon: Globe },
         { id: 'institutional', label: '三大法人', icon: Users },
         { id: 'sentiment', label: '市場情緒', icon: Zap },
+        { id: 'news', label: '新聞資訊', icon: Activity },
     ];
 
     return (
@@ -53,6 +54,12 @@ export default function MarketHub({ onStockSelect, watchedSymbols, onToggleWatch
 
                 {activeTab === 'sentiment' && (
                     <MarketSentimentView />
+                )}
+
+                {activeTab === 'news' && (
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
+                        <NewsBoard />
+                    </div>
                 )}
             </div>
         </div>

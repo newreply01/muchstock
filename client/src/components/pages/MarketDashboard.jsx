@@ -5,12 +5,15 @@ import MarketFocus from '../charts/MarketFocus';
 import MarketMarginChart from '../charts/MarketMarginChart';
 import ResultTable from '../forms/ResultTable';
 import GlobalFilterBar from '../forms/GlobalFilterBar';
-import { useGlobalFilters } from '../../context/GlobalFilterContext';
+import useGlobalStore from '../../store/useGlobalStore';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, CartesianGrid } from 'recharts';
 
 export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggleWatchlist }) {
     // Inject Global Filter Context
-    const { market, marketForApi, stockTypes, stockTypesForApi, industry, industryForApi } = useGlobalFilters();
+    const { globalMarket: market, globalStockTypes: stockTypes, globalIndustry: industry } = useGlobalStore();
+    const marketForApi = market === 'all' ? undefined : market;
+    const industryForApi = industry === 'all' ? undefined : industry;
+    const stockTypesForApi = stockTypes.join(',');
 
     const [rankingType, setRankingType] = useState('gainers'); // 'gainers', 'losers', 'volume'
     const [data, setData] = useState(null);

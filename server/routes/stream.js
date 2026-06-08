@@ -1,9 +1,46 @@
 const express = require('express');
 const router = express.Router();
-const { query } = require('../db');
+const { query, pool } = require('../db');
+const EventEmitter = require('events');
+const logger = require('../utils/logger'); // Assuming logger is accessible here
 
-// In-memory cache to keep track of the latest trade_time for each connection
-// so we only send updates when new data arrives.
+const sseEmitter = new EventEmitter();
+sseEmitter.setMaxListeners(0); // Allow unlimited SSE connections
+
+// Set up a dedicated pg Client to LISTEN for realtime_update
+let listenClient = null;
+let dbUpdateTimeout = null;
+
+async function setupListenClient() {
+    try {
+        listenClient = await pool.connect();
+        await listenClient.query('LISTEN realtime_update');
+        listenClient.on('notification', (msg) => {
+            if (msg.channel === 'realtime_update') {
+                // Throttle: max 1 push per second
+                if (!dbUpdateTimeout) {
+                    dbUpdateTimeout = setTimeout(() => {
+                        sseEmitter.emit('db_update');
+                        dbUpdateTimeout = null;
+                    }, 1000);
+                }
+            }
+        });
+        logger.info('[SSE] Database LISTEN configured for realtime_update');
+        
+        listenClient.on('error', (err) => {
+            logger.error(`[SSE] Listen client error: ${err.message}`);
+            // Attempt to reconnect
+            listenClient.release(true);
+            setTimeout(setupListenClient, 5000);
+        });
+    } catch (err) {
+        if (logger) logger.error(`[SSE] Failed to setup LISTEN client: ${err.message}`);
+        setTimeout(setupListenClient, 5000);
+    }
+}
+// Start listening for DB triggers
+setupListenClient();
 
 router.get('/realtime', async (req, res) => {
     const symbolsParam = req.query.symbols;
@@ -26,18 +63,13 @@ router.get('/realtime', async (req, res) => {
 
     // Map to keep track of latest trade_time we've sent for each symbol
     const lastSentTime = {};
-
     let isClosed = false;
 
-    // The polling function
+    // The function triggered by DB updates
     const pushData = async () => {
         if (isClosed) return;
 
         try {
-            // Find the latest tick for each symbol requested
-            // We use a simple query per symbol, or a combined IN query with ROW_NUMBER
-            // A combined query is more efficient:
-
             const sql = `
                 WITH LatestTicks AS (
                     SELECT 
@@ -63,27 +95,44 @@ router.get('/realtime', async (req, res) => {
                 // If we haven't sent this tick yet, queue it for update
                 if (!lastSentTime[sym] || lastSentTime[sym] < timeStr) {
                     lastSentTime[sym] = timeStr;
+                    
+                    // 計算漲跌與漲跌幅
+                    const price = parseFloat(row.price);
+                    const prevClose = parseFloat(row.previous_close || price);
+                    const change = price - prevClose;
+                    const changePercent = prevClose > 0 ? (change / prevClose) * 100 : 0;
+                    
+                    // 轉為前端預期的格式
+                    row.change = change;
+                    row.changePercent = changePercent;
+
                     updates.push(row);
                 }
             }
 
-            if (updates.length > 0) {
+            if (updates.length > 0 && !isClosed) {
                 res.write(`data: ${JSON.stringify(updates)}\n\n`);
             }
         } catch (err) {
-            console.error('[SSE Error]', err);
+            if (logger) logger.error(`[SSE Error] ${err.message}`);
         }
     };
 
     // Send initial data immediately
     await pushData();
 
-    // Poll every 3 seconds (realtime crawler updates every minute, but we check frequently for responsiveness)
-    const intervalId = setInterval(pushData, 3000);
+    // Subscribe to global db_update event
+    sseEmitter.on('db_update', pushData);
+
+    // Provide a heart-beat fallback every 30 seconds to keep connection alive
+    const keepAliveInterval = setInterval(() => {
+        if (!isClosed) res.write(':\n\n');
+    }, 30000);
 
     req.on('close', () => {
         isClosed = true;
-        clearInterval(intervalId);
+        sseEmitter.off('db_update', pushData);
+        clearInterval(keepAliveInterval);
         res.end();
     });
 });

@@ -12,13 +12,14 @@ const CATEGORIES = {
 };
 
 // 更新同步進度 (用於系統監控)
-async function updateProgress(dataset, stockId = '') {
+async function updateProgress(dataset, stockId = '', count = -1) {
+    const finalCount = count < 0 ? 0 : count;
     try {
         await pool.query(
-            `INSERT INTO fm_sync_progress (dataset, stock_id, last_sync_date, status)
-             VALUES ($1, $2, NOW(), 'done')
-             ON CONFLICT (dataset, stock_id) DO UPDATE SET last_sync_date = NOW(), status = 'done'`,
-            [dataset, stockId]
+            `INSERT INTO fm_sync_progress (dataset, stock_id, last_sync_date, status, data_count)
+             VALUES ($1, $2, NOW(), 'done', $3)
+             ON CONFLICT (dataset, stock_id) DO UPDATE SET last_sync_date = NOW(), status = 'done', data_count = $3`,
+            [dataset, stockId, finalCount]
         );
     } catch (e) {
         console.error(`[Progress] Failed to update ${dataset}:`, e.message);
@@ -91,14 +92,16 @@ async function saveNews(newsItems, categoryId) {
 
 async function syncAllNews() {
     console.log('📰 [NewsFetcher] Starting hourly news sync...');
+    let totalSaved = 0;
     for (const [catId, catName] of Object.entries(CATEGORIES)) {
         const items = await fetchCategoryNews(catId);
         if (items.length > 0) {
             const saved = await saveNews(items, catId);
+            totalSaved += saved;
             console.log(`✅ [NewsFetcher] ${catName}: Synced ${items.length} items, ${saved} new.`);
         }
     }
-    await updateProgress('News');
+    await updateProgress('News', '', totalSaved);
     console.log('📰 [NewsFetcher] News sync completed.');
 }
 

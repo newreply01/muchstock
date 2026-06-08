@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { User, Menu, Bell, Globe, LogOut, Settings, Sparkles, Sun, Moon, Server } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header({ currentView = 'dashboard' }) {
+    const navigate = useNavigate();
     const { user, logout, showLoginModal, setShowLoginModal } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,9 +37,20 @@ export default function Header({ currentView = 'dashboard' }) {
         const interval = setInterval(fetchStatus, 60000); // 每一分鐘更新一次
         return () => clearInterval(interval);
     }, []);
-
     const dispatchView = (view) => {
-        window.dispatchEvent(new CustomEvent('muchstock-view', { detail: view }));
+        const routesMap = {
+            'market': '/',
+            'screener': '/screener',
+            'trading': '/trading',
+            'admin': '/admin',
+            'stock-detail': `/stock/2330`, // 預設導向台積電，或可從 Zustand 取得 mainStock
+            'news': '/news',
+            'profile': '/profile',
+            'monitor': '/monitor',
+            'market-overview': '/'
+        };
+        navigate(routesMap[view] || '/');
+        window.scrollTo(0, 0);
     };
 
     const isCloudDeployment = 
@@ -161,17 +174,12 @@ export default function Header({ currentView = 'dashboard' }) {
                                         {user.role === 'admin' && (
                                             <>
                                                 <button
-                                                    onClick={() => dispatchView('admin-users')}
+                                                    onClick={() => dispatchView('admin')}
                                                     className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/5 rounded-lg transition-colors"
                                                 >
-                                                    <Settings className="w-4 h-4" /> 使用者管理
+                                                    <Settings className="w-4 h-4" /> 系統管理員中心
                                                 </button>
-                                                <button
-                                                    onClick={() => dispatchView('admin-prompts')}
-                                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors"
-                                                >
-                                                    <Sparkles className="w-4 h-4" /> AI 提示詞管理
-                                                </button>
+
                                             </>
                                         )}
                                         <button

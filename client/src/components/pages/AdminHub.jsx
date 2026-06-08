@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Users, Sparkles, Server } from 'lucide-react';
+import { Users, Sparkles, Server, Key } from 'lucide-react';
 import AdminUserManagement from './AdminUserManagement';
 import AIPromptManager from './AIPromptManager';
 import MonitorPage from './MonitorPage';
+import AdminApiKeys from './AdminApiKeys';
 
 export default function AdminHub({ user, isCloudDeployment }) {
     const [activeTab, setActiveTab] = useState('users');
@@ -10,6 +11,7 @@ export default function AdminHub({ user, isCloudDeployment }) {
     const tabs = [
         { id: 'users', label: '使用者管理', icon: Users, show: user?.role === 'admin' },
         { id: 'prompts', label: 'AI 提示詞', icon: Sparkles, show: user?.role === 'admin' },
+        { id: 'apikeys', label: 'API 金鑰', icon: Key, show: user?.role === 'admin' },
         { id: 'monitor', label: '系統監控', icon: Server, show: !isCloudDeployment },
     ].filter(t => t.show);
 
@@ -41,6 +43,7 @@ export default function AdminHub({ user, isCloudDeployment }) {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {activeTab === 'users' && <AdminUserManagement />}
                 {activeTab === 'prompts' && <AIPromptManager />}
+                {activeTab === 'apikeys' && <AdminApiKeys />}
                 {activeTab === 'monitor' && <MonitorPage />}
             </div>
         </div>

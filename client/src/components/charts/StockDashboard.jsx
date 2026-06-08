@@ -9,7 +9,7 @@ import {
 import { getHistory, getQuickDiagnosis, getInstitutionalData, getAIReport, getRealtimeData, API_BASE } from '../../utils/api';
 import { useTheme } from '../../context/ThemeContext';
 
-export default function StockDashboard({ stock }) {
+export default function StockDashboard({ stock, realtimeTick, connectionStatus }) {
     const [historyData, setHistoryData] = useState([]);
     const [diagnosis, setDiagnosis] = useState(null);
     const [institutional, setInstitutional] = useState([]);
@@ -50,6 +50,16 @@ export default function StockDashboard({ stock }) {
         });
     }, [stock?.symbol]);
 
+    // 當 SSE 收到新 Tick 時，更新 realtime state
+    useEffect(() => {
+        if (realtimeTick) {
+            setRealtime(prev => ({
+                ...prev,
+                ...realtimeTick
+            }));
+        }
+    }, [realtimeTick]);
+
     if (!stock) return null;
 
     if (loading) {
@@ -68,7 +78,7 @@ export default function StockDashboard({ stock }) {
         <div className={`stock-dashboard ${theme}`}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: theme === 'dark' ? 'rgba(15, 23, 42, 0.4)' : 'rgba(241, 245, 249, 0.4)', borderBottom: '1px solid var(--border-panel)' }}>
                 <div style={{ flex: 1 }}>
-                    <DashboardHeader stock={stock} realtime={realtime} />
+                    <DashboardHeader stock={stock} realtime={realtime} connectionStatus={connectionStatus} />
                 </div>
             </div>
 

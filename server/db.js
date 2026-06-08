@@ -56,9 +56,10 @@ Object.assign(poolConfig, {
 
 const pool = new Pool(poolConfig);
 
-if (useSSL) {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
+// 全域禁用 TLS 已移除，確保 Node.js 其他 HTTPS 請求安全性
+// if (useSSL) {
+//     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+// }
 
 // 強制資料庫連線會話時區為台北時間
 pool.on('connect', (client) => {

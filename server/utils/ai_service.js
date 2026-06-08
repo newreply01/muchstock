@@ -1,48 +1,93 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { pool } = require('../db');
+const { db, schema } = require('../db/drizzle');
+const { cosineDistance, sql } = require('drizzle-orm');
 const { getTaiwanDate, formatTaiwanTime } = require('./timeUtils');
 const SentimentAggregator = require('./sentiment_aggregator');
+const logger = require('./logger');
 const query = (text, params) => pool.query(text, params);
 require("dotenv").config();
 
 // --- 多金鑰輪詢管理（含 403 自動過濾）---
-const apiKeys = (process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || "")
-    .split(",")
-    .map(k => k.trim())
-    .filter(k => k.length > 20 && k !== 'your_api_key_here');
-
-const genAIPool = apiKeys.map(key => new GoogleGenerativeAI(key));
+let genAIPool = [];
+let apiKeys = [];
 let currentKeyIndex = 0;
 const blockedKeyIndices = new Set(); // 記錄 403 的金鑰索引
+let lastKeyFetchTime = 0;
+const KEY_FETCH_INTERVAL = 60 * 1000; // 1分鐘快取
 
-function getGenAIInstance() {
+async function refreshApiKeys() {
+    const now = Date.now();
+    if (now - lastKeyFetchTime < KEY_FETCH_INTERVAL && genAIPool.length > 0) {
+        return;
+    }
+    try {
+        const res = await pool.query("SELECT id, api_key FROM system_api_keys WHERE service_name = 'gemini' AND is_active = true ORDER BY id");
+        if (res.rows.length > 0) {
+            const newKeys = res.rows.map(r => ({ id: r.id, key: r.api_key }));
+            // 若金鑰有變更才重新初始化
+            if (JSON.stringify(newKeys) !== JSON.stringify(apiKeys)) {
+                logger.info(`[AI Service] Reloaded API keys from DB. Active keys: ${newKeys.length}`);
+                apiKeys = newKeys;
+                genAIPool = apiKeys.map(k => new GoogleGenerativeAI(k.key));
+                blockedKeyIndices.clear();
+                currentKeyIndex = 0;
+            }
+        } else {
+            logger.warn('[AI Service] No active Gemini keys found in database.');
+        }
+        lastKeyFetchTime = now;
+    } catch (err) {
+        logger.error(`[AI Service] Failed to fetch keys from DB: ${err.message}`);
+    }
+}
+
+async function getGenAIInstanceAsync() {
+    await refreshApiKeys();
     if (genAIPool.length === 0) return null;
-    // 嘗試找到未被封鎖的金鑰（最多嘗試所有金鑰數量次）
+    
+    // 嘗試找到未被封鎖的金鑰
     for (let attempt = 0; attempt < genAIPool.length; attempt++) {
         const idx = currentKeyIndex;
         currentKeyIndex = (currentKeyIndex + 1) % genAIPool.length;
         if (!blockedKeyIndices.has(idx)) {
             const instance = genAIPool[idx];
-            const keyHint = apiKeys[idx].substring(0, 8) + '...';
-            return { instance, keyHint, keyIndex: idx };
+            const keyObj = apiKeys[idx];
+            const keyHint = keyObj.key.substring(0, 8) + '...';
+            return { instance, keyHint, keyIndex: idx, dbId: keyObj.id };
         }
     }
-    // 所有金鑰均被封鎖，嘗試重置（可能是暫時性問題）
-    console.warn('[AI Service] All keys blocked, resetting blocklist and retrying...');
+    // 所有金鑰均被封鎖，嘗試重置
+    logger.warn('[AI Service] All keys blocked, resetting blocklist and retrying...');
     blockedKeyIndices.clear();
     const instance = genAIPool[currentKeyIndex];
-    const keyHint = apiKeys[currentKeyIndex].substring(0, 8) + '...';
-    return { instance, keyHint, keyIndex: currentKeyIndex };
+    const keyObj = apiKeys[currentKeyIndex];
+    const keyHint = keyObj.key.substring(0, 8) + '...';
+    return { instance, keyHint, keyIndex: currentKeyIndex, dbId: keyObj.id };
+}
+
+// 非同步寫入指標，避免阻塞主流程
+function updateKeyMetrics(dbId, isSuccess, is429, latencyMs) {
+    if (!dbId) return;
+    const sql = `
+        UPDATE system_api_keys 
+        SET invoke_count = invoke_count + 1,
+            success_count = success_count + $1,
+            error_429_count = error_429_count + $2,
+            total_latency_ms = total_latency_ms + $3
+        WHERE id = $4
+    `;
+    pool.query(sql, [isSuccess ? 1 : 0, is429 ? 1 : 0, latencyMs, dbId]).catch(err => {
+        logger.error(`[AI Service] Failed to update key metrics for id ${dbId}: ${err.message}`);
+    });
 }
 
 function markKeyBlocked(keyIndex) {
     if (keyIndex !== undefined) {
         blockedKeyIndices.add(keyIndex);
-        console.warn(`[AI Service] Key index ${keyIndex} blocked (403). Active keys: ${genAIPool.length - blockedKeyIndices.size}/${genAIPool.length}`);
+        logger.warn(`[AI Service] Key index ${keyIndex} blocked (403). Active keys: ${genAIPool.length - blockedKeyIndices.size}/${genAIPool.length}`);
     }
 }
-
-const hasGeminiKey = apiKeys.length > 0;
 // ----------------------
 
 
@@ -96,7 +141,7 @@ async function gatherStockContext(symbol) {
         const currentYear = new Date().getFullYear();
         const instTable = `institutional_${currentYear}`;
 
-        const [stockRes, priceRes, priceHistRes, fundamentalRes, instRes, instDailyRes, marginRes, revenueRes, newsRes, epsRes, finMetricsRes] = await Promise.all([
+        const [stockRes, priceRes, priceHistRes, fundamentalRes, instRes, instDailyRes, marginRes, revenueRes, newsRes, epsRes, finMetricsRes, realtimeRes, etfRes, indRes] = await Promise.all([
             query(`SELECT name, industry FROM stocks WHERE symbol = $1`, [symbol]),
             // Latest price with ALL indicator fields
             query(
@@ -141,9 +186,10 @@ async function gatherStockContext(symbol) {
                  FROM ${instTable} WHERE symbol = $1 ORDER BY trade_date DESC LIMIT 5`,
                 [symbol]
             ),
+            // 5-day Margin trading
             query(
-                `SELECT margin_purchase_today_balance, short_sale_today_balance 
-                 FROM fm_margin_trading WHERE stock_id = $1 ORDER BY date DESC LIMIT 1`,
+                `SELECT date, margin_purchase_today_balance, short_sale_today_balance 
+                 FROM fm_margin_trading WHERE stock_id = $1 ORDER BY date DESC LIMIT 5`,
                 [symbol]
             ),
             query(
@@ -152,15 +198,50 @@ async function gatherStockContext(symbol) {
                  FROM monthly_revenue r WHERE symbol = $1 ORDER BY revenue_year DESC, revenue_month DESC LIMIT 1`,
                 [symbol]
             ),
-            query(
-                `SELECT title, summary, publish_at 
-                 FROM news 
-                 WHERE (title ILIKE $1 OR summary ILIKE $1)
-                   AND publish_at >= NOW() - INTERVAL '7 days'
-                 ORDER BY publish_at DESC 
-                 LIMIT 30`,
-                [`%${symbol}%`]
-            ),
+            (async () => {
+                try {
+                    const queryText = `${symbol} 的最新營運狀況、財報亮點、重大事件與未來展望`;
+                    const { instance: genAI } = await getGenAIInstanceAsync();
+                    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+                    const embeddingResult = await model.embedContent(queryText);
+                    const queryEmbedding = embeddingResult.embedding.values;
+
+                    const results = await db.select({
+                        title: schema.news.title,
+                        summary: schema.news.summary,
+                        publish_at: schema.news.publish_at
+                    })
+                    .from(schema.news)
+                    .where(sql`${schema.news.embedding} IS NOT NULL`)
+                    .orderBy(cosineDistance(schema.news.embedding, queryEmbedding))
+                    .limit(10);
+                    
+                    if (results.length === 0) {
+                        // Fallback if no embeddings
+                        return await query(
+                            `SELECT title, summary, publish_at 
+                             FROM news 
+                             WHERE (title ILIKE $1 OR summary ILIKE $1)
+                               AND publish_at >= NOW() - INTERVAL '7 days'
+                             ORDER BY publish_at DESC 
+                             LIMIT 10`,
+                            [`%${symbol}%`]
+                        );
+                    }
+                    return { rows: results };
+                } catch (err) {
+                    logger.warn(`[RAG] Failed to vector search for ${symbol}, falling back: ${err.message}`);
+                    return await query(
+                        `SELECT title, summary, publish_at 
+                         FROM news 
+                         WHERE (title ILIKE $1 OR summary ILIKE $1)
+                           AND publish_at >= NOW() - INTERVAL '7 days'
+                         ORDER BY publish_at DESC 
+                         LIMIT 10`,
+                        [`%${symbol}%`]
+                    );
+                }
+            })(),
             // EPS trend (last 4 quarters)
             query(
                 `SELECT date, value FROM financial_statements 
@@ -175,6 +256,29 @@ async function gatherStockContext(symbol) {
                  AND date = (SELECT MAX(date) FROM fm_financial_statements WHERE stock_id = $1 AND item = 'ROE')`,
                 [symbol]
             ),
+            // Intraday realtime ticks
+            query(
+                `SELECT buy_intensity, sell_intensity 
+                 FROM realtime_ticks_history 
+                 WHERE symbol = $1 
+                 ORDER BY trade_time DESC 
+                 LIMIT 1`,
+                [symbol]
+            ).catch(() => ({ rows: [] })),
+            // ETF Health Scores
+            query(
+                `SELECT overall_score, trend_score, popularity_score, yield_score, flow_score, technical_score, dividend_yield 
+                 FROM etf_health_scores WHERE symbol = $1 ORDER BY calc_date DESC LIMIT 1`,
+                [symbol]
+            ).catch(() => ({ rows: [] })),
+            // Industry Peers
+            query(`
+                SELECT AVG(pe_ratio) as ind_pe, AVG(pb_ratio) as ind_pb, AVG(dividend_yield) as ind_yield
+                FROM fundamentals f
+                JOIN stocks s ON f.symbol = s.symbol
+                WHERE s.industry = (SELECT industry FROM stocks WHERE symbol = $1 LIMIT 1)
+                  AND f.trade_date = (SELECT MAX(trade_date) FROM fundamentals)
+            `, [symbol]).catch(() => ({ rows: [] }))
         ]);
 
         const stockInfo = stockRes.rows[0] || { name: '', industry: '' };
@@ -183,12 +287,16 @@ async function gatherStockContext(symbol) {
         const fundamentals = fundamentalRes.rows[0] || {};
         const institutional = instRes.rows[0] || { foreign_sum: 0, trust_sum: 0, dealer_sum: 0 };
         const instDaily = instDailyRes.rows || [];
-        const margin = marginRes.rows[0] || { margin_purchase_today_balance: 0, short_sale_today_balance: 0 };
+        const marginDaily = marginRes.rows || [];
+        const margin = marginDaily[0] || { margin_purchase_today_balance: 0, short_sale_today_balance: 0 };
         const revenue = revenueRes.rows[0] || {};
         const news = newsRes.rows;
         const epsHistory = epsRes.rows || [];
         const finMetrics = {};
         (finMetricsRes.rows || []).forEach(r => { finMetrics[r.item] = parseFloat(r.value); });
+        const realtime = realtimeRes.rows[0] || {};
+        const etfData = etfRes.rows[0] || null;
+        const industryAverages = indRes.rows[0] || {};
 
         // 取得量化的新聞情緒匯總 (近 3 天)
         const newsSentiment = await SentimentAggregator.getAggregatedSentiment(symbol, 3);
@@ -203,11 +311,15 @@ async function gatherStockContext(symbol) {
             institutional,
             instDaily,
             margin,
+            marginDaily,
             revenue,
             news,
             newsSentiment,
             epsHistory,
             finMetrics,
+            realtime,
+            etfData,
+            industryAverages,
             generatedAt: formatTaiwanTime(),
         };
     } catch (err) {
@@ -226,6 +338,8 @@ function buildEnrichedDataSection(context) {
     const m = context.margin;
     const rev = context.revenue;
     const fm = context.finMetrics || {};
+    const rt = context.realtime || {};
+    const ind = context.industryAverages || {};
 
     const inst_total = parseFloat(inst.foreign_sum || 0) + parseFloat(inst.trust_sum || 0);
     const inst_dir = inst_total > 0 ? "偏多買進" : "偏空賣出";
@@ -234,55 +348,40 @@ function buildEnrichedDataSection(context) {
     const vol = parseFloat(p.volume || 0);
     const volStr = vol > 0 ? `${(vol / 1000).toLocaleString(undefined, {maximumFractionDigits: 0})} 張` : '無資料';
 
-    // YoY calculation
-    const yoyStr = rev.prev_y_revenue 
-        ? ((parseFloat(rev.revenue) / parseFloat(rev.prev_y_revenue) - 1) * 100).toFixed(1) + '%'
-        : '無資料';
-
     // Price history trend (最近10日)
     let trendSection = '';
     if (context.priceHistory && context.priceHistory.length > 1) {
         const rows = context.priceHistory.slice(0, 10).reverse(); // oldest first
-        trendSection = `\n【近期價格走勢】(由舊到新)\n`;
+        trendSection = `\\n【近期價格走勢】(由舊到新)\\n`;
         trendSection += rows.map(r => {
             const d = new Date(r.trade_date).toLocaleDateString('zh-TW');
             const chg = parseFloat(r.change_percent || 0);
             const v = parseFloat(r.volume || 0);
             return `${d}: 收${r.close_price} (${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%) 量${(v/1000).toLocaleString(undefined,{maximumFractionDigits:0})}張`;
-        }).join('\n');
+        }).join('\\n');
     }
-
-    // EPS trend
-    let epsSection = '';
-    if (context.epsHistory && context.epsHistory.length > 0) {
-        epsSection = `\nEPS歷史(近${context.epsHistory.length}季): ` + 
-            context.epsHistory.slice().reverse().map(e => {
-                const q = new Date(e.date);
-                return `${q.getFullYear()}Q${Math.ceil((q.getMonth()+1)/3)}=${e.value}元`;
-            }).join(' → ');
-    }
-
-    // Financial metrics
-    let finSection = '';
-    const finItems = [];
-    if (fm.ROE !== undefined && !isNaN(fm.ROE)) finItems.push(`ROE=${fm.ROE.toFixed(2)}%`);
-    if (fm.ROA !== undefined && !isNaN(fm.ROA)) finItems.push(`ROA=${fm.ROA.toFixed(2)}%`);
-    if (fm.GrossProfitMargin !== undefined && !isNaN(fm.GrossProfitMargin)) finItems.push(`毛利率=${fm.GrossProfitMargin.toFixed(2)}%`);
-    if (fm.NetIncomeMargin !== undefined && !isNaN(fm.NetIncomeMargin)) finItems.push(`淨利率=${fm.NetIncomeMargin.toFixed(2)}%`);
-    if (fm.DebtRatio !== undefined && !isNaN(fm.DebtRatio)) finItems.push(`負債比=${fm.DebtRatio.toFixed(2)}%`);
-    if (finItems.length > 0) finSection = `\n財務指標(最新季): ${finItems.join(', ')}`;
 
     // Institutional daily breakdown
     let instDailySection = '';
     if (context.instDaily && context.instDaily.length > 0) {
-        instDailySection = `\n法人逐日買賣超(近${context.instDaily.length}日):\n`;
+        instDailySection = `\\n法人逐日買賣超(近${context.instDaily.length}日):\\n`;
         instDailySection += context.instDaily.slice().reverse().map(d => {
             const date = new Date(d.trade_date).toLocaleDateString('zh-TW');
             const fNet = Math.round(parseFloat(d.foreign_net || 0) / 1000);
             const tNet = Math.round(parseFloat(d.trust_net || 0) / 1000);
             const dNet = Math.round(parseFloat(d.dealer_net || 0) / 1000);
             return `${date}: 外資${fNet >= 0 ? '+' : ''}${fNet}張 投信${tNet >= 0 ? '+' : ''}${tNet}張 自營${dNet >= 0 ? '+' : ''}${dNet}張`;
-        }).join('\n');
+        }).join('\\n');
+    }
+
+    // Margin Trend (5 days)
+    let marginSection = '';
+    if (context.marginDaily && context.marginDaily.length >= 2) {
+        const latest = context.marginDaily[0];
+        const oldest = context.marginDaily[context.marginDaily.length - 1];
+        const marginDiff = parseFloat(latest.margin_purchase_today_balance) - parseFloat(oldest.margin_purchase_today_balance);
+        const shortDiff = parseFloat(latest.short_sale_today_balance) - parseFloat(oldest.short_sale_today_balance);
+        marginSection = `\\n融資券近${context.marginDaily.length}日趨勢: 融資${marginDiff >= 0 ? '增加' : '減少'} ${Math.abs(marginDiff)} 張 | 融券${shortDiff >= 0 ? '增加' : '減少'} ${Math.abs(shortDiff)} 張`;
     }
 
     // Bollinger %b with null safety
@@ -292,31 +391,81 @@ function buildEnrichedDataSection(context) {
     const bPercent = (upperBand - lowerBand) > 0 ? ((closeP - lowerBand) / (upperBand - lowerBand)).toFixed(2) : '無資料';
 
     const dataDate = p.trade_date ? new Date(p.trade_date).toLocaleDateString('zh-TW') : '未知';
+    
+    // Intraday Data
+    let intradaySection = '';
+    if (rt.buy_intensity !== undefined && rt.sell_intensity !== undefined) {
+        intradaySection = `\\n盤中買賣力道: 買盤強度 ${sv(parseFloat(rt.buy_intensity), '%', '0')} | 賣盤強度 ${sv(parseFloat(rt.sell_intensity), '%', '0')}`;
+    }
 
-    return `股票: ${context.name} (${context.symbol}) | 產業: ${context.industry || '未知'}
-資料日期: ${dataDate}
+    // Base info string
+    let output = `股票: ${context.name} (${context.symbol}) | 產業: ${context.industry || '未知'}\\n資料日期: ${dataDate}\\n\\n`;
 
-【價格資訊】
-最新收盤: ${sv(closeP)} 元 (漲跌: ${sv(parseFloat(p.change_amount))} 元, ${sv(parseFloat(p.change_percent),'%')})
-開盤: ${sv(parseFloat(p.open_price))} | 最高: ${sv(parseFloat(p.high_price))} | 最低: ${sv(parseFloat(p.low_price))}
-成交量: ${volStr} | 成交值: ${sv(parseFloat(p.trade_value || 0) > 0 ? (parseFloat(p.trade_value)/100000000).toFixed(2) : NaN, '億')}
-${trendSection}
+    output += `【價格資訊】\\n`;
+    output += `最新收盤: ${sv(closeP)} 元 (漲跌: ${sv(parseFloat(p.change_amount))} 元, ${sv(parseFloat(p.change_percent),'%')})\\n`;
+    output += `開盤: ${sv(parseFloat(p.open_price))} | 最高: ${sv(parseFloat(p.high_price))} | 最低: ${sv(parseFloat(p.low_price))}\\n`;
+    output += `成交量: ${volStr} | 成交值: ${sv(parseFloat(p.trade_value || 0) > 0 ? (parseFloat(p.trade_value)/100000000).toFixed(2) : NaN, '億')}`;
+    output += trendSection + '\\n\\n';
 
-【技術指標】
-均線: MA5=${sv(parseFloat(p.ma_5))} | MA10=${sv(parseFloat(p.ma_10))} | MA20=${sv(parseFloat(p.ma_20))} | MA60=${sv(parseFloat(p.ma_60))}
-RSI14: ${sv(parseFloat(p.rsi_14))} | KD: K=${sv(parseFloat(p.k_value))}, D=${sv(parseFloat(p.d_value))}
-MACD: 值=${sv(parseFloat(p.macd_value))} | 訊號=${sv(parseFloat(p.macd_signal))} | 柱狀=${sv(parseFloat(p.macd_hist))}
-布林通道: 上軌=${sv(upperBand)} | 下軌=${sv(lowerBand)} | %B=${bPercent}
-量比(今日/5日均量): ${sv(parseFloat(p.volume_ratio),'倍')}
-K線型態: ${p.patterns && p.patterns.length > 0 ? p.patterns.join('、') : '無明確型態'}
+    output += `【技術指標】\\n`;
+    output += `均線: MA5=${sv(parseFloat(p.ma_5))} | MA10=${sv(parseFloat(p.ma_10))} | MA20=${sv(parseFloat(p.ma_20))} | MA60=${sv(parseFloat(p.ma_60))}\\n`;
+    output += `RSI14: ${sv(parseFloat(p.rsi_14))} | KD: K=${sv(parseFloat(p.k_value))}, D=${sv(parseFloat(p.d_value))}\\n`;
+    output += `MACD: 值=${sv(parseFloat(p.macd_value))} | 訊號=${sv(parseFloat(p.macd_signal))} | 柱狀=${sv(parseFloat(p.macd_hist))}\\n`;
+    output += `布林通道: 上軌=${sv(upperBand)} | 下軌=${sv(lowerBand)} | %B=${bPercent}\\n`;
+    output += `量比(今日/5日均量): ${sv(parseFloat(p.volume_ratio),'倍')}\\n`;
+    output += `K線型態: ${p.patterns && p.patterns.length > 0 ? p.patterns.join('、') : '無明確型態'}`;
+    output += intradaySection + '\\n\\n';
 
-【基本面】
-PE=${sv(parseFloat(f.pe_ratio),'倍')} | PB=${sv(parseFloat(f.pb_ratio),'倍')} | 殖利率=${sv(parseFloat(f.dividend_yield),'%')}${epsSection}${finSection}
-營收: ${rev.revenue_month ? rev.revenue_year + '年' + rev.revenue_month + '月' : '最新'}營收 ${parseFloat(rev.revenue) > 0 ? (parseFloat(rev.revenue) / 100000000).toFixed(2) + '億' : sv(parseFloat(rev.revenue))} (YoY: ${yoyStr})
+    // ETF vs Stock Branching
+    output += `【基本面】\\n`;
+    const isETF = context.industry === 'ETF' || (context.etfData && context.etfData.overall_score);
+    if (isETF) {
+        const etf = context.etfData || {};
+        output += `這是一檔 ETF。評分數據:\\n`;
+        output += `總合評分: ${sv(etf.overall_score)} | 趨勢評分: ${sv(etf.trend_score)} | 人氣評分: ${sv(etf.popularity_score)}\\n`;
+        output += `流動性評分: ${sv(etf.flow_score)} | 技術面評分: ${sv(etf.technical_score)}\\n`;
+        output += `殖利率: ${sv(parseFloat(etf.dividend_yield), '%')} (殖利率評分: ${sv(etf.yield_score)})\\n`;
+    } else {
+        // Industry Comparison
+        let indStr = '';
+        if (ind.ind_pe !== undefined) {
+            indStr = ` (同業平均 PE: ${parseFloat(ind.ind_pe).toFixed(1)}倍, PB: ${parseFloat(ind.ind_pb).toFixed(1)}倍)`;
+        }
+        
+        // EPS trend
+        let epsSection = '';
+        if (context.epsHistory && context.epsHistory.length > 0) {
+            epsSection = `\\nEPS歷史(近${context.epsHistory.length}季): ` + 
+                context.epsHistory.slice().reverse().map(e => {
+                    const q = new Date(e.date);
+                    return `${q.getFullYear()}Q${Math.ceil((q.getMonth()+1)/3)}=${e.value}元`;
+                }).join(' → ');
+        }
+        
+        // Financial metrics
+        let finSection = '';
+        const finItems = [];
+        if (fm.ROE !== undefined && !isNaN(fm.ROE)) finItems.push(`ROE=${fm.ROE.toFixed(2)}%`);
+        if (fm.ROA !== undefined && !isNaN(fm.ROA)) finItems.push(`ROA=${fm.ROA.toFixed(2)}%`);
+        if (fm.GrossProfitMargin !== undefined && !isNaN(fm.GrossProfitMargin)) finItems.push(`毛利率=${fm.GrossProfitMargin.toFixed(2)}%`);
+        if (fm.NetIncomeMargin !== undefined && !isNaN(fm.NetIncomeMargin)) finItems.push(`淨利率=${fm.NetIncomeMargin.toFixed(2)}%`);
+        if (fm.DebtRatio !== undefined && !isNaN(fm.DebtRatio)) finItems.push(`負債比=${fm.DebtRatio.toFixed(2)}%`);
+        if (finItems.length > 0) finSection = `\\n財務指標(最新季): ${finItems.join(', ')}`;
+        
+        // YoY calculation
+        const yoyStr = rev.prev_y_revenue 
+            ? ((parseFloat(rev.revenue) / parseFloat(rev.prev_y_revenue) - 1) * 100).toFixed(1) + '%'
+            : '無資料';
 
-【籌碼面】
-法人5日合計: 外資=${Math.round(parseFloat(inst.foreign_sum || 0) / 1000)}張 | 投信=${Math.round(parseFloat(inst.trust_sum || 0) / 1000)}張 | 自營=${Math.round(parseFloat(inst.dealer_sum || 0) / 1000)}張 → ${inst_dir}${instDailySection}
-融資餘額: ${sv(parseFloat(m.margin_purchase_today_balance),'張')} | 融券餘額: ${sv(parseFloat(m.short_sale_today_balance),'張')}`;
+        output += `PE=${sv(parseFloat(f.pe_ratio),'倍')} | PB=${sv(parseFloat(f.pb_ratio),'倍')} | 殖利率=${sv(parseFloat(f.dividend_yield),'%')}${indStr}${epsSection}${finSection}\\n`;
+        output += `營收: ${rev.revenue_month ? rev.revenue_year + '年' + rev.revenue_month + '月' : '最新'}營收 ${parseFloat(rev.revenue) > 0 ? (parseFloat(rev.revenue) / 100000000).toFixed(2) + '億' : sv(parseFloat(rev.revenue))} (YoY: ${yoyStr})\\n`;
+    }
+
+    output += `\\n【籌碼面】\\n`;
+    output += `法人5日合計: 外資=${Math.round(parseFloat(inst.foreign_sum || 0) / 1000)}張 | 投信=${Math.round(parseFloat(inst.trust_sum || 0) / 1000)}張 | 自營=${Math.round(parseFloat(inst.dealer_sum || 0) / 1000)}張 → ${inst_dir}${instDailySection}\\n`;
+    output += `當日融資餘額: ${sv(parseFloat(m.margin_purchase_today_balance),'張')} | 當日融券餘額: ${sv(parseFloat(m.short_sale_today_balance),'張')}${marginSection}`;
+
+    return output;
 }
 
 /**
@@ -443,7 +592,7 @@ ${promptTemplate}
  */
 async function generateOllamaReport(symbol, context, promptTemplate, modelOverride = null) {
     const ollamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
-    const modelName = modelOverride || process.env.OLLAMA_MODEL || "qwen3.5:9b";
+    const modelName = (modelOverride && modelOverride !== 'none') ? modelOverride : (process.env.OLLAMA_MODEL || "qwen3.5:9b");
 
     const sentimentText = context.newsSentiment && context.newsSentiment.count > 0 
         ? `新聞情緒 (近 3 天, 時效加權): ${context.newsSentiment.sentimentLabel} (利多: ${context.newsSentiment.bullishCount} 則, 利空: ${context.newsSentiment.bearishCount} 則, 加權分數: ${context.newsSentiment.avgScore})`
@@ -478,7 +627,7 @@ ${promptTemplate}
 `;
 
     try {
-        console.log(`[AI Service] Ollama Start: ${symbol} using ${modelName}...`);
+        logger.info(`[AI Service] Ollama Start: ${symbol} using ${modelName}...`);
         const startTime = Date.now();
         
         const response = await fetch(`${ollamaUrl}/api/generate`, {
@@ -503,14 +652,14 @@ ${promptTemplate}
 
         const data = await response.json();
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-        console.log(`[AI Service] Ollama Finished: ${symbol} in ${duration}s`);
+        logger.info(`[AI Service] Ollama Finished: ${symbol} in ${duration}s`);
         
         return data.response;
     } catch (err) {
         if (err.name === 'TimeoutError') {
-            console.error(`[AI Service] Ollama Timeout for ${symbol} after 10 minutes.`);
+            logger.error(`[AI Service] Ollama Timeout for ${symbol} after 10 minutes.`);
         } else {
-            console.error(`[AI Service] Ollama Generation error for ${symbol}:`, err.message);
+            logger.error(`[AI Service] Ollama Generation error for ${symbol}: ${err.message}`);
         }
         throw err;
     }
@@ -568,7 +717,7 @@ async function generateAIReport(symbol, modelOverride = null, templateName = 'st
 
         let promptTemplate = await getPromptTemplate(templateName, DEFAULT_TEMPLATE);
 
-        const geminiInfo = getGenAIInstance();
+        const geminiInfo = await getGenAIInstanceAsync();
         const hasOllama = process.env.OLLAMA_URL && process.env.OLLAMA_URL.length > 5;
         
         let finalContent = "";
@@ -580,7 +729,7 @@ async function generateAIReport(symbol, modelOverride = null, templateName = 'st
             // Priority 1: Gemini
             generationMode = "gemini";
             const { instance: genAI, keyHint } = geminiInfo;
-            console.log(`[AI Service] Using Gemini Key: ${keyHint}`);
+            logger.info(`[AI Service] Using Gemini Key: ${keyHint}`);
             const sentimentText = context.newsSentiment && context.newsSentiment.count > 0 
                 ? `新聞情緒 (近 3 天, 時效加權): ${context.newsSentiment.sentimentLabel} (利多: ${context.newsSentiment.bullishCount} 則, 利空: ${context.newsSentiment.bearishCount} 則, 加權分數: ${context.newsSentiment.avgScore})`
                 : "新聞情緒: 近期無顯著新聞情緒數據";
@@ -611,43 +760,71 @@ ${promptTemplate}
 
 請務必將「新聞情緒分析」中提到的關鍵點整合進報告中。直接從報表標題開始。
 `;
-            // 支援 403 自動換金鑰重試
-            let gemmaSuccess = false;
-            const maxRetries = genAIPool.length;
+            // 支援 403 / 429 等自動換金鑰重試
+            const maxRetries = genAIPool.length || 3;
             for (let retry = 0; retry < maxRetries; retry++) {
-                const { instance: retryGenAI, keyHint: retryHint, keyIndex } = getGenAIInstance();
+                const { instance: retryGenAI, keyHint: retryHint, keyIndex, dbId } = await getGenAIInstanceAsync();
+                const callStart = Date.now();
                 try {
                     const modelName = "models/gemma-4-31b-it";
                     const model = retryGenAI.getGenerativeModel({ model: modelName });
                     const result = await model.generateContent(finalPrompt);
-                    finalContent = result.response.text();
+                    
+                    // 使用 SDK 原生解析：取得最終產出 (text)，直接忽略思考過程 (thought)
+                    let actualContent = '';
+                    const parts = result.response?.candidates?.[0]?.content?.parts || [];
+                    
+                    for (const part of parts) {
+                        if (part.text && !part.thought) {
+                            actualContent += part.text;
+                        }
+                    }
+                    
+                    if (!actualContent && result.response.text) {
+                        actualContent = result.response.text();
+                    }
+                    
+                    const latency = Date.now() - callStart;
+                    updateKeyMetrics(dbId, true, false, latency);
+                    
+                    finalContent = actualContent.trim();
                     gemmaSuccess = true;
                     break;
                 } catch (keyErr) {
+                    const latency = Date.now() - callStart;
                     const errDetail = keyErr.message || String(keyErr);
-                    if (errDetail.includes('403') || errDetail.includes('400') || errDetail.includes('API_KEY_INVALID') || errDetail.includes('denied access')) {
+                    const is429 = errDetail.includes('429') || errDetail.includes('quota') || errDetail.includes('exceeded');
+                    
+                    updateKeyMetrics(dbId, false, is429, latency);
+                    
+                    if (errDetail.includes('403') || errDetail.includes('400') || is429 || errDetail.includes('API_KEY_INVALID') || errDetail.includes('denied access')) {
                         markKeyBlocked(keyIndex);
-                        console.error(`[AI Service] Key ${retryHint} blocked due to error: ${errDetail}`);
+                        logger.error(`[AI Service] Key ${retryHint} blocked due to error: ${errDetail}`);
                         continue;
                     }
-                    console.error(`[AI Service] Key ${retryHint} unexpected error:`, errDetail);
+                    logger.error(`[AI Service] Key ${retryHint} unexpected error: ${errDetail}`);
                     throw keyErr; // 其他錯誤直接拋出
                 }
             }
             if (!gemmaSuccess) {
-                throw new Error('所有 Gemma API 金鑰均無法存取，請確認各 Google Cloud 專案的模型存取設定。');
+                logger.warn('[AI Service] 所有 Gemini API 金鑰均無法存取或已超限，自動降級至 Ollama 或 Smart Engine...');
             }
-            
-        } else if (hasOllama) {
-            // Priority 2: Local Ollama
-            generationMode = "ollama";
-            const targetModel = modelOverride || process.env.OLLAMA_MODEL || "qwen3.5:9b";
-            console.log(`[AI Service] Using Local Ollama (${targetModel}) for ${symbol}`);
-            finalContent = await generateOllamaReport(symbol, context, promptTemplate, targetModel);
-        } else {
-            // Priority 3: Smart Engine (Rule-based)
-            generationMode = "smart_engine";
-            finalContent = generateSmartEngineReport(symbol, context, promptTemplate);
+        }
+
+        // 如果沒有啟用 Gemini 或是 Gemini 呼叫全部失敗，則降級至 Ollama 或 Smart Engine
+        if (!gemmaSuccess) {
+            if (hasOllama) {
+                // Priority 2: Local Ollama
+                generationMode = "ollama";
+                const targetModel = (modelOverride && modelOverride !== 'none') ? modelOverride : (process.env.OLLAMA_MODEL || "qwen3.5:9b");
+                logger.info(`[AI Service] Using Local Ollama (${targetModel}) for ${symbol}`);
+                finalContent = await generateOllamaReport(symbol, context, promptTemplate, targetModel);
+            } else {
+                // Priority 3: Smart Engine (Rule-based)
+                generationMode = "smart_engine";
+                logger.info(`[AI Service] Using Smart Engine for ${symbol}`);
+                finalContent = generateSmartEngineReport(symbol, context, promptTemplate);
+            }
         }
 
         // --- 後處理：移除 AI 可能輸出的思考過程、開場白等垃圾資訊 ---
@@ -657,7 +834,7 @@ ${promptTemplate}
             // 檢查前綴是否包含 "thought" 標籤或長篇思考文字
             const preamble = finalContent.substring(0, firstHeaderIndex);
             if (preamble.includes('thought') || preamble.includes('Thinking') || preamble.length > 30) {
-                console.log(`[AI Service] Stripping Preamble from ${symbol} report (${preamble.length} chars)`);
+                logger.info(`[AI Service] Stripping Preamble from ${symbol} report (${preamble.length} chars)`);
                 finalContent = finalContent.substring(firstHeaderIndex);
             }
         }
@@ -679,7 +856,7 @@ ${promptTemplate}
             const sentimentIntensity = Math.abs(context.newsSentiment.avgScore); // 0~1
             const newsWeight = Math.min(0.30, 0.10 + sentimentIntensity * 0.15 + Math.min(context.newsSentiment.count, 10) * 0.005);
             scoreVal = Math.round(rawAiScore * (1 - newsWeight) + newsScore * newsWeight);
-            console.log(`[AI Service] Score Weighted: ${rawAiScore} (AI) * ${(1 - newsWeight).toFixed(2)} + ${newsScore.toFixed(0)} (News) * ${newsWeight.toFixed(2)} = ${scoreVal}`);
+            logger.info(`[AI Service] Score Weighted: ${rawAiScore} (AI) * ${(1 - newsWeight).toFixed(2)} + ${newsScore.toFixed(0)} (News) * ${newsWeight.toFixed(2)} = ${scoreVal}`);
         }
 
         // --- IMPORTANT: Refactored: Removed direct DB saving here. ---
@@ -696,10 +873,10 @@ ${promptTemplate}
             content: finalContent,
             sentimentScore: scoreVal,
             generationMode,
-            modelName: generationMode === 'gemini' ? 'gemma-4-31b-it' : (modelOverride || process.env.OLLAMA_MODEL || "qwen3.5:9b")
+            modelName: generationMode === 'gemini' ? 'gemma-4-31b-it' : ((modelOverride && modelOverride !== 'none') ? modelOverride : (process.env.OLLAMA_MODEL || "qwen3.5:9b"))
         };
     } catch (err) {
-        console.error("AI/Engine Report Generation Error:", err.message);
+        logger.error(`AI/Engine Report Generation Error: ${err.message}`);
         return { success: false, error: err.message, generationMode: "error", modelName: "none" };
     }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authFetch } from '../../utils/auth';
 import { 
@@ -94,6 +95,56 @@ export default function AdminUserManagement() {
                 }
             } else {
                 setEditStatus({ type: 'error', message: data.error });
+            }
+        } catch (err) {
+            setEditStatus({ type: 'error', message: '網路錯誤' });
+        }
+    };
+
+    const handleToggleActive = async (userId, currentStatus) => {
+        const newStatus = !currentStatus;
+        if (!window.confirm(`確定要${newStatus ? '啟用' : '停用'}此帳號嗎？`)) return;
+
+        setEditStatus({ type: 'loading', message: '處理中...' });
+        try {
+            const res = await authFetch(`${API_BASE}/admin/users/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_active: newStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setEditStatus({ type: 'success', message: `帳號已${newStatus ? '啟用' : '停用'}` });
+                setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_active: newStatus } : u));
+                if (selectedUser?.id === userId) {
+                    setSelectedUser(prev => ({ ...prev, is_active: newStatus }));
+                }
+            } else {
+                setEditStatus({ type: 'error', message: data.error });
+            }
+        } catch (err) {
+            setEditStatus({ type: 'error', message: '網路錯誤' });
+        }
+    };
+
+    const handleDeleteUser = async (userId) => {
+        if (!window.confirm('確定要永久刪除此帳號與其所有資料嗎？此操作無法復原。')) return;
+        
+        setEditStatus({ type: 'loading', message: '正在刪除帳號...' });
+        try {
+            const res = await authFetch(`${API_BASE}/admin/users/${userId}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.success) {
+                setEditStatus({ type: 'success', message: '帳號已成功刪除' });
+                setUsers(prev => prev.filter(u => u.id !== userId));
+                setTimeout(() => {
+                    setSelectedUser(null);
+                    setEditStatus({ type: '', message: '' });
+                }, 1500);
+            } else {
+                setEditStatus({ type: 'error', message: data.error || '刪除失敗' });
             }
         } catch (err) {
             setEditStatus({ type: 'error', message: '網路錯誤' });
@@ -204,7 +255,12 @@ export default function AdminUserManagement() {
                                                     {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full rounded-full object-cover" /> : u.nickname?.[0] || u.email?.[0]}
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-slate-800">{u.nickname || u.name}</div>
+                                                    <div className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                                        {u.nickname || u.name}
+                                                        {u.is_active === false && (
+                                                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-100 text-red-600 font-bold tracking-widest uppercase">已停用</span>
+                                                        )}
+                                                    </div>
                                                     <div className="text-xs text-slate-500 font-mono">{u.email}</div>
                                                 </div>
                                             </div>
@@ -266,8 +322,8 @@ export default function AdminUserManagement() {
             )}
 
             {/* 詳情與持股抽屜面板 (僅在 users 分頁時可能顯示，但放在外層以利動畫) */}
-            {selectedUser && (
-                <div className="fixed inset-0 z-[60] flex justify-end animate-in fade-in duration-300">
+            {selectedUser && createPortal(
+                <div className="fixed inset-0 z-[100] flex justify-end animate-in fade-in duration-300">
                     <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setSelectedUser(null)}></div>
                     <div className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-500">
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
@@ -372,14 +428,25 @@ export default function AdminUserManagement() {
                                 關閉面板
                             </button>
                             <button 
-                                className="flex-1 py-3 bg-red-50 border border-red-200 text-red-600 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
-                                onClick={() => alert('此功能尚未實作，請由資料庫手動操作')}
+                                className={`flex-1 py-3 border rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 ${
+                                    selectedUser.is_active !== false 
+                                    ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100' 
+                                    : 'bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100'
+                                }`}
+                                onClick={() => handleToggleActive(selectedUser.id, selectedUser.is_active !== false)}
                             >
-                                < Ban className="w-4 h-4" /> 停用帳號
+                                < Ban className="w-4 h-4" /> {selectedUser.is_active !== false ? '停用帳號' : '啟用帳號'}
+                            </button>
+                            <button 
+                                className="flex-1 py-3 bg-red-50 border border-red-200 text-red-600 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                                onClick={() => handleDeleteUser(selectedUser.id)}
+                            >
+                                < Trash2 className="w-4 h-4" /> 刪除帳號
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

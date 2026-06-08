@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Heart, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, TrendingUp, TrendingDown, Shield, Target, Coins, Users, Award, BarChart3, PieChart, Activity, Layout, Zap, AlertCircle, Brain, Info } from 'lucide-react';
 import { API_BASE } from '../../utils/api';
-import { useGlobalFilters } from '../../context/GlobalFilterContext';
+import useGlobalStore from '../../store/useGlobalStore';
 import GlobalFilterBar from '../forms/GlobalFilterBar';
 import StockSearchAutocomplete from '../forms/StockSearchAutocomplete';
 import StockCompareView from '../charts/StockCompareView';
@@ -84,7 +84,9 @@ export default function HealthCheckRanking({ onSelectStock }) {
     const [order, setOrder] = useState('DESC');
     const [search, setSearch] = useState('');
     const [searchInput, setSearchInput] = useState('');
-    const { marketForApi, stockTypesForApi, industry: globalIndustry, setIndustry: setGlobalIndustry } = useGlobalFilters();
+    const { globalMarket, globalStockTypes, globalIndustry: globalIndustry, setGlobalIndustry: setGlobalIndustry } = useGlobalStore();
+    const marketForApi = globalMarket === 'all' ? undefined : globalMarket;
+    const stockTypesForApi = globalStockTypes.join(',');
     const [grade, setGrade] = useState('');
     const [smartRating, setSmartRating] = useState('');
     const [industries, setIndustries] = useState([]);

@@ -75,7 +75,7 @@ router.post('/login', async (req, res) => {
 
     try {
         const result = await query(
-            'SELECT id, uuid, email, name, nickname, avatar_url, password_hash, provider, role, is_verified FROM users WHERE email = $1 AND provider = $2',
+            'SELECT id, uuid, email, name, nickname, avatar_url, password_hash, provider, role, is_verified, is_active FROM users WHERE email = $1 AND provider = $2',
             [email, 'local']
         );
 
@@ -84,6 +84,10 @@ router.post('/login', async (req, res) => {
         }
 
         const user = result.rows[0];
+
+        if (user.is_active === false) {
+            return res.status(403).json({ success: false, error: '此帳號已被停用，請聯絡管理員' });
+        }
 
         // 檢查是否已驗證
         if (user.provider === 'local' && !user.is_verified) {
@@ -133,7 +137,7 @@ router.post('/google', async (req, res) => {
 
         // 檢查是否已有此 Google 帳號
         let result = await query(
-            'SELECT id, uuid, email, name, nickname, avatar_url, provider, role FROM users WHERE provider = $1 AND provider_id = $2',
+            'SELECT id, uuid, email, name, nickname, avatar_url, provider, role, is_active FROM users WHERE provider = $1 AND provider_id = $2',
             ['google', googleId]
         );
 
@@ -141,6 +145,11 @@ router.post('/google', async (req, res) => {
         if (result.rows.length > 0) {
             // 已註冊，更新資訊
             user = result.rows[0];
+
+            if (user.is_active === false) {
+                return res.status(403).json({ success: false, error: '此帳號已被停用，請聯絡管理員' });
+            }
+
             await query(
                 'UPDATE users SET name = $1, avatar_url = $2, updated_at = NOW() WHERE id = $3',
                 [name, picture, user.id]

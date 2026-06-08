@@ -88,16 +88,17 @@ function logToFile(msg) {
     console.log(msg);
 }
 
-// 更新同步進度 (用於系統監控)
-async function updateProgress(dataset, stockId = '') {
+async function updateProgress(dataset, stockId = '', count = -1) {
+    const status = count === 0 ? 'no_data' : 'done';
+    const finalCount = count < 0 ? 0 : count;
     try {
         await query(
-            `INSERT INTO fm_sync_progress (dataset, stock_id, last_sync_date, status)
-             VALUES ($1, $2, NOW(), 'done')
-             ON CONFLICT (dataset, stock_id) DO UPDATE SET last_sync_date = NOW(), status = 'done'`,
-            [dataset, stockId]
+            `INSERT INTO fm_sync_progress (dataset, stock_id, last_sync_date, status, data_count)
+             VALUES ($1, $2, NOW(), $3, $4)
+             ON CONFLICT (dataset, stock_id) DO UPDATE SET last_sync_date = NOW(), status = $3, data_count = $4`,
+            [dataset, stockId, status, finalCount]
         );
-        logToFile(`[Progress] Updated ${dataset} ${stockId}`);
+        logToFile(`[Progress] Updated ${dataset} ${stockId} (status: ${status}, count: ${finalCount})`);
     } catch (e) {
         logToFile(`[Progress] Failed to update ${dataset}: ${e.message}`);
     }
@@ -177,7 +178,7 @@ async function fetchTWSE(dateObj) {
             count++;
         }
         console.log(`[TWSE] ${dateStr} 更新 ${count} 筆`);
-        if (count > 0) await updateProgress('TaiwanStockPrice');
+        await updateProgress('TaiwanStockPrice', '', count);
     } catch (e) {
         console.error(`[TWSE] ${dateStr} 失敗:`, e.message);
     }
@@ -232,7 +233,7 @@ async function fetchTPEx(dateObj) {
             count++;
         }
         console.log(`[TPEx] ${rocDate} 更新 ${count} 筆`);
-        if (count > 0) await updateProgress('TaiwanStockPrice');
+        await updateProgress('TaiwanStockPrice', '', count);
     } catch (e) {
         console.error(`[TPEx] ${rocDate} 失敗:`, e.message);
     }
@@ -274,8 +275,10 @@ async function fetchFundamentals(dateObj) {
         }
         console.log(`[Fund] ${dateStr} 更新 ${count} 筆`);
         if (count > 0) {
-            await updateProgress('TaiwanStockPER');
-            await updateProgress('TaiwanStockTradingDate'); // 確保這也被標記為已更新
+            await updateProgress('TaiwanStockPER', '', count);
+            await updateProgress('TaiwanStockTradingDate', '', 1); // 確保這也被標記為已更新
+        } else {
+            await updateProgress('TaiwanStockPER', '', count);
         }
     } catch (e) {
         console.error(`[Fund] ${dateStr} 失敗:`, e.message);
@@ -319,7 +322,7 @@ async function fetchTPExFundamentals(dateObj) {
             count++;
         }
         console.log(`[TPEx-Fund] ${rocDate} 更新 ${count} 筆`);
-        if (count > 0) await updateProgress('TaiwanStockPER');
+        await updateProgress('TaiwanStockPER', '', count);
     } catch (e) {
         console.error(`[TPEx-Fund] ${rocDate} 失敗:`, e.message);
     }
@@ -375,7 +378,7 @@ async function fetchInstitutional(dateObj) {
             count++;
         }
         console.log(`[Inst] ${dateStr} 更新 ${count} 筆 (過濾跳過 ${skipCount} 筆)`);
-        if (count > 0) await updateProgress('TaiwanStockInstitutional');
+        await updateProgress('TaiwanStockInstitutional', '', count);
     } catch (e) {
         console.error(`[Inst] ${dateStr} 失敗:`, e.message);
     }
@@ -451,7 +454,7 @@ async function fetchTPExInstitutional(dateObj) {
             count++;
         }
         console.log(`[TPEx-Inst] ${rocDate} 更新 ${count} 筆 (過濾跳過 ${skipCount} 筆)`);
-        if (count > 0) await updateProgress('TaiwanStockInstitutional');
+        await updateProgress('TaiwanStockInstitutional', '', count);
     } catch (e) {
         console.error(`[TPEx-Inst] ${rocDate} 失敗:`, e.message);
     }
@@ -495,7 +498,7 @@ async function fetchMarginTrading(dateObj) {
             count++;
         }
         console.log(`[Margin] TWSE ${dateStr} 更新 ${count} 筆`);
-        if (count > 0) await updateProgress('TaiwanStockMarginPurchaseShortSale');
+        await updateProgress('TaiwanStockMarginPurchaseShortSale', '', count);
     } catch (e) {
         console.error(`[Margin] TWSE ${dateStr} 失敗:`, e.message);
     }
@@ -542,7 +545,7 @@ async function fetchTPExMarginTrading(dateObj) {
             count++;
         }
         console.log(`[Margin] TPEx ${rocDate} 更新 ${count} 筆`);
-        if (count > 0) await updateProgress('TaiwanStockMarginPurchaseShortSale');
+        await updateProgress('TaiwanStockMarginPurchaseShortSale', '', count);
     } catch (e) {
         console.error(`[Margin] TPEx ${rocDate} 失敗:`, e.message);
     }
@@ -638,7 +641,7 @@ async function fetchMarketInstitutional(dateObj) {
         );
     }
     console.log(`[Market-Inst] ${dateHyphen} 更新完成`);
-    await updateProgress('TaiwanStockTotalInstitutionalInvestors');
+    await updateProgress('TaiwanStockTotalInstitutionalInvestors', '', 1);
 }
 
 // ===== 抓取大盤融資融券 (TWSE + TPEx) 歷史 =====
@@ -734,7 +737,7 @@ async function fetchMarketMargin(dateObj) {
     console.log(`[Market-Margin] ${dateHyphen} 更新完成 (格式已過渡至多行)`);
     // Cleanup old 'Total' row if exists
     await query(`DELETE FROM fm_total_margin WHERE date = $1 AND name = 'Total'`, [dateHyphen]);
-    await updateProgress('TaiwanStockTotalMarginPurchaseShortSale');
+    await updateProgress('TaiwanStockTotalMarginPurchaseShortSale', '', 1);
 }
 
 

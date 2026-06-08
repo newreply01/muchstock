@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Calendar, User, Activity, Clock, ChevronDown, ChevronRight } from 'lucide-react';
+import { authFetch } from '../../utils/auth';
 
 const AdminAuditLogs = () => {
     const [logs, setLogs] = useState([]);
@@ -21,9 +22,7 @@ const AdminAuditLogs = () => {
                 action: filterAction,
                 user_id: filterUser
             });
-            const res = await fetch(`/api/admin/audit-logs?${query.toString()}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
+            const res = await authFetch(`/api/admin/audit-logs?${query.toString()}`);
             const data = await res.json();
             if (data.success) {
                 setLogs(data.logs);

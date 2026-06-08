@@ -18,7 +18,7 @@ export default function TradingHub({
 
     const tabs = [
         { id: 'trading', label: '即時看盤', icon: LineChart },
-        { id: 'realtime', label: '即時交易', icon: Clock },
+        { id: 'realtime', label: '分時交易', icon: Clock },
         { id: 'portfolio', label: '投資組合', icon: Briefcase },
         { id: 'position', label: '持倉分析', icon: PieChart },
         { id: 'watchlist', label: '自選股', icon: Star },

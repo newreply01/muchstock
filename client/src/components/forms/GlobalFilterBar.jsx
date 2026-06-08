@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useGlobalFilters } from '../../context/GlobalFilterContext';
+import useGlobalStore from '../../store/useGlobalStore';
 import { Search, Building2 } from 'lucide-react';
 import { getIndustries } from '../../utils/api';
 import SearchableSelect from './SearchableSelect';
 
 export default function GlobalFilterBar() {
-    const { market, setMarket, hasStockType, toggleStockType, industry, setIndustry } = useGlobalFilters();
+    const { globalMarket: market, setGlobalMarket: setMarket, globalStockTypes, toggleGlobalStockType: toggleStockType, globalIndustry: industry, setGlobalIndustry: setIndustry } = useGlobalStore();
+    const hasStockType = (typeId) => globalStockTypes.includes(typeId);
     const [industries, setIndustries] = useState([]);
 
     useEffect(() => {

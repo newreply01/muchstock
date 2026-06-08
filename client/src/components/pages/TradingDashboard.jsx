@@ -33,6 +33,7 @@ const getPriceColor = (price, prev) => {
 const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
     const [fiveLevels, setFiveLevels] = useState([]);
     const [recentTicks, setRecentTicks] = useState([]);
+    const [volumeProfile, setVolumeProfile] = useState({ data: [], maxVol: 1 });
     const [stats, setStats] = useState({});
 
     useEffect(() => {
@@ -50,9 +51,48 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                 // Fetch recent ticks
                 const ticksRes = await getRealtimeTicks(symbol);
                 if (ticksRes?.success && Array.isArray(ticksRes.data)) {
-                    // Sort descending by trade_time to ensure newest is first, then take top 20
+                    // Sort descending by trade_time to ensure newest is first
                     const sortedTicks = [...ticksRes.data].sort((a, b) => new Date(b.trade_time) - new Date(a.trade_time));
-                    setRecentTicks(sortedTicks.slice(0, 20));
+                    // Calculate accurate single trade volume by diffing cumulative volume
+                    for (let i = 0; i < sortedTicks.length; i++) {
+                        const currentVol = parseInt(sortedTicks[i].volume) || 0;
+                        const prevVol = (i + 1 < sortedTicks.length) ? (parseInt(sortedTicks[i+1].volume) || 0) : null;
+                        
+                        if (prevVol !== null) {
+                            sortedTicks[i].calculated_trade_volume = Math.max(0, currentVol - prevVol);
+                        } else {
+                            sortedTicks[i].calculated_trade_volume = parseInt(sortedTicks[i].trade_volume) || currentVol;
+                        }
+                    }
+
+                    // Filter to only show actual trades (volume > 0)
+                    const actualTrades = sortedTicks.filter(t => t.calculated_trade_volume > 0);
+                    setRecentTicks(actualTrades.slice(0, 10));
+
+                    // Calculate Volume Profile (Top 10 prices by volume)
+                    const profileMap = {};
+                    actualTrades.forEach(t => {
+                        const p = parseFloat(t.price).toFixed(2);
+                        if (!profileMap[p]) profileMap[p] = 0;
+                        profileMap[p] += t.calculated_trade_volume;
+                    });
+                    
+                    // Sort by volume descending to find top 10 hottest prices
+                    let hottestPrices = Object.entries(profileMap)
+                        .map(([price, vol]) => ({ price, vol }))
+                        .sort((a, b) => b.vol - a.vol)
+                        .slice(0, 10);
+                        
+                    // Sort the top 10 hottest prices by price descending for natural profile look
+                    hottestPrices.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+                    
+                    // Calculate max volume for progress bar scaling
+                    const maxProfileVol = Math.max(...hottestPrices.map(p => p.vol), 1);
+                    
+                    setVolumeProfile({
+                        data: hottestPrices,
+                        maxVol: maxProfileVol
+                    });
                 }
             } catch (err) {
                 console.warn('TradingPanel: Failed to fetch data:', err);
@@ -74,12 +114,13 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
         const nextTick = recentTicks[j + 1];
         if (nextTick) {
             const diff = parseFloat(currentTick.price) - parseFloat(nextTick.price);
+            const vol = currentTick.calculated_trade_volume ?? parseInt(currentTick.trade_volume || currentTick.volume || 0);
             if (diff > 0) {
-                buyVol += parseInt(currentTick.volume || 0);
+                buyVol += vol;
             } else if (diff < 0) {
-                sellVol += parseInt(currentTick.volume || 0);
+                sellVol += vol;
             } else {
-                neutralVol += parseInt(currentTick.volume || 0);
+                neutralVol += vol;
             }
         }
     }
@@ -88,7 +129,7 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
     const sellPercent = Math.round((sellVol / totalVolumeSample) * 100);
     const neutralPercent = Math.max(0, 100 - buyPercent - sellPercent);
 
-    const whaleTrades = recentTicks.filter(t => parseInt(t.volume || 0) >= 20).slice(0, 4);
+    // whaleTrades state is now calculated in useEffect based on the full dataset
 
     return (
         <div className="flex-1 flex flex-col bg-white dark:bg-gray-950 overflow-hidden">
@@ -149,34 +190,62 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
             {/* Main Trading Area Content */}
             <div className="flex-1 flex overflow-hidden border-t border-slate-200 dark:border-slate-200 dark:border-gray-800/50">
                 {/* Left: Five Levels & Orderflow Radar */}
-                <div className="w-1/2 border-r border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-slate-50 dark:bg-gray-900/20 flex flex-col">
-                    <div className="p-4 border-b border-slate-200 dark:border-gray-800 bg-slate-100 dark:bg-white dark:bg-gray-800/30 flex justify-between items-center">
+                <div className="w-1/2 border-r border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-slate-50 dark:bg-gray-900/20 flex flex-col min-h-0 overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-slate-200 dark:border-gray-800 bg-slate-100 dark:bg-white dark:bg-gray-800/30 flex justify-between items-center shrink-0">
                         <div className="flex items-center gap-2 text-yellow-400 font-black tracking-widest text-[11px] uppercase italic">
                             <Zap className="w-4 h-4 fill-yellow-400" />
                             市場買賣五檔 (Bid/Ask)
                         </div>
                     </div>
-                    <div className="p-4 bg-slate-50/50 dark:bg-white dark:bg-gray-950/20">
-                        <div className="grid grid-cols-4 text-[10px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-[0.2em] mb-4 px-2 border-b border-slate-200 dark:border-gray-800 pb-2">
-                            <span>買量</span>
-                            <span>買價</span>
-                            <span className="text-right">賣價</span>
-                            <span className="text-right">賣量</span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            {(fiveLevels && fiveLevels.length > 0 ? fiveLevels : Array(5).fill({})).map((level, i) => (
-                                <div key={i} className="grid grid-cols-4 text-sm font-mono py-2 hover:bg-white/5 rounded-xl px-2 group transition-all duration-200 border border-transparent hover:border-white/5">
-                                    <span className="text-slate-500 dark:text-gray-400 font-black">{level?.bVol || '--'}</span>
-                                    <span className={`font-black text-base italic ${getPriceColor(level?.bid, stats?.previous_close)}`}>{level?.bid ? Number(level.bid).toFixed(2) : '--'}</span>
-                                    <span className={`text-right font-black text-base italic ${getPriceColor(level?.ask, stats?.previous_close)}`}>{level?.ask ? Number(level.ask).toFixed(2) : '--'}</span>
-                                    <span className="text-right text-slate-500 dark:text-gray-400 font-black">{level?.aVol || '--'}</span>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="bg-slate-50/50 dark:bg-white dark:bg-gray-950/20">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50 dark:bg-gray-900 text-[10px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest border-b border-slate-200 dark:border-gray-800">
+                                <tr>
+                                    <th className="px-6 py-2.5">買量</th>
+                                    <th className="px-6 py-2.5">買價</th>
+                                    <th className="px-6 py-2.5 text-right">賣價</th>
+                                    <th className="px-6 py-2.5 text-right">賣量</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 dark:divide-gray-800/30">
+                                {(() => {
+                                    const levels = fiveLevels && fiveLevels.length > 0 ? fiveLevels : Array(5).fill({});
+                                    const maxVol = Math.max(
+                                        ...levels.map(l => parseInt(l?.bVol) || 0),
+                                        ...levels.map(l => parseInt(l?.aVol) || 0),
+                                        1
+                                    );
+                                    return levels.map((level, i) => (
+                                        <tr key={i} className="hover:bg-blue-600/5 transition-colors group relative">
+                                            <td className="px-6 py-2.5 text-xs font-mono text-slate-700 dark:text-gray-300 font-black relative overflow-hidden">
+                                                {level?.bVol && (
+                                                    <div 
+                                                        className="absolute top-0 left-0 h-full bg-red-100/60 dark:bg-red-900/20 transition-all duration-300 z-0"
+                                                        style={{ width: `${(parseInt(level.bVol) / maxVol) * 100}%` }}
+                                                    ></div>
+                                                )}
+                                                <span className="relative z-10">{level?.bVol || '--'}</span>
+                                            </td>
+                                            <td className={`px-6 py-2.5 text-sm font-black italic tabular-nums relative z-10 ${getPriceColor(level?.bid, stats?.previous_close)}`}>{level?.bid ? Number(level.bid).toFixed(2) : '--'}</td>
+                                            <td className={`px-6 py-2.5 text-sm font-black italic tabular-nums text-right relative z-10 ${getPriceColor(level?.ask, stats?.previous_close)}`}>{level?.ask ? Number(level.ask).toFixed(2) : '--'}</td>
+                                            <td className="px-6 py-2.5 text-xs font-mono text-slate-700 dark:text-gray-300 font-black text-right relative overflow-hidden">
+                                                {level?.aVol && (
+                                                    <div 
+                                                        className="absolute top-0 right-0 h-full bg-green-100/60 dark:bg-green-900/20 transition-all duration-300 z-0"
+                                                        style={{ width: `${(parseInt(level.aVol) / maxVol) * 100}%` }}
+                                                    ></div>
+                                                )}
+                                                <span className="relative z-10">{level?.aVol || '--'}</span>
+                                            </td>
+                                        </tr>
+                                    ));
+                                })()}
+                            </tbody>
+                        </table>
                     </div>
 
                     {/* Orderflow Strength Meter */}
-                    <div className="p-4 border-t border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/10">
+                    <div className="px-4 py-2.5 border-t border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/10 shrink-0">
                         <div className="flex justify-between items-center text-xs font-black text-slate-500 dark:text-gray-450 mb-2 uppercase tracking-widest">
                             <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-red-500 animate-pulse" /> 主動買盤 {buyPercent}%</span>
                             <span className="text-slate-400 dark:text-gray-500">盤中多空力道計</span>
@@ -189,37 +258,35 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                         </div>
                     </div>
 
-                    {/* Intraday Whales Streaming Radar */}
-                    <div className="p-4 border-t border-slate-200 dark:border-gray-800 bg-slate-100/50 dark:bg-gray-900/30 flex-1 flex flex-col justify-start">
+                    {/* Intraday Volume Profile */}
+                    <div className="px-4 py-2.5 border-t border-slate-200 dark:border-gray-800 bg-slate-100/50 dark:bg-gray-900/30 flex flex-col justify-start shrink-0">
                         <div className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                             <span className="flex h-2 w-2 relative">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                             </span>
-                            盤中特大單即時流光雷達 (單量 ≥ 20 張)
+                            今日價量分佈 (Top 10 交易熱區)
                         </div>
-                        <div className="space-y-2 flex-grow overflow-y-auto no-scrollbar max-h-[170px]">
-                            {whaleTrades.map((trade, idx) => {
-                                const isBuy = idx % 2 === 0;
+                        <div className="space-y-1.5 h-[126px] overflow-hidden flex flex-col justify-center">
+                            {volumeProfile.data.map((item, idx) => {
+                                const percent = (item.vol / volumeProfile.maxVol) * 100;
                                 return (
-                                    <div key={idx} className="flex items-center justify-between px-3 py-2 bg-white dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 rounded-xl hover:-translate-x-1 transition-all duration-300 shadow-sm animate-in slide-in-from-left duration-200">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-bold text-slate-400">{new Date(trade.trade_time).toLocaleTimeString('zh-TW', { hour12: false })}</span>
-                                            <span className="text-xs font-bold text-slate-700 dark:text-gray-300">{stats?.name || '個股'}</span>
-                                            <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-wider ${isBuy ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
-                                                {isBuy ? '特大買單' : '特大賣單'}
+                                    <div key={idx} className="flex items-center justify-between text-xs relative group">
+                                        <div className="absolute left-0 top-0 bottom-0 bg-blue-500/20 dark:bg-blue-500/30 rounded-r-sm transition-all duration-500" style={{ width: `${percent}%` }}></div>
+                                        <div className="flex items-center gap-3 relative z-10 w-full px-1">
+                                            <span className={`w-14 font-black tabular-nums ${getPriceColor(item.price, stats?.previous_close)}`}>
+                                                {item.price}
                                             </span>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="text-xs font-black font-mono tracking-tight text-amber-500">{trade.volume} <span className="text-[9px] font-bold text-slate-450">張</span></span>
-                                            <span className="text-xs font-bold font-mono ml-2 dark:text-gray-300">@ {parseFloat(trade.price).toFixed(2)}</span>
+                                            <span className="flex-1 text-right font-mono font-bold text-slate-600 dark:text-gray-300">
+                                                {item.vol.toLocaleString()} <span className="text-[9px] text-slate-400">張</span>
+                                            </span>
                                         </div>
                                     </div>
                                 );
                             })}
-                            {whaleTrades.length === 0 && (
+                            {volumeProfile.data.length === 0 && (
                                 <div className="h-full flex items-center justify-center text-slate-400 dark:text-gray-500 text-xs italic py-6">
-                                    盤中目前無單筆大於 20 張之特大單交易
+                                    尚無成交資料
                                 </div>
                             )}
                         </div>
@@ -227,34 +294,34 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                 </div>
 
                 {/* Right: Ticks List */}
-                <div className="w-1/2 flex flex-col bg-slate-50/50 dark:bg-white dark:bg-gray-950/40">
-                    <div className="p-4 border-b border-slate-200 dark:border-gray-800 bg-slate-100 dark:bg-white dark:bg-gray-800/30 flex justify-between items-center">
+                <div className="w-1/2 flex flex-col bg-slate-50/50 dark:bg-white dark:bg-gray-950/40 min-h-0 overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-slate-200 dark:border-gray-800 bg-slate-100 dark:bg-white dark:bg-gray-800/30 flex justify-between items-center shrink-0">
                         <div className="flex items-center gap-2 text-blue-400 font-black tracking-widest text-[11px] uppercase italic">
                             <Activity className="w-4 h-4" />
-                            近期分時成交明細 (最新 20 筆)
+                            近期分時成交明細 (最新 10 筆)
                         </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto custom-scrollbar-thin">
+                    <div className="flex-1 shrink-0 overflow-y-auto custom-scrollbar-thin border-b border-slate-200 dark:border-gray-800">
                         <table className="w-full text-left">
                             <thead className="sticky top-0 bg-slate-50 dark:bg-gray-900 text-[10px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest border-b border-slate-200 dark:border-gray-800">
                                 <tr>
-                                    <th className="px-6 py-3">時間</th>
-                                    <th className="px-6 py-3 text-right">成交價</th>
-                                    <th className="px-6 py-3 text-right">成交單量</th>
+                                    <th className="px-6 py-2.5">時間</th>
+                                    <th className="px-6 py-2.5 text-right">成交價</th>
+                                    <th className="px-6 py-2.5 text-right">成交單量</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-gray-800/30">
                                 {recentTicks.length > 0 ? (
                                     recentTicks.map((tick, i) => (
                                         <tr key={tick.id || i} className="hover:bg-blue-600/5 transition-colors group">
-                                            <td className="px-6 py-3 text-xs font-mono text-slate-400 dark:text-gray-500 group-hover:text-slate-700 dark:text-gray-300">
+                                            <td className="px-6 py-2.5 text-xs font-mono text-slate-400 dark:text-gray-500 group-hover:text-slate-700 dark:text-gray-300">
                                                 {new Date(tick.trade_time).toLocaleTimeString('zh-TW', { hour12: false })}
                                             </td>
-                                            <td className={`px-6 py-3 text-sm font-black italic tabular-nums text-right ${getPriceColor(tick.price, stats?.previous_close)}`}>
+                                            <td className={`px-6 py-2.5 text-sm font-black italic tabular-nums text-right ${getPriceColor(tick.price, stats?.previous_close)}`}>
                                                 {parseFloat(tick.price).toFixed(2)}
                                             </td>
-                                            <td className={`px-6 py-3 text-xs font-black font-mono text-right tabular-nums ${tick.volume > 50 ? 'text-amber-400' : 'text-blue-500'}`}>
-                                                {tick.volume}
+                                            <td className={`px-6 py-2.5 text-xs font-black font-mono text-right tabular-nums ${(tick.calculated_trade_volume ?? tick.trade_volume ?? tick.volume) > 50 ? 'text-amber-400' : 'text-blue-500'}`}>
+                                                {tick.calculated_trade_volume ?? tick.trade_volume ?? tick.volume}
                                             </td>
                                         </tr>
                                     ))
@@ -266,6 +333,7 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                             </tbody>
                         </table>
                     </div>
+                
                 </div>
             </div>
         </div>

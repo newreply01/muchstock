@@ -1,7 +1,13 @@
 const cron = require('node-cron');
 const { catchUp } = require('./twse_fetcher');
 const { syncAllNews } = require('./news_fetcher');
-const { syncAllStocksFinancials, syncTradingDate, syncDailyStocksData } = require('./finmind_fetcher');
+const { 
+    syncAllStocksFinancials, 
+    syncTradingDate, 
+    syncDailyBrokerAndPER, 
+    syncWeeklyHolding, 
+    syncMonthlyRevenueBatch 
+} = require('./finmind_fetcher');
 const { calculateAndStoreIndicators } = require('./calculate_indicators');
 const { runAll: runHealthCheck } = require('./scripts/calc_health_scores');
 let syncHistoricalMinuteBatch;
@@ -93,15 +99,35 @@ function startScheduler() {
     });
     initTaskTracking('finmind_fetcher.js', finmindTask);
 
-    // 每小時更新 FinMind 每日異動資料 (分點買賣、本益比、持股分級)
-    const finmindDailyTask = cron.schedule('15 * * * *', async () => {
-        console.log('🚀 定時排程開始：更新 FinMind 每日異動資料...');
-        await runTaskSafely('finmind_fetcher.js', syncDailyStocksData, '每小時分點與籌碼更新');
+    // 每日 18:30 更新 FinMind 每日異動資料 (分點買賣、本益比)
+    const finmindDailyTask = cron.schedule('30 18 * * 1-5', async () => {
+        console.log('🚀 定時排程開始 (18:30)：更新 FinMind 每日異動資料...');
+        await runTaskSafely('finmind_fetcher.js', syncDailyBrokerAndPER, '每日盤後分點與本益比更新');
     }, {
         scheduled: true,
         timezone: 'Asia/Taipei'
     });
     initTaskTracking('finmind_daily', finmindDailyTask);
+
+    // 每月 1~15 號每日 19:00 更新每月營收
+    const finmindMonthlyRevenueTask = cron.schedule('0 19 1-15 * *', async () => {
+        console.log('🚀 定時排程開始 (19:00)：更新每月營收...');
+        await runTaskSafely('finmind_fetcher.js', syncMonthlyRevenueBatch, '每日每月營收更新');
+    }, {
+        scheduled: true,
+        timezone: 'Asia/Taipei'
+    });
+    initTaskTracking('finmind_monthly_revenue', finmindMonthlyRevenueTask);
+
+    // 每週六 06:00 更新股權分散表 (大戶/散戶持股分級)
+    const finmindWeeklyHoldingTask = cron.schedule('0 6 * * 6', async () => {
+        console.log('🚀 定時排程開始 (06:00)：更新集保股權分散表...');
+        await runTaskSafely('finmind_fetcher.js', syncWeeklyHolding, '每週持股分級更新');
+    }, {
+        scheduled: true,
+        timezone: 'Asia/Taipei'
+    });
+    initTaskTracking('finmind_weekly_holding', finmindWeeklyHoldingTask);
 
     // 每日 04:00 同步交易日資訊 (FinMind)
     const tradingDateTask = cron.schedule('0 4 * * *', async () => {

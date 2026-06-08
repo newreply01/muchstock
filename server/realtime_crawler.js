@@ -147,6 +147,10 @@ async function bulkUpsert(data) {
             symbols, tradeTimes, prices, openPrices, highPrices, lowPrices,
             volumes, tradeVolumes, buyIntensities, sellIntensities, fiveLevels, previousCloses
         ]);
+        
+        // Notify the API server that new realtime data is available
+        await query(`NOTIFY realtime_update, 'new_ticks'`);
+        
         return res.rowCount || data.length;
     } catch (err) {
         console.error(`[Bulk Upsert Error] Batch failed: ${err.message}`);
@@ -355,12 +359,12 @@ async function startCrawler() {
                 let tradeTimeStr = info.t;
                 if (tradeTimeStr) {
                     if (tradeTimeStr.indexOf(':') !== -1) {
-                        // 如果已經是 HH:MM:SS，直接取前 5 碼並補上 :00
-                        tradeTimeStr = tradeTimeStr.substring(0, 5) + ':00';
+                        // Keep exact HH:MM:SS, no longer truncate to :00
+                        tradeTimeStr = tradeTimeStr.substring(0, 8);
                     } else {
-                        // 否則視為 raw 數字 (HHMMSS)，補齊 6 碼再切割
+                        // raw 數字 (HHMMSS)，補齊 6 碼再切割並保留秒數
                         const paddedTime = tradeTimeStr.padStart(6, '0');
-                        tradeTimeStr = `${paddedTime.substring(0, 2)}:${paddedTime.substring(2, 4)}:00`;
+                        tradeTimeStr = `${paddedTime.substring(0, 2)}:${paddedTime.substring(2, 4)}:${paddedTime.substring(4, 6)}`;
                     }
                 }
 

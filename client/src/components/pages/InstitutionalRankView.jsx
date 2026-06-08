@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, Users, ChevronRight, Star, Heart, Activity, BarChart2, List } from 'lucide-react';
 import { getInstitutionalRank, getInstitutionalTotal, getMarketMargin } from '../../utils/api';
-import { useGlobalFilters } from '../../context/GlobalFilterContext';
+import useGlobalStore from '../../store/useGlobalStore';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, ReferenceLine, LineChart, Line, AreaChart, Area } from 'recharts';
 
 const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
@@ -13,7 +13,9 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
   const [activeType, setActiveType] = useState('market_summary'); // market_summary, foreign, investment, dealer
   const [activeAction, setActiveAction] = useState('buy'); // buy, sell
   const [timeRange, setTimeRange] = useState('3d'); // 3d, 5d, 10d
-  const { marketForApi, stockTypesForApi } = useGlobalFilters();
+  const { globalMarket, globalStockTypes } = useGlobalStore();
+  const marketForApi = globalMarket === 'all' ? undefined : globalMarket;
+  const stockTypesForApi = globalStockTypes.join(',');
 
   // 獨立獲取大盤匯總數據，確保在分頁切換前就有數據
   const fetchMarketSummary = async () => {
