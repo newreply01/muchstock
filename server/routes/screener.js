@@ -151,7 +151,6 @@ router.get(['/stocks', '/screen'], async (req, res) => {
         addRangeFilter('inst.foreign_net', foreign_net_min, foreign_net_max);
         addRangeFilter('inst.trust_net', trust_net_min, trust_net_max);
         addRangeFilter('inst.dealer_net', dealer_net_min, dealer_net_max);
-        addRangeFilter('inst.dealer_net', dealer_net_min, dealer_net_max);
         addRangeFilter('inst.total_net', total_net_min, total_net_max);
 
         let lynnJoin = '';
@@ -273,6 +272,22 @@ router.get(['/stocks', '/screen'], async (req, res) => {
         const countResult = await query(`SELECT COUNT(*) ${baseQuery}`, params);
         const total = parseInt(countResult.rows[0].count);
 
+        const allowedSorts = [
+            'symbol', 'name', 'industry', 'market',
+            'open_price', 'high_price', 'low_price', 'close_price', 'change_percent', 'volume',
+            'pe_ratio', 'pb_ratio', 'dividend_yield',
+            'foreign_net', 'trust_net', 'dealer_net', 'total_net',
+            'rsi_14', 'macd_hist', 'ma_20'
+        ];
+        const safeSort = allowedSorts.includes(sort_by) ? sort_by : 'volume';
+        const safeDir = (sort_dir && sort_dir.toLowerCase() === 'asc') ? 'ASC' : 'DESC';
+        
+        let sortPrefix = 'p.';
+        if (['symbol', 'name', 'industry', 'market'].includes(safeSort)) sortPrefix = 's.';
+        else if (['pe_ratio', 'pb_ratio', 'dividend_yield'].includes(safeSort)) sortPrefix = 'f.';
+        else if (['foreign_net', 'trust_net', 'dealer_net', 'total_net'].includes(safeSort)) sortPrefix = 'inst.';
+        else if (['rsi_14', 'macd_hist', 'ma_20'].includes(safeSort)) sortPrefix = 'i.';
+
         const dataSQL = `
             SELECT 
                 s.symbol, s.name, s.industry, s.market,
@@ -282,7 +297,7 @@ router.get(['/stocks', '/screen'], async (req, res) => {
                 i.rsi_14, i.macd_hist, i.ma_20 as ma_20, i.patterns,
                 p.trade_date::text as result_date
             ${baseQuery}
-            ORDER BY ${sort_by === 'symbol' ? 's.symbol' : sort_by === 'name' ? 's.name' : 'p.' + sort_by} ${sort_dir}
+            ORDER BY ${sortPrefix}${safeSort} ${safeDir} NULLS LAST
             LIMIT $${paramCount} OFFSET $${paramCount + 1}
         `;
         params.push(parseInt(limit), offset);
@@ -560,12 +575,6 @@ router.get('/health-check-ranking', async (req, res) => {
                         break;
                     case 'sell':
                         conditions.push("grade = '待改善'");
-                        break;
-                    case 'ibs_low':
-                        conditions.push("overall_score >= 65");
-                        break;
-                    case 'ibs_high':
-                        conditions.push("overall_score <= 55");
                         break;
                     default:
                         // No extra condition

@@ -24,6 +24,22 @@ module.exports = {
             env: {
                 ENABLE_CRAWLER: 'true'
             }
+        },
+        {
+            name: 'update-ai-reports',
+            script: 'node',
+            args: 'server/scripts/update_ai_reports.js',
+            cwd: '/home/xg/stock-screener',
+            autorestart: true,
+            watch: false
+        },
+        {
+            name: 'sync-supabase',
+            script: 'node',
+            args: 'server/scripts/sync_realtime_supabase.js',
+            cwd: '/home/xg/stock-screener',
+            autorestart: true,
+            watch: false
         }
     ]
 };

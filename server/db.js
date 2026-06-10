@@ -83,4 +83,45 @@ const query = async (text, params) => {
 const end = () => pool.end();
 const initDatabase = async () => {};
 
-module.exports = { pool, query, end, initDatabase };
+const executeBatch = async (tableName, columns, rowsData, conflictClause = '') => {
+    if (!rowsData || rowsData.length === 0) return { rowCount: 0 };
+    
+    // Calculate number of columns
+    const colCount = columns.length;
+    
+    // Chunk size to prevent exceeding 65535 parameter limit in Postgres
+    // Max params / colCount
+    const maxRowsPerBatch = Math.floor(60000 / colCount);
+    let totalInserted = 0;
+
+    for (let i = 0; i < rowsData.length; i += maxRowsPerBatch) {
+        const chunk = rowsData.slice(i, i + maxRowsPerBatch);
+        
+        let params = [];
+        let valueStrings = [];
+        
+        let paramIndex = 1;
+        for (const row of chunk) {
+            let rowValueStr = [];
+            for (const val of row) {
+                params.push(val);
+                rowValueStr.push(`$${paramIndex}`);
+                paramIndex++;
+            }
+            valueStrings.push(`(${rowValueStr.join(', ')})`);
+        }
+        
+        const sql = `
+            INSERT INTO ${tableName} (${columns.join(', ')})
+            VALUES ${valueStrings.join(', ')}
+            ${conflictClause}
+        `;
+        
+        const result = await query(sql, params);
+        totalInserted += (result.rowCount || 0);
+    }
+    
+    return { rowCount: totalInserted };
+};
+
+module.exports = { pool, query, executeBatch, end, initDatabase };

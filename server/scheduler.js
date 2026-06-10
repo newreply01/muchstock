@@ -291,13 +291,39 @@ async function runTaskSafely(taskName, taskFn, description) {
     }
     
     isTaskRunning[taskName] = true;
+    const startTime = new Date();
     await logScriptStatus(taskName, 'RUNNING', `正在執行: ${description}`);
+    
+    // Insert initial history record
+    let historyId = null;
+    try {
+        const res = await pool.query(
+            `INSERT INTO scheduler_history (task_name, start_time, status) VALUES ($1, $2, 'RUNNING') RETURNING id`,
+            [taskName, startTime]
+        );
+        historyId = res.rows[0].id;
+    } catch (e) {
+        console.error('Failed to init scheduler history:', e.message);
+    }
+
     try {
         await taskFn();
         await logScriptStatus(taskName, 'SUCCESS', `${description}完成`);
+        if (historyId) {
+            await pool.query(
+                `UPDATE scheduler_history SET end_time = NOW(), status = 'SUCCESS' WHERE id = $1`,
+                [historyId]
+            );
+        }
     } catch (err) {
         console.error(`❌ 任務 ${taskName} 執行失敗:`, err.message);
         await logScriptStatus(taskName, 'FAILED', `執行失敗: ${err.message}`);
+        if (historyId) {
+            await pool.query(
+                `UPDATE scheduler_history SET end_time = NOW(), status = 'FAILED', error_msg = $1 WHERE id = $2`,
+                [err.message, historyId]
+            );
+        }
     } finally {
         isTaskRunning[taskName] = false;
     }

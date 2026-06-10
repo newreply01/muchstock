@@ -11,6 +11,7 @@ async function updateDailyStats(dateStr) {
     
     console.log(`[StatsAggregator] 正在統計 ${dateStr} 的寫入筆數...`);
 
+    try {
         const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
         const isToday = dateStr === todayStr;
 

@@ -1,4 +1,4 @@
-const { query } = require('./db');
+const { query, executeBatch } = require('./db');
 const fetch = require('node-fetch');
 const nodeFetch = fetch.default || fetch;
 
@@ -148,6 +148,7 @@ async function fetchTWSE(dateObj) {
         if (!table) return;
 
         let count = 0;
+        let batchRows = [];
         for (const row of table.data) {
             const symbol = row[0];
             const name = row[1];
@@ -168,15 +169,17 @@ async function fetchTWSE(dateObj) {
 
             const changePercent = (close && change) ? (change / (close - change) * 100) : 0;
 
-            await query(
-                `INSERT INTO daily_prices (symbol, trade_date, open_price, high_price, low_price, close_price, change_amount, change_percent, volume, trade_value, transactions)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-                 ON CONFLICT (symbol, trade_date) DO UPDATE SET
-                   open_price=$3, close_price=$6, volume=$9`,
-                [symbol, toDateHyphen(dateObj), open, high, low, close, change, changePercent, volume, tradeValue, transactions]
-            );
+            batchRows.push([symbol, toDateHyphen(dateObj), open, high, low, close, change, changePercent, volume, tradeValue, transactions]);
             count++;
         }
+        
+        await executeBatch(
+            'daily_prices',
+            ['symbol', 'trade_date', 'open_price', 'high_price', 'low_price', 'close_price', 'change_amount', 'change_percent', 'volume', 'trade_value', 'transactions'],
+            batchRows,
+            'ON CONFLICT (symbol, trade_date) DO UPDATE SET open_price=EXCLUDED.open_price, close_price=EXCLUDED.close_price, volume=EXCLUDED.volume'
+        );
+        
         console.log(`[TWSE] ${dateStr} 更新 ${count} 筆`);
         await updateProgress('TaiwanStockPrice', '', count);
     } catch (e) {
@@ -201,6 +204,7 @@ async function fetchTPEx(dateObj) {
         }
 
         let count = 0;
+        let batchRows = [];
         for (const row of dataRows) {
             const symbol = row[0];
             const name = row[1];
@@ -224,14 +228,16 @@ async function fetchTPEx(dateObj) {
 
             const changePercent = (close && change) ? (change / (close - change) * 100) : 0;
 
-            await query(
-                `INSERT INTO daily_prices (symbol, trade_date, open_price, high_price, low_price, close_price, change_amount, change_percent, volume, trade_value, transactions)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-                 ON CONFLICT (symbol, trade_date) DO NOTHING`,
-                [symbol, toDateHyphen(dateObj), open, high, low, close, change, changePercent, volume, tradeValue, transactions]
-            );
+            batchRows.push([symbol, toDateHyphen(dateObj), open, high, low, close, change, changePercent, volume, tradeValue, transactions]);
             count++;
         }
+        
+        await executeBatch(
+            'daily_prices',
+            ['symbol', 'trade_date', 'open_price', 'high_price', 'low_price', 'close_price', 'change_amount', 'change_percent', 'volume', 'trade_value', 'transactions'],
+            batchRows,
+            'ON CONFLICT (symbol, trade_date) DO NOTHING'
+        );
         console.log(`[TPEx] ${rocDate} 更新 ${count} 筆`);
         await updateProgress('TaiwanStockPrice', '', count);
     } catch (e) {

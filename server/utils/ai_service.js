@@ -873,7 +873,7 @@ ${promptTemplate}
             content: finalContent,
             sentimentScore: scoreVal,
             generationMode,
-            modelName: generationMode === 'gemini' ? 'gemma-4-31b-it' : ((modelOverride && modelOverride !== 'none') ? modelOverride : (process.env.OLLAMA_MODEL || "qwen3.5:9b"))
+            modelName: generationMode === 'gemini' ? 'models/gemma-4-31b-it' : ((modelOverride && modelOverride !== 'none') ? modelOverride : (process.env.OLLAMA_MODEL || "qwen3.5:9b"))
         };
     } catch (err) {
         logger.error(`AI/Engine Report Generation Error: ${err.message}`);
