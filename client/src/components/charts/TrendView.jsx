@@ -13,15 +13,15 @@ export default function TrendView({ stock }) {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {trends.map((t, idx) => (
-                    <div key={idx} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all group">
+                    <div key={idx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all group">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-3 bg-slate-50 rounded-2xl group-hover:scale-110 transition-transform">
+                                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl group-hover:scale-110 transition-transform">
                                     <t.icon className={`w-5 h-5 ${t.color}`} />
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Momentum</p>
-                                    <p className="font-black text-slate-800">{t.label}</p>
+                                    <p className="font-black text-slate-800 dark:text-slate-100">{t.label}</p>
                                 </div>
                             </div>
                             <div className="text-right">
@@ -34,7 +34,7 @@ export default function TrendView({ stock }) {
                                 <span>強度分值 (Strength)</span>
                                 <span>{t.score}/100</span>
                             </div>
-                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                                 <div
                                     className={`h-full opacity-80 rounded-full bg-gradient-to-r from-slate-200 to-${t.color.split('-')[1]}-500`}
                                     style={{ width: `${t.score}%` }}

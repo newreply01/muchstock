@@ -51,20 +51,20 @@ const AdminAuditLogs = () => {
         if (action.includes('UPDATE_USER')) return 'bg-purple-100 text-purple-700';
         if (action.includes('REGISTER')) return 'bg-green-100 text-green-700';
         if (action.includes('REMOVE')) return 'bg-red-100 text-red-700';
-        return 'bg-slate-100 text-slate-700';
+        return 'bg-slate-100 dark:bg-slate-800 text-slate-700';
     };
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                     <Activity className="w-5 h-5 text-brand-primary" />
-                    <h2 className="text-xl font-bold text-slate-800">系統操作軌跡紀錄</h2>
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">系統操作軌跡紀錄</h2>
                 </div>
                 
                 <div className="flex flex-wrap gap-2 w-full md:w-auto">
                     <select 
-                        className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-primary/20"
                         value={filterAction}
                         onChange={(e) => { setFilterAction(e.target.value); setPage(0); }}
                     >
@@ -83,7 +83,7 @@ const AdminAuditLogs = () => {
                         <input 
                             type="text"
                             placeholder="使用者 UUID 篩選..."
-                            className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm w-full md:w-48 outline-none focus:ring-2 focus:ring-brand-primary/20"
+                            className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg text-sm w-full md:w-48 outline-none focus:ring-2 focus:ring-brand-primary/20"
                             value={filterUser}
                             onChange={(e) => { setFilterUser(e.target.value); setPage(0); }}
                         />
@@ -91,10 +91,10 @@ const AdminAuditLogs = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="bg-slate-50 border-b border-slate-200">
+                        <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-tighter">時間</th>
                                 <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-tighter">使用者</th>
@@ -108,7 +108,7 @@ const AdminAuditLogs = () => {
                             {loading ? (
                                 Array(5).fill(0).map((_, i) => (
                                     <tr key={i} className="animate-pulse">
-                                        <td colSpan="6" className="px-6 py-4"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                                        <td colSpan="6" className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div></td>
                                     </tr>
                                 ))
                             ) : logs.length === 0 ? (
@@ -117,13 +117,13 @@ const AdminAuditLogs = () => {
                                 </tr>
                             ) : logs.map((log) => (
                                 <React.Fragment key={log.id}>
-                                    <tr className="hover:bg-slate-50 transition-colors">
+                                    <tr className="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
                                         <td className="px-6 py-4 text-sm text-slate-600 font-mono whitespace-nowrap">
                                             {formatDate(log.created_at)}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-800">{log.user_nickname || 'Unknown'}</span>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{log.user_nickname || 'Unknown'}</span>
                                                 <span className="text-[10px] text-slate-400 font-mono">{log.user_email || log.user_id}</span>
                                             </div>
                                         </td>
@@ -144,7 +144,7 @@ const AdminAuditLogs = () => {
                                         <td className="px-6 py-4 text-right">
                                             <button 
                                                 onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
-                                                className="p-1 hover:bg-slate-100 rounded transition-colors text-slate-400"
+                                                className="p-1 hover:bg-slate-100 dark:bg-slate-800 rounded transition-colors text-slate-400"
                                             >
                                                 {expandedLog === log.id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                                             </button>
@@ -156,13 +156,13 @@ const AdminAuditLogs = () => {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">操作詳情 (Details)</h4>
-                                                        <pre className="text-xs bg-white p-3 rounded-lg border border-slate-200 overflow-auto max-h-48 font-mono">
+                                                        <pre className="text-xs bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 overflow-auto max-h-48 font-mono">
                                                             {JSON.stringify(log.details, null, 2)}
                                                         </pre>
                                                     </div>
                                                     <div className="space-y-2">
                                                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">環境資料 (Environment)</h4>
-                                                        <div className="bg-white p-3 rounded-lg border border-slate-200 text-xs text-slate-500 break-all h-fit">
+                                                        <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-slate-500 break-all h-fit">
                                                             <p className="mb-1"><strong>User Agent:</strong></p>
                                                             {log.user_agent}
                                                         </div>
@@ -178,20 +178,20 @@ const AdminAuditLogs = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-sm text-slate-500">
+                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-sm text-slate-500">
                     <span>總共 {total} 筆紀錄</span>
                     <div className="flex gap-2">
                         <button 
                             disabled={page === 0}
                             onClick={() => setPage(p => p - 1)}
-                            className="px-3 py-1 bg-white border border-slate-200 rounded disabled:opacity-50 hover:bg-slate-50 transition-colors"
+                            className="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded disabled:opacity-50 hover:bg-slate-50 dark:bg-slate-800 transition-colors"
                         >
                             上一頁
                         </button>
                         <button 
                             disabled={(page + 1) * limit >= total}
                             onClick={() => setPage(p => p + 1)}
-                            className="px-3 py-1 bg-white border border-slate-200 rounded disabled:opacity-50 hover:bg-slate-50 transition-colors"
+                            className="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded disabled:opacity-50 hover:bg-slate-50 dark:bg-slate-800 transition-colors"
                         >
                             下一頁
                         </button>

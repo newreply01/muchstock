@@ -165,12 +165,12 @@ export default function MACDView({ symbol, period = '日K' }) {
                     <Activity className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tighter">MACD 動能指標</h2>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">MACD 動能指標</h2>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Moving Average Convergence Divergence</p>
                 </div>
             </div>
 
-            <div className="flex-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col min-h-[500px] relative">
+            <div className="flex-1 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col min-h-[500px] relative">
                 {loading ? (
                     <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-2xl flex-col">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mb-4"></div>
@@ -204,7 +204,7 @@ export default function MACDView({ symbol, period = '日K' }) {
                 />
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed font-medium">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500 leading-relaxed font-medium">
                 MACD (平滑異同移動平均線) 用於研判趨勢與動能。當 DIF (藍線) 向上突破 MACD (黃線) 呈黃金交叉，且柱狀體由綠轉紅，通常視為買進訊號；反之為賣出訊號。上方為日 K 線圖，下方為 MACD 指標。
             </div>
         </div>

@@ -536,7 +536,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
     }, [showRSI]);
 
     if (!stock) return (
-        <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 rounded-lg border border-dashed border-slate-200 min-h-[500px]">
+        <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 min-h-[500px]">
             <p className="font-bold text-lg text-slate-500 italic">Advanced Analytics Dashboard</p>
             <p className="text-sm mt-1">Select a stock to perform deep technical analysis</p>
         </div>
@@ -553,7 +553,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
             toggle: () => setShowMA20(v => !v),
             colorClass: showMA20 
                 ? 'text-blue-600 bg-blue-100 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900/50 dark:text-blue-400' 
-                : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'
+                : 'text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-800 dark:bg-slate-800 dark:border-slate-700 line-through'
         },
         {
             id: 'bb',
@@ -562,7 +562,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
             toggle: () => setShowBB(v => !v),
             colorClass: showBB 
                 ? 'text-indigo-600 bg-indigo-100 border-indigo-200 dark:bg-indigo-950/30 dark:border-indigo-900/50 dark:text-indigo-400' 
-                : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'
+                : 'text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-800 dark:bg-slate-800 dark:border-slate-700 line-through'
         },
         {
             id: 'kd',
@@ -571,7 +571,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
             toggle: () => setShowKD(v => !v),
             colorClass: showKD 
                 ? 'text-blue-500 bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900/50 dark:text-blue-400' 
-                : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'
+                : 'text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-800 dark:bg-slate-800 dark:border-slate-700 line-through'
         },
         {
             id: 'macd',
@@ -580,7 +580,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
             toggle: () => setShowMACD(v => !v),
             colorClass: showMACD 
                 ? 'text-orange-600 bg-orange-100 border-orange-200 dark:bg-orange-950/30 dark:border-orange-900/50 dark:text-orange-400' 
-                : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'
+                : 'text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-800 dark:bg-slate-800 dark:border-slate-700 line-through'
         },
         {
             id: 'rsi',
@@ -589,7 +589,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
             toggle: () => setShowRSI(v => !v),
             colorClass: showRSI 
                 ? 'text-purple-600 bg-purple-100 border-purple-200 dark:bg-purple-950/30 dark:border-purple-900/50 dark:text-purple-400' 
-                : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'
+                : 'text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-800 dark:bg-slate-800 dark:border-slate-700 line-through'
         },
         {
             id: 'dmi',
@@ -598,7 +598,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
             toggle: () => setShowDMI(v => !v),
             colorClass: showDMI 
                 ? 'text-emerald-600 bg-emerald-100 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400' 
-                : 'text-slate-400 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700 line-through'
+                : 'text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-800 dark:bg-slate-800 dark:border-slate-700 line-through'
         }
     ];
 
@@ -609,7 +609,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                 <div className="flex items-center gap-4">
                     <div className="bg-brand-primary w-2 h-8 rounded-full shadow-sm shadow-brand-primary/20"></div>
                     <div>
-                        <h3 className="font-black text-slate-800 dark:text-white text-xl tracking-tight leading-none">
+                        <h3 className="font-black text-slate-800 dark:text-slate-100 dark:text-white text-xl tracking-tight leading-none">
                             {stock.name} <span className="text-slate-400 dark:text-slate-500 font-bold ml-1 text-base">({stock.symbol})</span>
                         </h3>
                         {/* Custom Indicators Switches with Hover Card Tooltips */}
@@ -629,7 +629,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                                         {tooltip && (
                                             <div className={`absolute z-50 top-full mt-2 w-72 p-4 
                                                 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md 
-                                                border border-slate-200/80 dark:border-slate-800/80 
+                                                border border-slate-200 dark:border-slate-800/80 dark:border-slate-800/80 
                                                 rounded-2xl shadow-xl opacity-0 scale-95 pointer-events-none 
                                                 group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto
                                                 transition-all duration-200 ease-out text-left ${tooltip.align}`}>
@@ -660,7 +660,7 @@ export default function StockChart({ stock, period = '日K', onPatternsDetected,
                     </div>
                 </div>
                 <div className="flex flex-col items-end self-end sm:self-center">
-                    <div className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter">
+                    <div className="text-2xl font-black text-slate-800 dark:text-slate-100 dark:text-white tracking-tighter">
                         {realtimeTick?.price 
                             ? parseFloat(realtimeTick.price).toFixed(2) 
                             : latestChartData.price 

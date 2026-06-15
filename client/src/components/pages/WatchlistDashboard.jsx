@@ -55,7 +55,7 @@ export default function WatchlistDashboard({ onStockClick, watchedSymbols, onTog
     return (
         <div className="flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-500">
             {/* Header */}
-            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 dark:border-slate-800 p-6 flex flex-col md:flex-row justify-between items-center gap-6">
                 <div className="flex items-center gap-4">
                     <div className="bg-purple-500/10 p-3 rounded-xl border border-purple-500/20">
                         <FolderSync className="w-6 h-6 text-purple-600" />
@@ -77,7 +77,7 @@ export default function WatchlistDashboard({ onStockClick, watchedSymbols, onTog
                             className={`px-4 py-2 rounded-lg text-sm font-bold min-w-max transition-colors
                                 ${activeListId === wl.id
                                     ? 'bg-purple-600 text-white'
-                                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'}
+                                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800'}
                             `}
                         >
                             {wl.name} <span className="text-xs opacity-70 ml-1">({wl.items?.length || 0})</span>
@@ -87,19 +87,19 @@ export default function WatchlistDashboard({ onStockClick, watchedSymbols, onTog
             </div>
 
             {/* Main Content */}
-            <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-200 p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-200 dark:border-slate-800 p-6">
                 {loading ? (
                     <div className="py-20 flex justify-center text-slate-400 font-bold">加載中...</div>
                 ) : resultsData.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-32 text-slate-300">
                         <Layers className="w-24 h-24 stroke-[1px] opacity-20 mb-6" />
-                        <div className="text-xl font-black text-slate-900 uppercase tracking-widest italic">清單內尚無標的</div>
+                        <div className="text-xl font-black text-slate-900 dark:text-slate-50 uppercase tracking-widest italic">清單內尚無標的</div>
                         <p className="text-xs font-bold uppercase tracking-tighter mt-3 text-slate-400">請前往台股篩選頁面加入自選股</p>
                     </div>
                 ) : (
                     <div>
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                                 <Search className="w-4 h-4 text-purple-600" />
                                 {activeList?.name} 清單列表
                             </h3>

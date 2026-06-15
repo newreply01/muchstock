@@ -100,7 +100,7 @@ export default function ProfilePage() {
 
     return (
         <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500">
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-4 mb-8">
                     <div className="w-16 h-16 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-3xl font-black text-brand-primary overflow-hidden">
                         {user.avatar_url ? (
@@ -110,9 +110,9 @@ export default function ProfilePage() {
                         )}
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900">{user.nickname || user.name || 'User'}</h1>
+                        <h1 className="text-2xl font-black text-slate-900 dark:text-slate-50">{user.nickname || user.name || 'User'}</h1>
                         <p className="text-sm font-medium text-slate-500">{user.email}</p>
-                        <div className="mt-2 text-xs font-bold px-2 py-0.5 rounded-full inline-block bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wider">
+                        <div className="mt-2 text-xs font-bold px-2 py-0.5 rounded-full inline-block bg-slate-100 dark:bg-slate-800 text-slate-600 border border-slate-200 dark:border-slate-800 uppercase tracking-wider">
                             登入方式: {user.provider} | 角色: <span className={user.role.startsWith('vip') ? 'text-amber-600' : ''}>{user.role}</span>
                         </div>
                     </div>
@@ -121,17 +121,17 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Basic Info */}
                     <div className="space-y-6">
-                        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800 pb-2 border-b border-slate-100">
+                        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-800">
                             <User className="w-5 h-5 text-brand-primary" /> 基本設定
                         </h2>
                         <form onSubmit={handleUpdateProfile} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">真實姓名</label>
-                                <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-white border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800" />
+                                <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800 dark:text-slate-100" />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">暱稱</label>
-                                <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} className="w-full bg-white border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800" />
+                                <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800 dark:text-slate-100" />
                             </div>
                             {nameStatus.message && (
                                 <div className={`text-xs font-bold p-2 rounded flex items-center gap-1 ${nameStatus.type === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
@@ -147,7 +147,7 @@ export default function ProfilePage() {
 
                     {/* Security & Email */}
                     <div className="space-y-6">
-                        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800 pb-2 border-b border-slate-100">
+                        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-800">
                             <Key className="w-5 h-5 text-brand-primary" /> 帳號安全
                         </h2>
                         
@@ -155,12 +155,12 @@ export default function ProfilePage() {
                         <form onSubmit={handleUpdateEmail} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">修改登入信箱</label>
-                                <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} className="w-full bg-white border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800" />
+                                <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800 dark:text-slate-100" />
                             </div>
                             {newEmail !== user.email && (
                                 <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
                                     <label className="block text-sm font-bold text-slate-700 mb-1">請輸入密碼以確認變更</label>
-                                    <input type="password" required value={emailPassword} onChange={e => setEmailPassword(e.target.value)} className="w-full bg-white border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800" placeholder="驗證目前密碼" />
+                                    <input type="password" required value={emailPassword} onChange={e => setEmailPassword(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800 dark:text-slate-100" placeholder="驗證目前密碼" />
                                     <button type="submit" disabled={emailStatus.type === 'loading'} className="flex items-center justify-center gap-2 w-full bg-slate-800 text-white rounded-lg px-4 py-2 font-bold text-sm tracking-wide disabled:opacity-50 hover:bg-slate-900 transition-colors">
                                         更新信箱
                                     </button>
@@ -176,15 +176,15 @@ export default function ProfilePage() {
                         <form onSubmit={handleUpdatePassword} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">目前密碼</label>
-                                <input type="password" required value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="w-full bg-white border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800" />
+                                <input type="password" required value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800 dark:text-slate-100" />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">新密碼</label>
-                                <input type="password" required value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full bg-white border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800" />
+                                <input type="password" required value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800 dark:text-slate-100" />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">確認新密碼</label>
-                                <input type="password" required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full bg-white border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800" />
+                                <input type="password" required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-lg px-4 py-2 text-sm text-slate-800 dark:text-slate-100" />
                             </div>
                             {pwdStatus.message && (
                                 <div className={`text-xs font-bold p-2 rounded flex items-center gap-1 ${pwdStatus.type === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
@@ -192,7 +192,7 @@ export default function ProfilePage() {
                                     {pwdStatus.message}
                                 </div>
                             )}
-                            <button type="submit" disabled={pwdStatus.type === 'loading' || !currentPassword || !newPassword || !confirmPassword} className="flex items-center justify-center gap-2 w-full border-2 border-slate-200 text-slate-600 hover:text-brand-primary hover:border-brand-primary rounded-lg px-4 py-2 font-bold text-sm tracking-wide disabled:opacity-50 transition-colors">
+                            <button type="submit" disabled={pwdStatus.type === 'loading' || !currentPassword || !newPassword || !confirmPassword} className="flex items-center justify-center gap-2 w-full border-2 border-slate-200 dark:border-slate-800 text-slate-600 hover:text-brand-primary hover:border-brand-primary rounded-lg px-4 py-2 font-bold text-sm tracking-wide disabled:opacity-50 transition-colors">
                                 更新密碼
                             </button>
                         </form>

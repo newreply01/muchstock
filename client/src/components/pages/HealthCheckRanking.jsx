@@ -18,7 +18,7 @@ function ScoreBar({ score, size = 'sm' }) {
     const color = score >= 75 ? '#10b981' : score >= 60 ? '#3b82f6' : score >= 45 ? '#f59e0b' : '#ef4444';
     const h = size === 'sm' ? 'h-1.5' : 'h-2.5';
     return (
-        <div className={`w-full bg-slate-100 rounded-full ${h}`}>
+        <div className={`w-full bg-slate-100 dark:bg-slate-800 rounded-full ${h}`}>
             <div className={`${h} rounded-full transition-all duration-700`} style={{ width: `${score}%`, backgroundColor: color }}></div>
         </div>
     );
@@ -158,7 +158,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
             <GlobalFilterBar />
 
             {/* Sub Navigation Tabs */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-40 px-4 pt-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 px-4 pt-4 shadow-sm">
                 <div className="max-w-[1400px] mx-auto flex flex-wrap gap-1">
                     {TABS.map(tab => (
                         <button
@@ -166,7 +166,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 px-6 py-3 rounded-t-xl text-sm font-black transition-all relative ${activeTab === tab.id
                                 ? 'text-teal-600 bg-teal-50/50'
-                                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:bg-slate-800'
                                 }`}
                         >
                             <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-teal-600' : 'text-slate-400'}`} />
@@ -182,7 +182,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
             <div className="p-6 max-w-[1400px] mx-auto space-y-6">
                 {/* Search Bar for Analysis Tabs */}
                 {activeTab !== 'ranking' && activeTab !== 'analyzer' && (
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
                             <div className="bg-teal-50 p-3 rounded-2xl">
                                 <Search className="w-6 h-6 text-teal-600" />
@@ -210,7 +210,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                         <Heart className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight">個股健診排行</h1>
+                        <h1 className="text-2xl font-black text-slate-900 dark:text-slate-50 tracking-tight">個股健診排行</h1>
                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                             Stock Health Check Ranking · {total} 檔個股
                             {calcDate && <span className="ml-2">· 更新日期: {new Date(calcDate).toLocaleDateString('zh-TW')}</span>}
@@ -239,7 +239,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                     </div>
 
                     {/* Grade Filter Group */}
-                    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
                         <div className="flex items-center gap-2 mb-3">
                             <Award className="w-4 h-4 text-slate-500" />
                             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">等級表現 Overall Grade</h3>
@@ -255,7 +255,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                         <div 
                             key={i} 
                             onClick={stat.onClick}
-                            className={`${stat.bg} p-4 rounded-xl border-2 transition-all cursor-pointer shadow-sm group relative ${stat.active ? 'border-current ring-2 ring-offset-1 ring-slate-100' : 'border-slate-200 hover:border-slate-300'}`}
+                            className={`${stat.bg} p-4 rounded-xl border-2 transition-all cursor-pointer shadow-sm group relative ${stat.active ? 'border-current ring-2 ring-offset-1 ring-slate-100' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'}`}
                             style={stat.active ? { borderColor: 'currentColor' } : {}}
                         >
                             <div className="flex items-center justify-between mb-1">
@@ -278,7 +278,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                     </div>
 
                     {/* Smart Rating Filter Group */}
-                    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
                         <div className="flex items-center gap-2 mb-3">
                             <Zap className="w-4 h-4 text-slate-500" />
                             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">智慧評級 Smart Rating</h3>
@@ -289,7 +289,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                         { label: '強力推薦', value: smartRatingCounts['強力推薦'] || 0, icon: Zap, color: 'text-emerald-700', bg: 'bg-emerald-50', active: smartRating === '強力推薦', logic: '7 項訊號中淨多頭 ≥ 5，技術面與基本面全面看好，強烈建議布局。', onClick: () => { setSmartRating(smartRating === '強力推薦' ? '' : '強力推薦'); setPage(1); } },
                         { label: '推薦', value: smartRatingCounts['推薦'] || 0, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50', active: smartRating === '推薦', logic: '7 項訊號中淨多頭 3～4，多面向均偏多，整體面向上看好。', onClick: () => { setSmartRating(smartRating === '推薦' ? '' : '推薦'); setPage(1); } },
                         { label: '偏多操作', value: smartRatingCounts['偏多操作'] || 0, icon: BarChart3, color: 'text-teal-600', bg: 'bg-teal-50', active: smartRating === '偏多操作', logic: '7 項訊號中淨多頭 1～2，方向偏多但力道不足，可輕倉布局。', onClick: () => { setSmartRating(smartRating === '偏多操作' ? '' : '偏多操作'); setPage(1); } },
-                        { label: '中立', value: smartRatingCounts['中立'] || 0, icon: Activity, color: 'text-slate-600', bg: 'bg-slate-50', active: smartRating === '中立', logic: '7 項訊號多空平衡（淨訊號 = 0），方向不明朗，建議觀望。', onClick: () => { setSmartRating(smartRating === '中立' ? '' : '中立'); setPage(1); } },
+                        { label: '中立', value: smartRatingCounts['中立'] || 0, icon: Activity, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-800', active: smartRating === '中立', logic: '7 項訊號多空平衡（淨訊號 = 0），方向不明朗，建議觀望。', onClick: () => { setSmartRating(smartRating === '中立' ? '' : '中立'); setPage(1); } },
                         { label: '偏空觀察', value: smartRatingCounts['偏空觀察'] || 0, icon: Search, color: 'text-amber-600', bg: 'bg-amber-50', active: smartRating === '偏空觀察', logic: '7 項訊號中淨空頭 1～2，方向偏弱，建議縮減風險敞口。', onClick: () => { setSmartRating(smartRating === '偏空觀察' ? '' : '偏空觀察'); setPage(1); } },
                         { label: '減碼', value: smartRatingCounts['減碼'] || 0, icon: TrendingDown, color: 'text-orange-600', bg: 'bg-orange-50', active: smartRating === '減碼', logic: '7 項訊號中淨空頭 3～4，整體面偏弱，建議減少持倉以控制風險。', onClick: () => { setSmartRating(smartRating === '減碼' ? '' : '減碼'); setPage(1); } },
                         { label: '大幅減碼', value: smartRatingCounts['大幅減碼'] || 0, icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-50', active: smartRating === '大幅減碼', logic: '7 項訊號中淨空頭 ≥ 5，技術面與基本面全面偏弱，建議出場觀察。', onClick: () => { setSmartRating(smartRating === '大幅減碼' ? '' : '大幅減碼'); setPage(1); } }
@@ -297,7 +297,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                         <div 
                             key={i} 
                             onClick={stat.onClick}
-                            className={`${stat.bg} p-4 rounded-xl border-2 transition-all cursor-pointer shadow-sm group relative ${stat.active ? 'border-current ring-2 ring-offset-1 ring-slate-100' : 'border-slate-200 hover:border-slate-300'}`}
+                            className={`${stat.bg} p-4 rounded-xl border-2 transition-all cursor-pointer shadow-sm group relative ${stat.active ? 'border-current ring-2 ring-offset-1 ring-slate-100' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'}`}
                             style={stat.active ? { borderColor: 'currentColor' } : {}}
                         >
                             <div className="flex items-center justify-between mb-1">
@@ -321,7 +321,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                 </div>
 
                 {/* Search + Sort + Industry Bar */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-wrap items-center gap-3">
                     {/* Search */}
                     <form onSubmit={handleSearch} className="flex items-center gap-2 flex-1 min-w-[200px]">
                         <div className="relative flex-1">
@@ -331,7 +331,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                                 value={searchInput}
                                 onChange={(e) => setSearchInput(e.target.value)}
                                 placeholder="搜尋股票代號或名稱..."
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400"
+                                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400"
                             />
                         </div>
                         <button type="submit" className="px-4 py-2 bg-teal-500 text-white text-sm font-bold rounded-xl hover:bg-teal-600 transition-colors">搜尋</button>
@@ -346,7 +346,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                         <select
                             value={sort}
                             onChange={(e) => { setSort(e.target.value); setPage(1); }}
-                            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
+                            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
                         >
                             {SORT_OPTIONS.map(opt => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -354,7 +354,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                         </select>
                         <button
                             onClick={() => setOrder(o => o === 'DESC' ? 'ASC' : 'DESC')}
-                            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+                            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:bg-slate-800 transition-colors"
                         >
                             {order === 'DESC' ? '↓ 高→低' : '↑ 低→高'}
                         </button>
@@ -365,7 +365,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                         <select
                             value={globalIndustry || 'all'}
                             onChange={(e) => { setGlobalIndustry(e.target.value === 'all' ? '' : e.target.value); setPage(1); }}
-                            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300 max-w-[180px]"
+                            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300 max-w-[180px]"
                         >
                             <option value="all">全部產業</option>
                             {industries.map(ind => (
@@ -378,7 +378,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                     <select
                         value={limit}
                         onChange={(e) => { setLimit(parseInt(e.target.value)); setPage(1); }}
-                        className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
+                        className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
                     >
                         <option value={50}>50 筆</option>
                         <option value={100}>100 筆</option>
@@ -387,13 +387,13 @@ export default function HealthCheckRanking({ onSelectStock }) {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold text-xs uppercase">
-                                    <th className="px-4 py-3 text-left w-12 sticky left-0 bg-slate-50 z-10">#</th>
-                                    <th className="px-4 py-3 text-left sticky left-12 bg-slate-50 z-10">股票</th>
+                                <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold text-xs uppercase">
+                                    <th className="px-4 py-3 text-left w-12 sticky left-0 bg-slate-50 dark:bg-slate-800 z-10">#</th>
+                                    <th className="px-4 py-3 text-left sticky left-12 bg-slate-50 dark:bg-slate-800 z-10">股票</th>
                                     <th className="px-3 py-3 text-center cursor-pointer hover:text-teal-600 transition-colors" onClick={() => toggleSort('overall_score')}>
                                         綜合{sort === 'overall_score' && <span className="ml-0.5">{order === 'DESC' ? '↓' : '↑'}</span>}
                                     </th>
@@ -437,14 +437,14 @@ export default function HealthCheckRanking({ onSelectStock }) {
                                     return (
                                         <tr 
                                             key={stock.symbol} 
-                                            className="border-b border-slate-100 hover:bg-teal-50/50 cursor-pointer transition-colors"
+                                            className="border-b border-slate-100 dark:border-slate-800 hover:bg-teal-50/50 cursor-pointer transition-colors"
                                             onClick={() => {
                                                 window.dispatchEvent(new CustomEvent('muchstock-select', { detail: { symbol: stock.symbol, name: stock.name, industry: stock.industry, market: stock.market } }));
                                             }}
                                         >
-                                            <td className="px-4 py-3 text-slate-400 font-bold sticky left-0 bg-white z-10">{rank}</td>
-                                            <td className="px-4 py-3 sticky left-12 bg-white z-10">
-                                                <div className="font-bold text-slate-800">{stock.name}</div>
+                                            <td className="px-4 py-3 text-slate-400 font-bold sticky left-0 bg-white dark:bg-slate-900 z-10">{rank}</td>
+                                            <td className="px-4 py-3 sticky left-12 bg-white dark:bg-slate-900 z-10">
+                                                <div className="font-bold text-slate-800 dark:text-slate-100">{stock.name}</div>
                                                 <div className="text-[10px] text-slate-400">{stock.symbol}</div>
                                             </td>
                                             <td className="px-3 py-3 text-center">
@@ -477,7 +477,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="flex items-center justify-between bg-white border border-slate-200 rounded-2xl px-6 py-4 shadow-sm">
+                    <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 shadow-sm">
                         <div className="text-sm text-slate-500 font-medium">
                             顯示第 <span className="font-bold text-slate-700">{(page - 1) * limit + 1}</span> - <span className="font-bold text-slate-700">{Math.min(page * limit, total)}</span> 筆，共 <span className="font-bold text-slate-700">{total}</span> 筆
                         </div>
@@ -485,14 +485,14 @@ export default function HealthCheckRanking({ onSelectStock }) {
                             <button
                                 onClick={() => setPage(1)}
                                 disabled={page <= 1}
-                                className="px-3 py-2 text-sm font-bold rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                className="px-3 py-2 text-sm font-bold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
                                 首頁
                             </button>
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page <= 1}
-                                className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </button>
@@ -513,7 +513,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                                         onClick={() => setPage(p)}
                                         className={`w-10 h-10 text-sm font-bold rounded-xl transition-colors ${p === page
                                             ? 'bg-teal-500 text-white shadow-lg shadow-teal-200/50'
-                                            : 'border border-slate-200 text-slate-500 hover:bg-slate-50'
+                                            : 'border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:bg-slate-800'
                                         }`}
                                     >
                                         {p}
@@ -524,14 +524,14 @@ export default function HealthCheckRanking({ onSelectStock }) {
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page >= totalPages}
-                                className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={() => setPage(totalPages)}
                                 disabled={page >= totalPages}
-                                className="px-3 py-2 text-sm font-bold rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                className="px-3 py-2 text-sm font-bold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
                                 末頁
                             </button>
@@ -540,7 +540,7 @@ export default function HealthCheckRanking({ onSelectStock }) {
                 )}
                     </>
                 ) : (
-                    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden min-h-[700px]">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden min-h-[700px]">
                         {!selectedStock && activeTab === 'pk' ? (
                             <div className="h-[600px] flex flex-col items-center justify-center text-slate-400 p-10 text-center">
                                 <Search className="w-12 h-12 text-teal-200 mb-4" />

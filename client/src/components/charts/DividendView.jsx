@@ -23,7 +23,7 @@ export default function DividendView({ dividends, loading }) {
 
     if (!dividends || dividends.length === 0) {
         return (
-            <div className="h-[400px] flex flex-col items-center justify-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <div className="h-[400px] flex flex-col items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                 <DollarSign className="w-12 h-12 mb-4 opacity-20" />
                 <p className="italic">暫無股利政策數據</p>
             </div>
@@ -48,7 +48,7 @@ export default function DividendView({ dividends, loading }) {
                     <div className="text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-1">
                         <DollarSign className="w-3 h-3" /> 最新現金股利
                     </div>
-                    <div className="text-2xl font-black text-slate-800">
+                    <div className="text-2xl font-black text-slate-800 dark:text-slate-100">
                         {latest.cash.toFixed(2)} <span className="text-xs font-bold text-slate-400 ml-1">元</span>
                     </div>
                 </div>
@@ -56,23 +56,23 @@ export default function DividendView({ dividends, loading }) {
                     <div className="text-blue-600 text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-1">
                         <TrendingUp className="w-3 h-3" /> 最新股票股利
                     </div>
-                    <div className="text-2xl font-black text-slate-800">
+                    <div className="text-2xl font-black text-slate-800 dark:text-slate-100">
                         {latest.stock.toFixed(2)} <span className="text-xs font-bold text-slate-400 ml-1">元</span>
                     </div>
                 </div>
-                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-1">
                         <Calendar className="w-3 h-3" /> 派發年份
                     </div>
-                    <div className="text-2xl font-black text-slate-800">
+                    <div className="text-2xl font-black text-slate-800 dark:text-slate-100">
                         {latest.year} <span className="text-xs font-bold text-slate-400 ml-1">年</span>
                     </div>
                 </div>
             </div>
 
             {/* Chart Area */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-[400px] flex flex-col">
-                <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm h-[400px] flex flex-col">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 flex items-center gap-2">
                     歷年股利發放趨勢
                 </h3>
                 <div className="flex-1 w-full">
@@ -104,10 +104,10 @@ export default function DividendView({ dividends, loading }) {
             </div>
 
             {/* Table Area */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                 <table className="w-full text-left text-sm">
                     <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200">
+                        <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800">
                             <th className="px-6 py-4 font-bold text-slate-600">年份</th>
                             <th className="px-6 py-4 font-bold text-slate-600">現金股利</th>
                             <th className="px-6 py-4 font-bold text-slate-600">股票股利</th>
@@ -116,11 +116,11 @@ export default function DividendView({ dividends, loading }) {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {[...dividends].slice(0, 8).map((d, i) => (
-                            <tr key={i} className="hover:bg-slate-50 transition-colors">
+                            <tr key={i} className="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
                                 <td className="px-6 py-4 font-bold text-slate-700">{d.year || d.date?.substring(0, 4) || 'N/A'}</td>
                                 <td className="px-6 py-4 text-emerald-600 font-bold">{parseFloat(d.cash_earnings_distribution || 0).toFixed(2)}</td>
                                 <td className="px-6 py-4 text-blue-600 font-bold">{parseFloat(d.stock_earnings_distribution || 0).toFixed(2)}</td>
-                                <td className="px-6 py-4 font-black text-slate-800">
+                                <td className="px-6 py-4 font-black text-slate-800 dark:text-slate-100">
                                     {(parseFloat(d.cash_earnings_distribution || 0) + parseFloat(d.stock_earnings_distribution || 0)).toFixed(2)}
                                 </td>
                             </tr>

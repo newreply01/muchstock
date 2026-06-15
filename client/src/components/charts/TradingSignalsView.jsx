@@ -12,19 +12,19 @@ export default function TradingSignalsView({ stock }) {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-4">
-                    <h3 className="font-black text-slate-800 flex items-center gap-2 mb-4">
+                    <h3 className="font-black text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4">
                         <Zap className="p-1 bg-amber-100 text-amber-500 rounded-lg w-7 h-7" />
                         智能買賣訊號追蹤
                     </h3>
 
                     {signals.map((sig, idx) => (
-                        <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-5 flex items-start gap-4 hover:border-brand-primary transition-all shadow-sm">
+                        <div key={idx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex items-start gap-4 hover:border-brand-primary transition-all shadow-sm">
                             <div className={`mt-1 p-2 rounded-xl flex-shrink-0 ${sig.type === 'buy' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'}`}>
                                 {sig.type === 'buy' ? <Target className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />}
                             </div>
                             <div className="flex-1">
                                 <div className="flex justify-between items-start">
-                                    <h4 className="font-black text-slate-800">{sig.label}</h4>
+                                    <h4 className="font-black text-slate-800 dark:text-slate-100">{sig.label}</h4>
                                     <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${sig.type === 'buy' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
                                         {sig.strength}
                                     </span>
@@ -37,8 +37,8 @@ export default function TradingSignalsView({ stock }) {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6">
-                        <h4 className="font-black text-slate-800 mb-6 text-sm flex items-center gap-2">
+                    <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-3xl p-6">
+                        <h4 className="font-black text-slate-800 dark:text-slate-100 mb-6 text-sm flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-brand-primary" />
                             操作策略總結
                         </h4>
@@ -66,7 +66,7 @@ export default function TradingSignalsView({ stock }) {
                 </div>
             </div>
 
-            <div className="bg-slate-900/5 border border-slate-200 p-5 rounded-2xl">
+            <div className="bg-slate-900/5 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl">
                 <p className="text-xs text-slate-500 font-medium leading-relaxed italic">
                     * 買賣訊號基於技術面量價與 AI 權重計算，不包含基本面突發消息影響。投資有風險，請確認後操作。
                 </p>

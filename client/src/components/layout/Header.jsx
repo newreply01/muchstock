@@ -61,9 +61,9 @@ export default function Header({ currentView = 'dashboard' }) {
     const showMonitor = !isCloudDeployment && (user?.role === 'admin' || !user);
 
     return (
-        <header className="bg-white dark:bg-brand-dark text-slate-800 dark:text-white sticky top-0 z-50 border-b border-slate-200 dark:border-transparent transition-colors duration-300">
+        <header className="bg-white dark:bg-slate-900 dark:bg-brand-dark text-slate-800 dark:text-slate-100 dark:text-white sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 dark:border-transparent transition-colors duration-300">
             {/* Top Bar for Global Info */}
-            <div className="bg-slate-50 dark:bg-black/30 border-b border-slate-200 dark:border-white/5 py-1 hidden sm:block transition-colors duration-300">
+            <div className="bg-slate-50 dark:bg-slate-800 dark:bg-black/30 border-b border-slate-200 dark:border-slate-800 dark:border-white/5 py-1 hidden sm:block transition-colors duration-300">
                 <div className="container mx-auto px-4 flex justify-between items-center text-[11px] font-medium tracking-wide uppercase text-slate-500 dark:text-gray-400">
                     <div className="flex gap-4">
                         <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> 繁體中文</span>
@@ -85,7 +85,7 @@ export default function Header({ currentView = 'dashboard' }) {
                         <div className="bg-brand-primary p-1.5 rounded-sm group-hover:bg-red-500 transition-colors">
                             <div className="text-white font-black text-xl leading-none tracking-tighter">MUCH</div>
                         </div>
-                        <div className="text-slate-800 dark:text-white font-bold text-xl tracking-tight ml-1 group-hover:text-brand-primary dark:group-hover:text-brand-primary transition-colors">Stock</div>
+                        <div className="text-slate-800 dark:text-slate-100 dark:text-white font-bold text-xl tracking-tight ml-1 group-hover:text-brand-primary dark:group-hover:text-brand-primary transition-colors">Stock</div>
                     </button>
 
                     <nav className="hidden lg:flex items-center gap-8 text-[14px] font-semibold">
@@ -159,15 +159,15 @@ export default function Header({ currentView = 'dashboard' }) {
                                 </button>
 
                                 {/* Dropdown */}
-                                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all transform origin-top-right translate-y-2 group-hover/menu:translate-y-0 z-50 overflow-hidden">
+                                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-900 dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 dark:border-slate-700 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all transform origin-top-right translate-y-2 group-hover/menu:translate-y-0 z-50 overflow-hidden">
                                     <div className="p-3 border-b border-slate-50 dark:border-slate-700/50">
-                                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{user.name || 'User'}</p>
+                                        <p className="text-sm font-bold text-slate-800 dark:text-slate-100 dark:text-slate-200 truncate">{user.name || 'User'}</p>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
                                     </div>
                                     <div className="p-1">
                                         <button
                                             onClick={() => dispatchView('profile')}
-                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg transition-colors"
                                         >
                                             <User className="w-4 h-4" /> 個人設定
                                         </button>
@@ -215,16 +215,16 @@ export default function Header({ currentView = 'dashboard' }) {
 
             {/* Mobile Menu */}
             {isMenuOpen && (
-                <div className="lg:hidden bg-white dark:bg-brand-dark border-t border-slate-200 dark:border-white/5 py-4 px-4 space-y-3 animate-in fade-in slide-in-from-top duration-200">
+                <div className="lg:hidden bg-white dark:bg-slate-900 dark:bg-brand-dark border-t border-slate-200 dark:border-slate-800 dark:border-white/5 py-4 px-4 space-y-3 animate-in fade-in slide-in-from-top duration-200">
 
                     <div className="grid grid-cols-2 gap-2">
-                        <button onClick={() => { dispatchView('trading'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'trading' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>交易中心</button>
-                        <button onClick={() => { dispatchView('market'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'market' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>市場總覽</button>
-                        <button onClick={() => { dispatchView('screener'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'screener' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>智能選股</button>
-                        <button onClick={() => { dispatchView('stock-detail'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'stock-detail' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>個股分析</button>
-                        <button onClick={() => { dispatchView('news'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${showMonitor ? '' : 'col-span-2'} ${currentView === 'news' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>新聞資訊</button>
+                        <button onClick={() => { dispatchView('trading'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'trading' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-slate-800 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>交易中心</button>
+                        <button onClick={() => { dispatchView('market'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'market' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-slate-800 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>市場總覽</button>
+                        <button onClick={() => { dispatchView('screener'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'screener' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-slate-800 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>智能選股</button>
+                        <button onClick={() => { dispatchView('stock-detail'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'stock-detail' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-slate-800 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>個股分析</button>
+                        <button onClick={() => { dispatchView('news'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${showMonitor ? '' : 'col-span-2'} ${currentView === 'news' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-slate-800 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>新聞資訊</button>
                         {showMonitor && (
-                            <button onClick={() => { dispatchView('monitor'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'monitor' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>系統監控</button>
+                            <button onClick={() => { dispatchView('monitor'); setIsMenuOpen(false); }} className={`text-center py-2.5 px-3 rounded-xl font-bold text-xs ${currentView === 'monitor' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-slate-800 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}>系統監控</button>
                         )}
                     </div>
                 </div>

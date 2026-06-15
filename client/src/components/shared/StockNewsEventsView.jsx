@@ -34,7 +34,7 @@ export default function StockNewsEventsView({ stock }) {
                             <Newspaper className="w-5 h-5 text-brand-primary" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tighter">
+                            <h2 className="text-lg font-black text-slate-900 dark:text-slate-50 dark:text-white tracking-tighter">
                                 {stock?.name} 個股新聞重訊
                             </h2>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -51,10 +51,10 @@ export default function StockNewsEventsView({ stock }) {
                     </div>
                 ) : newsList.length === 0 ? (
                     <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-8 border border-dashed border-slate-300 dark:border-slate-700 text-center">
-                        <div className="bg-white dark:bg-slate-800 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+                        <div className="bg-white dark:bg-slate-900 dark:bg-slate-800 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
                             <MessageSquare className="w-6 h-6 text-slate-300 dark:text-slate-500" />
                         </div>
-                        <h3 className="text-slate-900 dark:text-slate-200 font-bold mb-1">暫無專屬新聞重訊</h3>
+                        <h3 className="text-slate-900 dark:text-slate-50 dark:text-slate-200 font-bold mb-1">暫無專屬新聞重訊</h3>
                         <p className="text-slate-500 dark:text-slate-400 text-xs">目前資料庫中尚無此個股的專屬重大重訊，您可至全域新聞資訊查看大盤新聞。</p>
                     </div>
                 ) : (
@@ -62,7 +62,7 @@ export default function StockNewsEventsView({ stock }) {
                         {newsList.map((item) => (
                             <div 
                                 key={item.news_id}
-                                className="bg-white dark:bg-slate-850/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:shadow-lg dark:hover:shadow-black/20 hover:border-brand-primary/30 transition-all duration-300 group"
+                                className="bg-white dark:bg-slate-900 dark:bg-slate-850/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:shadow-lg dark:hover:shadow-black/20 hover:border-brand-primary/30 transition-all duration-300 group"
                             >
                                 <div className="flex gap-4">
                                     <div className="flex-grow space-y-2">
@@ -75,7 +75,7 @@ export default function StockNewsEventsView({ stock }) {
                                                 {item.publish_at || item.date}
                                             </span>
                                         </div>
-                                        <h4 className="text-base font-black text-slate-800 dark:text-white leading-snug group-hover:text-brand-primary transition-colors">
+                                        <h4 className="text-base font-black text-slate-800 dark:text-slate-100 dark:text-white leading-snug group-hover:text-brand-primary transition-colors">
                                             {item.title}
                                         </h4>
                                         {item.summary && (
@@ -92,7 +92,7 @@ export default function StockNewsEventsView({ stock }) {
             </div>
 
             {/* Right Column: Company Events Calendar (40%) */}
-            <div className="lg:col-span-2 space-y-6 lg:border-l lg:border-slate-100 lg:dark:border-slate-800 lg:pl-8">
+            <div className="lg:col-span-2 space-y-6 lg:border-l lg:border-slate-100 dark:border-slate-800 lg:dark:border-slate-800 lg:pl-8">
                 <EventCalendar symbol={stock?.symbol} />
             </div>
         </div>

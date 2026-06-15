@@ -116,7 +116,7 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex items-center justify-between">
-                <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <BarChart2 className="w-5 h-5 text-brand-primary" />
                     最新大盤法人買賣彙整 ({latest.date})
                 </h3>
@@ -124,7 +124,7 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {items.map((item) => (
-                    <div key={item.label} className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={item.label} className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex justify-between items-start mb-4">
                             <span className="text-xs font-black text-slate-400 uppercase tracking-wider">{item.label}</span>
                             <div className={`w-2 h-2 rounded-full bg-${item.color}-500 shadow-[0_0_8px_rgba(var(--color-${item.color}-500),0.5)]`}></div>
@@ -149,13 +149,13 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                 ))}
             </div>
 
-            <div className="bg-white overflow-hidden rounded-3xl border border-slate-100 shadow-sm mt-4">
-                <div className="p-4 bg-slate-50 border-b border-slate-100 text-xs font-black text-slate-500 uppercase tracking-widest">
+            <div className="bg-white dark:bg-slate-900 overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm mt-4">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 text-xs font-black text-slate-500 uppercase tracking-widest">
                     近 5 日市場法人動向 (單位: 億元)
                 </div>
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-white border-b border-slate-50">
+                        <tr className="bg-white dark:bg-slate-900 border-b border-slate-50">
                             <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase">日期</th>
                             <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase text-right">外資</th>
                             <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase text-right">投信</th>
@@ -198,9 +198,9 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-black text-slate-800 flex items-center gap-2">
+                    <h3 className="font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
                         <Activity className="w-5 h-5 text-brand-primary" />
                         全市場融資餘額走勢 (單位: 億元)
                     </h3>
@@ -251,10 +251,10 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                 </div>
             </div>
 
-            <div className="bg-white overflow-hidden rounded-3xl border border-slate-100 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-slate-50 border-b border-slate-100">
+                        <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
                             <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">日期</th>
                             <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider text-right">融資餘額 (億)</th>
                             <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider text-right">加權指數</th>
@@ -271,7 +271,7 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                                 <td className="px-6 py-4 text-sm font-black text-right tabular-nums text-blue-600">
                                     {row.index_price ? parseFloat(row.index_price).toLocaleString() : '-'}
                                 </td>
-                                <td className="px-6 py-4 text-sm font-black text-right tabular-nums text-slate-800">
+                                <td className="px-6 py-4 text-sm font-black text-right tabular-nums text-slate-800 dark:text-slate-100">
                                     {parseFloat(row.short_balance / 1000).toFixed(1)}
                                 </td>
                             </tr>
@@ -295,9 +295,9 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
             {/* 圖表區塊 */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-black text-slate-800 flex items-center gap-2">
+                    <h3 className="font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
                         <BarChart2 className="w-5 h-5 text-brand-primary" />
                         法人大盤買賣趨勢 (單位: 億元)
                     </h3>
@@ -340,10 +340,10 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
             </div>
 
             {/* 表格區塊 */}
-            <div className="bg-white overflow-hidden rounded-3xl border border-slate-100 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-slate-50 border-b border-slate-100">
+                        <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
                             <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">日期</th>
                             <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider text-right">外資 (億)</th>
                             <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider text-right">投信 (億)</th>
@@ -379,35 +379,35 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
   return (
     <div className="space-y-6">
       {/* 頂部導航與標題 */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-100 pb-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-100 dark:border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 bg-brand-primary/10 rounded-2xl">
               <Users className="text-brand-primary w-6 h-6" />
             </div>
-            <h2 className="text-3xl font-black text-slate-800 tracking-tight">市場資金與信用籌碼</h2>
+            <h2 className="text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight">市場資金與信用籌碼</h2>
           </div>
           <p className="text-slate-500 text-sm font-medium">追蹤法人與融資動態，掌握市場短中長期變化的關鍵指標</p>
         </div>
 
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner overflow-x-auto no-scrollbar">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner overflow-x-auto no-scrollbar">
            <button 
              onClick={() => setViewMode('rank')}
-             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap ${viewMode === 'rank' ? 'bg-white text-slate-800 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap ${viewMode === 'rank' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-md' : 'text-slate-500 hover:text-slate-800 dark:text-slate-100'}`}
            >
              <List className="w-4 h-4" />
              個股排名
            </button>
            <button 
              onClick={() => setViewMode('total')}
-             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap ${viewMode === 'total' ? 'bg-white text-slate-800 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap ${viewMode === 'total' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-md' : 'text-slate-500 hover:text-slate-800 dark:text-slate-100'}`}
            >
              <BarChart2 className="w-4 h-4" />
              法人統計
            </button>
            <button 
              onClick={() => setViewMode('margin')}
-             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap ${viewMode === 'margin' ? 'bg-white text-slate-800 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap ${viewMode === 'margin' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-md' : 'text-slate-500 hover:text-slate-800 dark:text-slate-100'}`}
            >
              <Activity className="w-4 h-4" />
              融資融券
@@ -419,7 +419,7 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
         <div className="space-y-6 animate-in fade-in duration-500">
             {activeType !== 'market_summary' && (
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
                         {[
                         { label: '買超排行', id: 'buy' },
                         { label: '賣超排行', id: 'sell' },
@@ -429,7 +429,7 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                             onClick={() => setActiveAction(a.id)}
                             className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${activeAction === a.id
                             ? (activeAction === 'buy' ? 'bg-red-500 text-white shadow-sm' : 'bg-green-600 text-white shadow-sm')
-                            : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
+                            : 'text-slate-500 hover:text-slate-800 dark:text-slate-100 hover:bg-white/50'
                             }`}
                         >
                             {a.label}
@@ -437,14 +437,14 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                         ))}
                     </div>
 
-                    <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
                         {ranges.map(r => (
                         <button
                             key={r.id}
                             onClick={() => setTimeRange(r.id)}
                             className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${timeRange === r.id
                             ? 'bg-brand-primary text-white shadow-sm'
-                            : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
+                            : 'text-slate-500 hover:text-slate-800 dark:text-slate-100 hover:bg-white/50'
                             }`}
                         >
                             {r.label}
@@ -461,7 +461,7 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                     onClick={() => setActiveType(tab.id)}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-all whitespace-nowrap font-bold ${activeType === tab.id
                     ? 'bg-slate-800 text-white border-slate-800 shadow-md'
-                    : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700 hover:bg-slate-50'
+                    : 'bg-white dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-slate-800 hover:border-slate-300 hover:text-slate-700 hover:bg-slate-50 dark:bg-slate-800'
                     }`}
                 >
                     {tab.icon}
@@ -476,33 +476,33 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {loading ? (
                 Array(6).fill(0).map((_, i) => (
-                    <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5 animate-pulse h-40 shadow-sm"></div>
+                    <div key={i} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 animate-pulse h-40 shadow-sm"></div>
                 ))
                 ) : data.length > 0 ? (
                 data.map((stock, idx) => (
                     <div
                     key={stock.symbol}
-                    className="group bg-white border border-slate-100 hover:border-brand-primary/30 rounded-2xl p-5 transition-all hover:shadow-lg hover:-translate-y-1 relative overflow-hidden"
+                    className="group bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-brand-primary/30 rounded-2xl p-5 transition-all hover:shadow-lg hover:-translate-y-1 relative overflow-hidden"
                     >
-                    <div className={`absolute -top-1 -right-1 w-12 h-12 flex items-center justify-center rounded-bl-3xl ${idx < 3 ? 'bg-brand-primary/10' : 'bg-slate-100'}`}>
+                    <div className={`absolute -top-1 -right-1 w-12 h-12 flex items-center justify-center rounded-bl-3xl ${idx < 3 ? 'bg-brand-primary/10' : 'bg-slate-100 dark:bg-slate-800'}`}>
                         <span className={`font-black italic text-lg opacity-80 ${idx < 3 ? 'text-brand-primary' : 'text-slate-400'}`}>#{idx + 1}</span>
                     </div>
 
                     <div className="flex justify-between items-start mb-4">
                         <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-black text-slate-800 group-hover:text-brand-primary transition-colors">{stock.name}</h3>
+                            <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 group-hover:text-brand-primary transition-colors">{stock.name}</h3>
                             <div className="text-brand-primary font-bold text-sm bg-brand-primary/10 px-1.5 py-0.5 rounded">{stock.symbol}</div>
                         </div>
                         {stock.industry && (
-                            <span className="text-[10px] font-bold tracking-widest px-1.5 py-0.5 rounded-sm w-fit bg-slate-100 text-slate-500">
+                            <span className="text-[10px] font-bold tracking-widest px-1.5 py-0.5 rounded-sm w-fit bg-slate-100 dark:bg-slate-800 text-slate-500">
                             {stock.industry}
                             </span>
                         )}
                         </div>
                         <button
                         onClick={() => onToggleWatchlist(stock.symbol)}
-                        className={`p-2 rounded-xl transition-colors ${watchedSymbols.has(stock.symbol) ? 'bg-yellow-50 text-yellow-500' : 'bg-slate-50 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50'
+                        className={`p-2 rounded-xl transition-colors ${watchedSymbols.has(stock.symbol) ? 'bg-yellow-50 text-yellow-500' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50'
                             }`}
                         >
                         <Star className={`w-4 h-4 ${watchedSymbols.has(stock.symbol) ? 'fill-current' : ''}`} />
@@ -519,7 +519,7 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                         <div className="text-right space-y-0.5">
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">今日價位 / 漲跌</div>
                         <div className={`text-sm font-black tabular-nums flex flex-col items-end ${stock.change_percent > 0 ? 'text-red-500' : stock.change_percent < 0 ? 'text-green-600' : 'text-slate-500'}`}>
-                            <span className="text-slate-800 text-base">{parseFloat(stock.close_price).toFixed(2)}</span>
+                            <span className="text-slate-800 dark:text-slate-100 text-base">{parseFloat(stock.close_price).toFixed(2)}</span>
                             <span className="text-[11px]">
                                 {stock.change_percent > 0 ? '▲' : stock.change_percent < 0 ? '▼' : ''}
                                 {Math.abs(stock.change_amount || 0).toFixed(2)} ({Math.abs(stock.change_percent || 0).toFixed(2)}%)
@@ -530,7 +530,7 @@ const InstitutionalRankView = ({ watchedSymbols, onToggleWatchlist }) => {
                     </div>
                 ))
                 ) : (
-                <div className="col-span-full py-20 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <div className="col-span-full py-20 text-center bg-slate-50 dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                     <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                     <p className="text-slate-500 font-bold">查無相關排名數據</p>
                 </div>

@@ -4,7 +4,7 @@ import { Activity, ArrowUp, ArrowDown, TrendingUp, Clock } from 'lucide-react';
 export default function MarketIndexCard({ data, loading, dark = false, layout = 'card' }) {
     if (loading) {
         return (
-            <div className={`${dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-xl shadow-sm border p-4 animate-pulse ${layout === 'horizontal' ? 'h-14 py-2' : ''}`}>
+            <div className={`${dark ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-slate-900 border-gray-100'} rounded-xl shadow-sm border p-4 animate-pulse ${layout === 'horizontal' ? 'h-14 py-2' : ''}`}>
                  {layout === 'horizontal' ? (
                      <div className="flex items-center gap-4 h-full">
                          <div className={`h-4 w-24 ${dark ? 'bg-gray-700' : 'bg-gray-200'} rounded`}></div>
@@ -22,7 +22,7 @@ export default function MarketIndexCard({ data, loading, dark = false, layout = 
 
     if (!data && !loading) {
         return (
-            <div className={`${dark ? 'bg-gray-800 border-gray-700 text-gray-500' : 'bg-white border-gray-200 text-gray-400'} rounded-xl shadow-sm border border-dashed p-4 flex items-center justify-center text-xs font-medium ${layout === 'horizontal' ? 'h-14 py-2' : 'h-[100px]'}`}>
+            <div className={`${dark ? 'bg-gray-800 border-gray-700 text-gray-500' : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-400'} rounded-xl shadow-sm border border-dashed p-4 flex items-center justify-center text-xs font-medium ${layout === 'horizontal' ? 'h-14 py-2' : 'h-[100px]'}`}>
                 <div className="flex items-center gap-2">
                     <Activity className="w-5 h-5 opacity-20" />
                     <span>大盤數據讀取中...</span>
@@ -52,21 +52,21 @@ export default function MarketIndexCard({ data, loading, dark = false, layout = 
 
     if (layout === 'horizontal') {
         return (
-            <div className={`${dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border h-14 px-4 flex items-center justify-between group transition-all duration-300 w-full overflow-hidden`}>
+            <div className={`${dark ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'} rounded-xl shadow-sm border h-14 px-4 flex items-center justify-between group transition-all duration-300 w-full overflow-hidden`}>
                 <div className="flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
                     {/* Index Name & Price */}
-                    <div className="flex items-center gap-3 border-r pr-6 border-slate-100 dark:border-gray-700">
+                    <div className="flex items-center gap-3 border-r pr-6 border-slate-100 dark:border-slate-800 dark:border-gray-700">
                         <div className={`flex items-center gap-2 ${dark ? 'text-gray-400' : 'text-slate-500'} font-bold`}>
                             <Activity className={`w-4 h-4 ${dark ? 'text-red-400' : 'text-brand-primary'}`} />
                             <span className="text-sm">台股加權指數</span>
                         </div>
-                        <span className={`text-xl font-bold ${dark ? 'text-white' : 'text-slate-800'} tracking-tight`}>
+                        <span className={`text-xl font-bold ${dark ? 'text-white' : 'text-slate-800 dark:text-slate-100'} tracking-tight`}>
                             {price?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                     </div>
 
                     {/* Change Stats */}
-                    <div className="flex items-center gap-4 border-r pr-6 border-slate-100 dark:border-gray-700">
+                    <div className="flex items-center gap-4 border-r pr-6 border-slate-100 dark:border-slate-800 dark:border-gray-700">
                         <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${bgClass} ${colorClass} text-sm font-bold`}>
                             <Icon className="w-4 h-4" />
                             <span>{Math.abs(change).toFixed(2)}</span>
@@ -100,7 +100,7 @@ export default function MarketIndexCard({ data, loading, dark = false, layout = 
     }
 
     return (
-        <div className={`${dark ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white border-gray-100 hover:shadow-md'} rounded-xl shadow-sm border overflow-hidden group transition-all duration-300`}>
+        <div className={`${dark ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white dark:bg-slate-900 border-gray-100 hover:shadow-md'} rounded-xl shadow-sm border overflow-hidden group transition-all duration-300`}>
             <div className="p-4">
                 <div className="flex justify-between items-start mb-2">
                     <div className={`flex items-center gap-2 ${dark ? 'text-gray-400' : 'text-gray-500'} font-medium`}>
@@ -114,7 +114,7 @@ export default function MarketIndexCard({ data, loading, dark = false, layout = 
                 </div>
 
                 <div className="flex items-baseline gap-3">
-                    <span className={`text-2xl font-bold ${dark ? 'text-white' : 'text-gray-800'} tracking-tight`}>
+                    <span className={`text-2xl font-bold ${dark ? 'text-white' : 'text-gray-800 dark:text-gray-100'} tracking-tight`}>
                         {price?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     

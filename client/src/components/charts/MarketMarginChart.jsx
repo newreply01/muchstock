@@ -50,8 +50,8 @@ export default function MarketMarginChart() {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-xl">
-                    <p className="text-sm font-bold text-gray-800 mb-2">{label}</p>
+                <div className="bg-white dark:bg-slate-900 p-3 border border-gray-200 dark:border-slate-800 shadow-lg rounded-xl">
+                    <p className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-2">{label}</p>
                     {payload.map((entry, idx) => (
                         <p key={idx} className="text-xs font-semibold" style={{ color: entry.color }}>
                             {entry.name}: {
@@ -68,9 +68,9 @@ export default function MarketMarginChart() {
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 mb-6">
             <div className="flex items-center gap-2 mb-4">
-                <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
+                <h3 className="text-lg font-black text-gray-800 dark:text-gray-100 flex items-center gap-2">
                     <Activity className="w-5 h-5 text-amber-500" />
                     大盤融資融券餘額
                     <div className="group relative flex items-center">

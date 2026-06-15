@@ -6,7 +6,7 @@ import {
 export default function ChipAnalysisChart({ data }) {
     if (!data || data.length === 0) {
         return (
-            <div className="h-full flex items-center justify-center text-slate-400 font-medium bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+            <div className="h-full flex items-center justify-center text-slate-400 font-medium bg-slate-50 dark:bg-slate-800 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
                 暫無籌碼數據
             </div>
         );

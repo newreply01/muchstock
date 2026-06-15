@@ -145,14 +145,14 @@ export default function AIPromptManager() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 animate-in fade-in duration-500">
             {/* Main Editor */}
             <div className="lg:col-span-3 space-y-4">
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
-                    <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col h-[600px]">
+                    <div className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="bg-indigo-100 p-2 rounded-lg">
                                 <FileText className="w-5 h-5 text-indigo-600" />
                             </div>
                             <div>
-                                <h3 className="font-black text-slate-800 tracking-tight">AI 提示詞編輯器</h3>
+                                <h3 className="font-black text-slate-800 dark:text-slate-100 tracking-tight">AI 提示詞編輯器</h3>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Template: {templateName}</p>
                             </div>
                         </div>
@@ -166,7 +166,7 @@ export default function AIPromptManager() {
                                 onClick={handleOverwrite}
                                 disabled={saving || !viewingVersionId}
                                 title="直接覆蓋目前正在編輯的版本"
-                                className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 disabled:opacity-50 text-sm font-black px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition-all"
+                                className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 disabled:opacity-50 text-sm font-black px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition-all"
                             >
                                 {saving ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 text-slate-500" />}
                                 覆蓋目前版本
@@ -182,14 +182,14 @@ export default function AIPromptManager() {
                             </button>
                         </div>
                     </div>
-                    <div className="bg-white px-6 py-3 border-b border-slate-100 flex items-center gap-4">
+                    <div className="bg-white dark:bg-slate-900 px-6 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4">
                         <span className="text-xs font-black text-slate-500 uppercase tracking-wider">版本備註:</span>
                         <input 
                             type="text"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                             placeholder="輸入此版本的變動說明或主題 (例如：優化法人分析邏輯)..."
-                            className="flex-1 bg-slate-50 border-none focus:ring-1 focus:ring-indigo-500 rounded-lg px-3 py-1.5 text-sm text-slate-700 font-bold"
+                            className="flex-1 bg-slate-50 dark:bg-slate-800 border-none focus:ring-1 focus:ring-indigo-500 rounded-lg px-3 py-1.5 text-sm text-slate-700 font-bold"
                         />
                     </div>
                     
@@ -219,8 +219,8 @@ export default function AIPromptManager() {
 
             {/* Version History Sidebar */}
             <div className="lg:col-span-1 flex flex-col gap-4">
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[600px]">
-                    <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[600px]">
+                    <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
                         <History className="w-4 h-4 text-slate-400" />
                         <h4 className="text-sm font-black text-slate-700">版本歷史</h4>
                     </div>
@@ -232,7 +232,7 @@ export default function AIPromptManager() {
                                 className={`w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between group ${
                                     viewingVersion === item.version 
                                         ? 'bg-indigo-50 border-indigo-200 shadow-sm ring-1 ring-indigo-200' 
-                                        : 'bg-white border-slate-100 hover:border-indigo-100 hover:bg-slate-50'
+                                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-indigo-100 hover:bg-slate-50 dark:bg-slate-800'
                                 }`}
                             >
                                 <div className="flex flex-col gap-0.5">

@@ -44,7 +44,7 @@ export default function ProfitabilityView({ financials, loading, subSubTab }) {
     if (chartData.length === 0) {
         return (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 min-h-[400px]">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
+                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800 shadow-sm">
                     <TrendingUp className="w-8 h-8 text-slate-300" />
                 </div>
                 <h3 className="text-xl font-black text-slate-600 mb-2 tracking-tighter">暫無獲利能力數據</h3>
@@ -54,8 +54,8 @@ export default function ProfitabilityView({ financials, loading, subSubTab }) {
     }
 
     const renderMarginChart = () => (
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[400px]">
-            <h3 className="text-slate-800 font-bold mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[400px]">
+            <h3 className="text-slate-800 dark:text-slate-100 font-bold mb-6 flex items-center gap-2">
                 <Percent className="text-blue-600 w-5 h-5" />
                 三率走勢分析 (毛利/營業/淨利)
             </h3>
@@ -80,8 +80,8 @@ export default function ProfitabilityView({ financials, loading, subSubTab }) {
     );
 
     const renderRoeRoaChart = () => (
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[400px]">
-            <h3 className="text-slate-800 font-bold mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[400px]">
+            <h3 className="text-slate-800 dark:text-slate-100 font-bold mb-6 flex items-center gap-2">
                 <Activity className="text-purple-600 w-5 h-5" />
                 ROE / ROA 報酬率趨勢
             </h3>
@@ -112,7 +112,7 @@ export default function ProfitabilityView({ financials, loading, subSubTab }) {
                     <PieChart className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tighter">
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">
                         {subSubTab === 'roe_roa' ? 'ROE/ROA 報酬分析' : '獲利能力指標趨勢'}
                     </h2>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Profitability Metrics</p>

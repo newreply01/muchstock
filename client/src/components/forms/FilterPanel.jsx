@@ -87,7 +87,7 @@ export default function FilterPanel({ onFilter, onClear, filters }) {
     }
 
     return (
-        <div className="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden sticky top-20 flex flex-col max-h-[calc(100vh-120px)]">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 dark:border-slate-800 overflow-hidden sticky top-20 flex flex-col max-h-[calc(100vh-120px)]">
             {/* Sidebar Header */}
             <div className="bg-slate-900 px-5 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ export default function FilterPanel({ onFilter, onClear, filters }) {
             </div>
 
             {/* Vertical Tabs */}
-            <div className="flex bg-slate-50 border-b border-slate-200">
+            <div className="flex bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800">
                 {TABS.map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -114,7 +114,7 @@ export default function FilterPanel({ onFilter, onClear, filters }) {
                         <button
                             key={tab.id}
                             className={`flex-1 py-4 px-2 flex flex-col items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider transition-all relative
-                                ${isActive ? 'text-brand-primary bg-white' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}
+                                ${isActive ? 'text-brand-primary bg-white dark:bg-slate-900' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:bg-slate-800'}
                             `}
                             onClick={() => setActiveTab(tab.id)}
                         >
@@ -142,7 +142,7 @@ export default function FilterPanel({ onFilter, onClear, filters }) {
                                     className={`flex-1 py-2 text-[11px] font-bold border rounded transition-all uppercase
                                         ${localFilters.market === m
                                             ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-brand-primary/20'
-                                            : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300'}
+                                            : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300'}
                                     `}
                                 >
                                     {m === 'all' ? '全部' : (m === 'twse' ? '上市' : '上櫃')}
@@ -166,7 +166,7 @@ export default function FilterPanel({ onFilter, onClear, filters }) {
                                     className={`py-2 text-[11px] font-bold border rounded transition-all
                                         ${localFilters[t.id]
                                             ? 'bg-brand-primary border-brand-primary text-white'
-                                            : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300'}
+                                            : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300'}
                                     `}
                                 >
                                     {t.label}
@@ -180,7 +180,7 @@ export default function FilterPanel({ onFilter, onClear, filters }) {
                             <Building2 className="w-3 h-3" /> 產業類別
                         </label>
                         <select
-                            className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
+                            className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                             value={localFilters.industry || ''}
                             onChange={e => updateFilter('industry', e.target.value)}
                         >
@@ -198,7 +198,7 @@ export default function FilterPanel({ onFilter, onClear, filters }) {
                         <div className="relative">
                             <input
                                 type="date"
-                                className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
+                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                                 value={localFilters.date || ''}
                                 onChange={e => updateFilter('date', e.target.value)}
                             />
@@ -214,7 +214,7 @@ export default function FilterPanel({ onFilter, onClear, filters }) {
             </div>
 
             {/* Sidebar Footer / Action */}
-            <div className="p-5 bg-slate-50 border-t border-slate-200">
+            <div className="p-5 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-800">
                 <button
                     className="w-full bg-brand-primary hover:bg-red-600 text-white py-3.5 rounded-lg flex items-center justify-center gap-3 transition-all font-black text-sm uppercase tracking-widest shadow-[0_10px_20px_rgba(238,49,36,0.3)] hover:-translate-y-0.5"
                     onClick={handleSubmit}

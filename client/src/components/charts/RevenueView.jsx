@@ -66,7 +66,7 @@ export default function RevenueView({ financials, loading }) {
     if (!revenueData || revenueData.length === 0) {
         return (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 min-h-[400px]">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
+                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800 shadow-sm">
                     <BarChart3 className="w-8 h-8 text-slate-300" />
                 </div>
                 <h3 className="text-xl font-black text-slate-600 mb-2 tracking-tighter">暫無營收歷史數據</h3>
@@ -79,8 +79,8 @@ export default function RevenueView({ financials, loading }) {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-white p-4 border border-slate-200 shadow-lg rounded-xl min-w-[200px]">
-                    <p className="font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">{label} 月營收</p>
+                <div className="bg-white dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800 shadow-lg rounded-xl min-w-[200px]">
+                    <p className="font-bold text-slate-800 dark:text-slate-100 mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">{label} 月營收</p>
                     {payload.map((entry, index) => (
                         <div key={index} className="flex justify-between items-center mb-1.5 text-sm">
                             <span style={{ color: entry.color }} className="font-bold flex items-center gap-1.5">
@@ -107,7 +107,7 @@ export default function RevenueView({ financials, loading }) {
                     <BarChart3 className="w-6 h-6 text-brand-primary" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tighter">營收追蹤與成長分析</h2>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">營收追蹤與成長分析</h2>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Revenue & Growth Rate</p>
                 </div>
             </div>
@@ -115,20 +115,20 @@ export default function RevenueView({ financials, loading }) {
             {/* Latest Month Highlight */}
             {latest && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+                    <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between relative overflow-hidden group">
                         <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out opacity-50"></div>
                         <div className="relative z-10">
                             <div className="text-slate-500 text-xs mb-2 flex items-center gap-1.5 font-bold">
                                 最新單月營收 <span className="text-[10px] text-slate-400 font-normal">({latest.name})</span>
                             </div>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-3xl font-black text-slate-800 tabular-nums">{latest.revenue.toFixed(2)}</span>
+                                <span className="text-3xl font-black text-slate-800 dark:text-slate-100 tabular-nums">{latest.revenue.toFixed(2)}</span>
                                 <span className="text-sm font-bold text-slate-500">億元</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+                    <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between relative overflow-hidden group">
                         <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out opacity-20 ${latest.yoy >= 0 ? 'bg-red-500' : 'bg-green-500'}`}></div>
                         <div className="relative z-10">
                             <div className="text-slate-500 text-xs mb-2 flex items-center gap-1.5 font-bold">
@@ -145,7 +145,7 @@ export default function RevenueView({ financials, loading }) {
                         </div>
                     </div>
 
-                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+                    <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between relative overflow-hidden group">
                         <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out opacity-20 ${latest.mom >= 0 ? 'bg-red-500' : 'bg-green-500'}`}></div>
                         <div className="relative z-10">
                             <div className="text-slate-500 text-xs mb-2 flex items-center gap-1.5 font-bold">
@@ -165,7 +165,7 @@ export default function RevenueView({ financials, loading }) {
             )}
 
             {/* Chart Container */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-[400px]">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={revenueData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />

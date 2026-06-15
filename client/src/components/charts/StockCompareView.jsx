@@ -117,13 +117,13 @@ export default function StockCompareView({ initialSymbols = [] }) {
                     <GitCompare className="w-6 h-6 text-orange-600" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tighter">個股 PK 比較</h2>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">個股 PK 比較</h2>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Stock Comparison (Max 4)</p>
                 </div>
             </div>
 
             {/* Stock Selector */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                     {symbols.map((sym, idx) => {
                         const stock = stocks.find(s => s.symbol === sym);
@@ -147,13 +147,13 @@ export default function StockCompareView({ initialSymbols = [] }) {
                                 + 加入比較
                             </button>
                             {showSearch && (
-                                <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2">
+                                <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 p-2">
                                     <input
                                         type="text"
                                         value={inputValue}
                                         onChange={e => handleSearch(e.target.value)}
                                         placeholder="輸入股票代碼或名稱..."
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                                        className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                                         autoFocus
                                     />
                                     {searchResults.length > 0 && (
@@ -162,9 +162,9 @@ export default function StockCompareView({ initialSymbols = [] }) {
                                                 <button
                                                     key={s.symbol}
                                                     onClick={() => addSymbol(s.symbol)}
-                                                    className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-lg text-sm flex justify-between items-center"
+                                                    className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:bg-slate-800 rounded-lg text-sm flex justify-between items-center"
                                                 >
-                                                    <span className="font-bold text-slate-800">{s.name}</span>
+                                                    <span className="font-bold text-slate-800 dark:text-slate-100">{s.name}</span>
                                                     <span className="text-xs text-slate-400">{s.symbol}</span>
                                                 </button>
                                             ))}
@@ -186,8 +186,8 @@ export default function StockCompareView({ initialSymbols = [] }) {
             {stocks.length >= 2 && (
                 <>
                     {/* Radar Overlap Chart */}
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                        <h3 className="text-slate-800 font-bold mb-4 text-sm">雷達重疊比較</h3>
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <h3 className="text-slate-800 dark:text-slate-100 font-bold mb-4 text-sm">雷達重疊比較</h3>
                         <div className="h-[350px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
@@ -213,12 +213,12 @@ export default function StockCompareView({ initialSymbols = [] }) {
                     </div>
 
                     {/* Comparison Table */}
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="bg-slate-50 border-b border-slate-200">
-                                        <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase tracking-wider sticky left-0 bg-slate-50 z-10 min-w-[120px]">指標</th>
+                                    <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800">
+                                        <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase tracking-wider sticky left-0 bg-slate-50 dark:bg-slate-800 z-10 min-w-[120px]">指標</th>
                                         {stocks.map((s, idx) => (
                                             <th key={s.symbol} className="text-center px-4 py-3 min-w-[140px]">
                                                 <div className="font-black text-sm" style={{ color: COMPARE_COLORS[idx] }}>{s.name}</div>
@@ -231,8 +231,8 @@ export default function StockCompareView({ initialSymbols = [] }) {
                                     {METRICS.map((metric, mIdx) => {
                                         const winner = metric.higherIsBetter !== null ? getWinner(stocks, metric.key, metric.higherIsBetter) : null;
                                         return (
-                                            <tr key={metric.key} className={mIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
-                                                <td className={`px-4 py-3 font-bold text-slate-700 text-xs sticky left-0 z-10 ${mIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
+                                            <tr key={metric.key} className={mIdx % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/50'}>
+                                                <td className={`px-4 py-3 font-bold text-slate-700 text-xs sticky left-0 z-10 ${mIdx % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50 dark:bg-slate-800'}`}>
                                                     {metric.label}
                                                 </td>
                                                 {stocks.map((s, idx) => {
@@ -240,7 +240,7 @@ export default function StockCompareView({ initialSymbols = [] }) {
                                                     const isWinner = winner === s.symbol;
                                                     const isNeg = metric.key === 'changePercent' && parseFloat(val) < 0;
                                                     return (
-                                                        <td key={s.symbol} className={`text-center px-4 py-3 tabular-nums font-bold ${isWinner ? 'text-emerald-600' : 'text-slate-800'}`}>
+                                                        <td key={s.symbol} className={`text-center px-4 py-3 tabular-nums font-bold ${isWinner ? 'text-emerald-600' : 'text-slate-800 dark:text-slate-100'}`}>
                                                             <span className={`${isWinner ? 'bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200' : ''} ${isNeg ? 'text-green-600' : (metric.key === 'changePercent' && parseFloat(val) > 0) ? 'text-red-500' : ''}`}>
                                                                 {formatNum(val, metric.decimals)}{metric.unit}
                                                             </span>
@@ -258,7 +258,7 @@ export default function StockCompareView({ initialSymbols = [] }) {
                 </>
             )}
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed font-medium">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500 leading-relaxed font-medium">
                 註：個股 PK 最多同時比較 4 檔股票。「👑」標示表示該指標在所有比較股票中表現最佳（PE、PB 越低越好；ROE、殖利率、營收成長等越高越好）。所有資訊僅供參考。
             </div>
         </div>

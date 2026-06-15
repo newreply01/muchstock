@@ -114,15 +114,15 @@ export default function ComparisonChart({ symbols, onClose }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden border border-slate-200">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden border border-slate-200 dark:border-slate-800">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-black text-slate-900 tracking-tighter">多股走勢比較 <span className="text-slate-500 font-bold ml-2 text-sm">過去 100 交易日 (基準報酬率)</span></h2>
+                        <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">多股走勢比較 <span className="text-slate-500 font-bold ml-2 text-sm">過去 100 交易日 (基準報酬率)</span></h2>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:bg-slate-800 rounded-lg transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -150,7 +150,7 @@ export default function ComparisonChart({ symbols, onClose }) {
                             {/* Chart Container */}
                             <div
                                 ref={chartContainerRef}
-                                className="h-[400px] w-full rounded-xl border border-slate-100 bg-slate-50/50"
+                                className="h-[400px] w-full rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50"
                             />
                         </div>
                     )}

@@ -120,27 +120,27 @@ export default function StockAnalyzer({ symbol }) {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 bg-white p-6 rounded-[2rem] shadow-sm">
+        <div className="space-y-8 animate-in fade-in duration-700 bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
             {/* Market Mood Gauge */}
-            <div className="bg-slate-50 border border-slate-100 p-6 rounded-3xl shadow-sm flex items-center justify-between">
+            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl shadow-sm flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <div className="bg-orange-100 p-3 rounded-2xl">
                         <Activity className="w-6 h-6 text-orange-500" />
                     </div>
                     <div>
-                        <h3 className="text-slate-900 font-black tracking-tight text-lg">市場情緒溫度計</h3>
+                        <h3 className="text-slate-900 dark:text-slate-50 font-black tracking-tight text-lg">市場情緒溫度計</h3>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Market Sentiment Temperature</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-6">
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">震盪整理 (Neutral)</span>
-                        <div className="w-64 h-3 bg-slate-200 rounded-full overflow-hidden relative border border-slate-100">
+                        <div className="w-64 h-3 bg-slate-200 rounded-full overflow-hidden relative border border-slate-100 dark:border-slate-800">
                             <div className="absolute top-0 left-0 h-full w-[60%] bg-gradient-to-r from-emerald-500 via-orange-500 to-rose-500"></div>
-                            <div className="absolute top-0 left-[60%] w-1.5 h-full bg-white shadow-[0_0_8px_rgba(0,0,0,0.1)] z-10"></div>
+                            <div className="absolute top-0 left-[60%] w-1.5 h-full bg-white dark:bg-slate-900 shadow-[0_0_8px_rgba(0,0,0,0.1)] z-10"></div>
                         </div>
                     </div>
-                    <div className="bg-white px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
+                    <div className="bg-white dark:bg-slate-900 px-5 py-2.5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
                         <span className="text-orange-500 font-black text-2xl italic tracking-tighter">62</span>
                     </div>
                 </div>
@@ -161,18 +161,18 @@ export default function StockAnalyzer({ symbol }) {
                             onClick={() => setSelectedFilter(f.id)}
                             className={`group relative p-5 rounded-3xl border-2 transition-all duration-300 text-left overflow-hidden ${selectedFilter === f.id
                                     ? `border-${f.color}-500 bg-${f.color}-50 shadow-md`
-                                    : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'
+                                    : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:bg-slate-800'
                                 }`}
                         >
                             <div className="flex justify-between items-start mb-3">
                                 <div className={`p-2.5 rounded-xl bg-${f.color}-50 group-hover:scale-110 transition-transform`}>
                                     <f.icon className={`w-5 h-5 text-${f.color}-500`} />
                                 </div>
-                                <span className={`${selectedFilter === f.id ? 'bg-white text-slate-900' : `${f.tagColor} text-white`} text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm`}>
+                                <span className={`${selectedFilter === f.id ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50' : `${f.tagColor} text-white`} text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm`}>
                                     {f.type}
                                 </span>
                             </div>
-                            <h4 className="text-slate-900 font-black text-sm mb-1">{f.label}</h4>
+                            <h4 className="text-slate-900 dark:text-slate-50 font-black text-sm mb-1">{f.label}</h4>
                             <p className="text-[10px] text-slate-500 font-bold leading-tight group-hover:text-slate-600 transition-colors line-clamp-2">{f.desc}</p>
                             {selectedFilter === f.id && <div className={`absolute bottom-0 left-0 h-1.5 w-full bg-${f.color}-500`} />}
                         </button>
@@ -181,10 +181,10 @@ export default function StockAnalyzer({ symbol }) {
             </div>
 
             {/* Advanced Filters Section */}
-            <div className="space-y-4 pt-4 border-t border-slate-100">
+            <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                     onClick={() => setShowAdvanced(!showAdvanced)}
-                    className="flex items-center justify-between w-full px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 transition-colors group"
+                    className="flex items-center justify-between w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 transition-colors group"
                 >
                     <div className="flex items-center gap-3">
                         <Filter className="w-5 h-5 text-indigo-500" />
@@ -207,17 +207,17 @@ export default function StockAnalyzer({ symbol }) {
                                             key={f.id}
                                             onClick={() => setSelectedFilter(f.id)}
                                             className={`p-4 rounded-2xl border-2 transition-all text-left ${selectedFilter === f.id
-                                                    ? `border-${f.color}-500 bg-white shadow-md`
-                                                    : 'border-slate-100 bg-white hover:border-slate-200'
+                                                    ? `border-${f.color}-500 bg-white dark:bg-slate-900 shadow-md`
+                                                    : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-200 dark:border-slate-800'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between mb-2">
                                                 <f.icon className={`w-4 h-4 ${selectedFilter === f.id ? `text-${f.color}-500` : 'text-slate-300'}`} />
-                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md ${f.type === '買入' ? 'bg-emerald-50 text-emerald-600' : f.type === '賣出' ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
+                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md ${f.type === '買入' ? 'bg-emerald-50 text-emerald-600' : f.type === '賣出' ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
                                                     {f.type}
                                                 </span>
                                             </div>
-                                            <h6 className="text-xs font-black text-slate-800 mb-1">{f.label}</h6>
+                                            <h6 className="text-xs font-black text-slate-800 dark:text-slate-100 mb-1">{f.label}</h6>
                                             <p className="text-[9px] text-slate-400 font-bold leading-tight">{f.desc}</p>
                                         </button>
                                     ))}
@@ -229,19 +229,19 @@ export default function StockAnalyzer({ symbol }) {
             </div>
 
             {/* Results Table Section */}
-            <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl relative">
-                <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-hidden shadow-xl relative">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="bg-indigo-600 p-2.5 rounded-2xl shadow-md shadow-indigo-200">
                             <Target className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h3 className="text-slate-900 font-black tracking-tighter text-lg">分析清單</h3>
+                            <h3 className="text-slate-900 dark:text-slate-50 font-black tracking-tighter text-lg">分析清單</h3>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Screener Insights & Real-time Metrics</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 flex items-center gap-2">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-2">
                             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">LIVE</span>
                         </div>
@@ -254,7 +254,7 @@ export default function StockAnalyzer({ symbol }) {
                 <div className="overflow-x-auto custom-scrollbar-thin">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+                            <tr className="bg-slate-50 dark:bg-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-slate-800">
                                 <th className="px-6 py-5 sticky left-0 bg-white/95 backdrop-blur-md z-10 w-48 shadow-[1px_0_0_rgb(241,245,249)]">公司/代號</th>
                                 <th className="px-6 py-5">現價</th>
                                 <th className="px-6 py-5">漲跌%</th>
@@ -290,12 +290,12 @@ export default function StockAnalyzer({ symbol }) {
                                 <tr key={s.symbol} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-6 py-6 sticky left-0 bg-white/95 backdrop-blur-md z-10 shadow-[1px_0_0_rgb(241,245,249)]">
                                         <div className="flex flex-col">
-                                            <span className="text-slate-900 font-black font-mono text-lg tracking-tighter">{s.symbol}</span>
+                                            <span className="text-slate-900 dark:text-slate-50 font-black font-mono text-lg tracking-tighter">{s.symbol}</span>
                                             <span className="text-slate-400 font-bold text-xs uppercase tracking-widest">{s.name}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-6">
-                                        <span className="text-slate-800 font-black font-mono text-xl tabular-nums">{s.price}</span>
+                                        <span className="text-slate-800 dark:text-slate-100 font-black font-mono text-xl tabular-nums">{s.price}</span>
                                     </td>
                                     <td className="px-6 py-6">
                                         <div className={`flex flex-col ${s.percent > 0 ? 'text-rose-500' : (s.percent < 0 ? 'text-emerald-600' : 'text-slate-400')}`}>
@@ -308,7 +308,7 @@ export default function StockAnalyzer({ symbol }) {
                                     <td className="px-6 py-6 text-rose-500 font-black font-mono text-base">{s.stopLoss}</td>
                                     <td className="px-6 py-6">
                                         <div className="flex items-center gap-2">
-                                            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden w-16 shadow-inner">
+                                            <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden w-16 shadow-inner">
                                                 <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${s.overall_score}%` }}></div>
                                             </div>
                                             <span className="text-indigo-600 font-black font-mono text-sm">{s.overall_score}</span>

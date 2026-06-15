@@ -32,8 +32,8 @@ const BrokerTracking = ({ symbol }) => {
   return (
     <div className="space-y-8 p-4">
       {/* 1. 主力進出趨勢圖 */}
-      <div className="bg-white p-6 rounded-xl shadow-sm">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">主力進出趨勢 (前 15 大分點淨買賣)</h3>
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm">
+        <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">主力進出趨勢 (前 15 大分點淨買賣)</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={trend}>
@@ -70,7 +70,7 @@ const BrokerTracking = ({ symbol }) => {
               <tbody>
                 {topTraders.buying.map((item, idx) => (
                   <tr key={idx} className="border-b border-red-100 last:border-0 hover:bg-red-100/50">
-                    <td className="py-2 font-medium text-gray-800">{item.broker}</td>
+                    <td className="py-2 font-medium text-gray-800 dark:text-gray-100">{item.broker}</td>
                     <td className="py-2 text-right font-bold text-red-600">
                       {Math.round(item.net_buy).toLocaleString()}
                     </td>
@@ -98,7 +98,7 @@ const BrokerTracking = ({ symbol }) => {
               <tbody>
                 {topTraders.selling.map((item, idx) => (
                   <tr key={idx} className="border-b border-green-100 last:border-0 hover:bg-green-100/50">
-                    <td className="py-2 font-medium text-gray-800">{item.broker}</td>
+                    <td className="py-2 font-medium text-gray-800 dark:text-gray-100">{item.broker}</td>
                     <td className="py-2 text-right font-bold text-green-600">
                       {Math.round(Math.abs(item.net_buy)).toLocaleString()}
                     </td>

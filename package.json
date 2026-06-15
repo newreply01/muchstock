@@ -1,5 +1,5 @@
 {
-  "name": "stock-screener",
+  "name": "muchstock-server",
   "version": "1.0.0",
   "description": "台股篩選器 - 類似 WantGoo Screener",
   "private": true,

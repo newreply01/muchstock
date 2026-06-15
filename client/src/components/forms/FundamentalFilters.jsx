@@ -10,7 +10,7 @@ export default function FundamentalFilters({ filters, onChange }) {
                     <AreaChart className="w-3 h-3 text-brand-primary" />
                     企業獲利與估值
                 </h3>
-                <div className="bg-white rounded-lg">
+                <div className="bg-white dark:bg-slate-900 rounded-lg">
                     <RangeInput label="本益比 (P/E Ratio)" minKey="pe_min" maxKey="pe_max" filters={filters} onChange={onChange} />
                     <RangeInput label="現金殖利率 (%)" minKey="yield_min" maxKey="yield_max" filters={filters} onChange={onChange} />
                     <RangeInput label="股價淨值比 (P/B)" minKey="pb_min" maxKey="pb_max" filters={filters} onChange={onChange} />

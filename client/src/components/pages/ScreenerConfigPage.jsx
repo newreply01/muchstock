@@ -219,13 +219,13 @@ export default function ScreenerConfigPage({
     }
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden min-h-[800px] flex flex-col w-full">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden min-h-[800px] flex flex-col w-full">
             {/* Header */}
-            <div className="bg-gray-50 border-b border-gray-200 px-6 py-5 flex items-center justify-between">
+            <div className="bg-gray-50 border-b border-gray-200 dark:border-slate-800 px-6 py-5 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onBack}
-                        className="p-2 bg-white border border-gray-200 rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors shadow-sm"
+                        className="p-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg text-gray-500 hover:text-gray-800 dark:text-gray-100 hover:bg-gray-100 transition-colors shadow-sm"
                         title="返回儀表板"
                     >
                         <ArrowLeft className="w-5 h-5" />
@@ -235,7 +235,7 @@ export default function ScreenerConfigPage({
                             <LayoutGrid className="w-5 h-5 text-brand-primary" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black text-gray-900 tracking-tight">智能選股</h1>
+                            <h1 className="text-xl font-black text-gray-900 dark:text-gray-50 tracking-tight">智能選股</h1>
                             <p className="text-sm font-medium text-gray-500 mt-0.5">組合多項條件找出潛力飆股</p>
                         </div>
                     </div>
@@ -279,7 +279,7 @@ export default function ScreenerConfigPage({
                         <input
                             type="text"
                             placeholder="請輸入此篩選策略的名稱 (例如: 低PE高殖利率起漲股)"
-                            className="flex-1 bg-white border border-amber-200 rounded-lg px-4 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                            className="flex-1 bg-white dark:bg-slate-900 border border-amber-200 rounded-lg px-4 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                             value={newFilterName}
                             onChange={(e) => setNewFilterName(e.target.value)}
                             autoFocus
@@ -296,7 +296,7 @@ export default function ScreenerConfigPage({
 
             <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
                 {/* Vertical Tabs Sidebar */}
-                <div className="w-full md:w-64 bg-gray-50 border-r border-gray-200 flex sm:flex-col overflow-x-auto sm:overflow-visible">
+                <div className="w-full md:w-64 bg-gray-50 border-r border-gray-200 dark:border-slate-800 flex sm:flex-col overflow-x-auto sm:overflow-visible">
                     {TABS.map(tab => {
                         const Icon = tab.icon;
                         const isActive = activeTab === tab.id;
@@ -305,8 +305,8 @@ export default function ScreenerConfigPage({
                                 key={tab.id}
                                 className={`flex items-center gap-3 py-4 px-6 transition-all text-left whitespace-nowrap
                                     ${isActive
-                                        ? 'bg-white text-brand-primary border-t-2 md:border-t-0 md:border-l-4 border-brand-primary shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] sm:shadow-none'
-                                        : 'text-gray-500 hover:bg-gray-200/50 hover:text-gray-900 border-t-2 md:border-t-0 md:border-l-4 border-transparent'}
+                                        ? 'bg-white dark:bg-slate-900 text-brand-primary border-t-2 md:border-t-0 md:border-l-4 border-brand-primary shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] sm:shadow-none'
+                                        : 'text-gray-500 hover:bg-gray-200/50 hover:text-gray-900 dark:text-gray-50 border-t-2 md:border-t-0 md:border-l-4 border-transparent'}
                                 `}
                                 onClick={() => setActiveTab(tab.id)}
                             >
@@ -316,7 +316,7 @@ export default function ScreenerConfigPage({
                         )
                     })}
 
-                    <div className="mt-auto border-t border-gray-200 p-4 hidden md:block">
+                    <div className="mt-auto border-t border-gray-200 dark:border-slate-800 p-4 hidden md:block">
                         <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 px-2 flex items-center gap-2">
                             <Star className="w-3 h-3" />
                             我的儲存策略
@@ -347,10 +347,10 @@ export default function ScreenerConfigPage({
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 p-8 overflow-y-auto bg-white space-y-8">
+                <div className="flex-1 p-8 overflow-y-auto bg-white dark:bg-slate-900 space-y-8">
                     {/* Global Filter Bar aligned with Date Picker */}
                     <div className="flex flex-col xl:flex-row gap-6 pb-8 border-b border-gray-100 xl:items-center">
-                        <div className="flex-1 overflow-x-auto rounded-2xl border border-gray-100 shadow-sm bg-white">
+                        <div className="flex-1 overflow-x-auto rounded-2xl border border-gray-100 shadow-sm bg-white dark:bg-slate-900">
                             <GlobalFilterBar />
                         </div>
 
@@ -363,7 +363,7 @@ export default function ScreenerConfigPage({
                             <div className="relative">
                                 <input
                                     type="date"
-                                    className="w-[200px] bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary shadow-sm transition-all hover:border-gray-400"
+                                    className="w-[200px] bg-white dark:bg-slate-900 border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary shadow-sm transition-all hover:border-gray-400"
                                     value={localFilters.date || ''}
                                     onChange={e => updateFilter('date', e.target.value)}
                                 />
@@ -376,7 +376,7 @@ export default function ScreenerConfigPage({
                         {activeTab === 'strategies' && (
                             <div className="space-y-6 animate-in fade-in duration-300">
                                 <div>
-                                    <h3 className="text-lg font-black text-gray-900 mb-1">精選策略 (Yahoo 經典款)</h3>
+                                    <h3 className="text-lg font-black text-gray-900 dark:text-gray-50 mb-1">精選策略 (Yahoo 經典款)</h3>
                                     <p className="text-gray-500 text-sm mb-6">快速選用常見的熱門投資策略，尋找符合目標條件的股票。</p>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                         {[
@@ -392,13 +392,13 @@ export default function ScreenerConfigPage({
                                                     key={strat.id}
                                                     onClick={() => handleStrategySelect(strat.id)}
                                                     className={`p-4 rounded-xl border-2 text-left transition-all relative overflow-hidden group
-                                                        ${isSelected ? `${strat.color.split(' ')[0]} border-brand-primary shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}
+                                                        ${isSelected ? `${strat.color.split(' ')[0]} border-brand-primary shadow-sm` : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 hover:border-gray-300'}
                                                     `}
                                                 >
                                                     <div className="flex items-center justify-between mb-2">
-                                                        <h4 className={`font-black text-[16px] ${isSelected ? 'text-brand-primary' : 'text-gray-900'}`}>{strat.name}</h4>
-                                                        <div className={`w-5 h-5 rounded-full border ${isSelected ? 'bg-brand-primary border-brand-primary flex items-center justify-center' : 'bg-white border-gray-300'}`}>
-                                                            {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                                                        <h4 className={`font-black text-[16px] ${isSelected ? 'text-brand-primary' : 'text-gray-900 dark:text-gray-50'}`}>{strat.name}</h4>
+                                                        <div className={`w-5 h-5 rounded-full border ${isSelected ? 'bg-brand-primary border-brand-primary flex items-center justify-center' : 'bg-white dark:bg-slate-900 border-gray-300'}`}>
+                                                            {isSelected && <div className="w-2 h-2 bg-white dark:bg-slate-900 rounded-full"></div>}
                                                         </div>
                                                     </div>
                                                     <p className="text-[12px] text-gray-500 leading-snug">{strat.desc}</p>
@@ -408,7 +408,7 @@ export default function ScreenerConfigPage({
                                     </div>
                                 </div>
                                 <div className="mb-4">
-                                    <h3 className="text-lg font-black text-gray-900 mb-1">大師策略</h3>
+                                    <h3 className="text-lg font-black text-gray-900 dark:text-gray-50 mb-1">大師策略</h3>
                                     <p className="text-gray-500 text-sm mb-6">跟隨全球頂尖投資大師的選股邏輯，發掘潛力黑馬與穩健好股。</p>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                         {[
@@ -419,7 +419,7 @@ export default function ScreenerConfigPage({
                                             { id: 'peter_lynch', name: '彼得林區', desc: '尋找具備成長潛力的隱形冠軍，連續淨利成長', color: 'bg-cyan-50 text-cyan-700 border-cyan-200 hover:border-cyan-400' },
                                             { id: 'michael_murphy', name: '麥克墨菲', desc: '高科技與高成長，營收與淨利雙成長，重視營業利益率', color: 'bg-sky-50 text-sky-700 border-sky-200 hover:border-sky-400' },
                                             { id: 'safe_dividend', name: '安心存股', desc: '長線穩定發放股利，防禦力強的存股標的', color: 'bg-rose-50 text-rose-700 border-rose-200 hover:border-rose-400' },
-                                            { id: 'financial_giant', name: '財務大腕', desc: '營收創新高且毛利明顯提升的成長股，且股價便宜', color: 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-400' },
+                                            { id: 'financial_giant', name: '財務大腕', desc: '營收創新高且毛利明顯提升的成長股，且股價便宜', color: 'bg-slate-50 dark:bg-slate-800 text-slate-700 border-slate-200 dark:border-slate-800 hover:border-slate-400' },
                                             { id: 'lynn_lin_20w_breakout', name: '林恩如 20周突破', desc: '股價由下往上突破 20 週均線，強勢起漲訊號', color: 'bg-brand-primary/10 text-brand-primary border-brand-primary/20 hover:border-brand-primary' },
                                         ].map(strat => {
                                             const isSelected = localFilters.strategy === strat.id;
@@ -428,13 +428,13 @@ export default function ScreenerConfigPage({
                                                     key={strat.id}
                                                     onClick={() => handleStrategySelect(strat.id)}
                                                     className={`p-4 rounded-xl border-2 text-left transition-all relative overflow-hidden group
-                                                        ${isSelected ? `${strat.color.split(' ')[0]} border-brand-primary shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}
+                                                        ${isSelected ? `${strat.color.split(' ')[0]} border-brand-primary shadow-sm` : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 hover:border-gray-300'}
                                                     `}
                                                 >
                                                     <div className="flex items-center justify-between mb-2">
-                                                        <h4 className={`font-black text-[16px] ${isSelected ? 'text-brand-primary' : 'text-gray-900'}`}>{strat.name}</h4>
-                                                        <div className={`w-5 h-5 rounded-full border ${isSelected ? 'bg-brand-primary border-brand-primary flex items-center justify-center' : 'bg-white border-gray-300'}`}>
-                                                            {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                                                        <h4 className={`font-black text-[16px] ${isSelected ? 'text-brand-primary' : 'text-gray-900 dark:text-gray-50'}`}>{strat.name}</h4>
+                                                        <div className={`w-5 h-5 rounded-full border ${isSelected ? 'bg-brand-primary border-brand-primary flex items-center justify-center' : 'bg-white dark:bg-slate-900 border-gray-300'}`}>
+                                                            {isSelected && <div className="w-2 h-2 bg-white dark:bg-slate-900 rounded-full"></div>}
                                                         </div>
                                                     </div>
                                                     <p className="text-[12px] text-gray-500 leading-snug">{strat.desc}</p>
@@ -452,13 +452,13 @@ export default function ScreenerConfigPage({
                 </div>
             </div>
 
-            <div className="border-t border-gray-200 bg-gray-50/50 p-6 md:p-8">
+            <div className="border-t border-gray-200 dark:border-slate-800 bg-gray-50/50 p-6 md:p-8">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-brand-primary text-white rounded-lg flex items-center justify-center font-black italic">R</div>
-                        <h2 className="text-xl font-black text-gray-900 tracking-tight">篩選結果</h2>
+                        <h2 className="text-xl font-black text-gray-900 dark:text-gray-50 tracking-tight">篩選結果</h2>
                         {results?.latestDate && (
-                            <span className="ml-2 text-sm font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                            <span className="ml-2 text-sm font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
                                 資料日期：{results.latestDate}
                             </span>
                         )}
@@ -466,7 +466,7 @@ export default function ScreenerConfigPage({
                     <div className="h-px flex-1 bg-gray-200 ml-6 hidden md:block"></div>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
                     <ResultTable
                         results={results}
                         loading={loading}

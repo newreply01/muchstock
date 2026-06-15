@@ -30,8 +30,8 @@ export default function FinancialStatementsView({
     if (subTab === 'profitability') {
         if (subSubTab === 'eps_trend') {
             return (
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[450px] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <h3 className="text-slate-800 font-bold mb-6 flex items-center gap-2">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[450px] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <h3 className="text-slate-800 dark:text-slate-100 font-bold mb-6 flex items-center gap-2">
                         <TrendingUp className="text-blue-600 w-5 h-5" />
                         每股盈餘 (EPS) 走勢分析
                     </h3>
@@ -53,7 +53,7 @@ export default function FinancialStatementsView({
                                 </LineChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div className="h-full flex items-center justify-center text-slate-400 text-sm italic bg-slate-50 rounded-xl border border-dashed border-slate-200">暫無 EPS 歷史數據</div>
+                            <div className="h-full flex items-center justify-center text-slate-400 text-sm italic bg-slate-50 dark:bg-slate-800 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">暫無 EPS 歷史數據</div>
                         )}
                     </div>
                 </div>
@@ -124,11 +124,11 @@ export default function FinancialStatementsView({
     // Default Placeholder
     return (
         <div className="h-full flex flex-col items-center justify-center text-slate-400 min-h-[450px] animate-in fade-in duration-300">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 border border-slate-100 shadow-inner">
+            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 border border-slate-100 dark:border-slate-800 shadow-inner">
                 <BarChart3 className="w-10 h-10 text-slate-300" />
             </div>
             <h3 className="text-xl font-black text-slate-600 mb-2 tracking-tighter">數據準備中</h3>
-            <p className="text-xs font-bold tracking-widest uppercase text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+            <p className="text-xs font-bold tracking-widest uppercase text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
                 {subTab} - {subSubTab || 'NONE'}
             </p>
         </div>

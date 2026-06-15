@@ -74,17 +74,17 @@ export default function PortfolioDashboard({ onStockClick }) {
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center gap-3 mb-4 text-gray-500 font-bold text-sm uppercase tracking-wider">
                         <PieChart className="w-4 h-4" /> 投資組合淨值
                     </div>
-                    <div className="text-3xl font-black text-gray-900 flex items-baseline gap-2">
+                    <div className="text-3xl font-black text-gray-900 dark:text-gray-50 flex items-baseline gap-2">
                         ${totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         <span className="text-sm font-medium text-gray-400 font-sans">TWD</span>
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center gap-3 mb-4 text-gray-500 font-bold text-sm uppercase tracking-wider">
                         <DollarSign className="w-4 h-4" /> 累計總損益
                     </div>
@@ -97,10 +97,10 @@ export default function PortfolioDashboard({ onStockClick }) {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-center items-center">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm flex flex-col justify-center items-center">
                     <button 
                         onClick={() => setShowAddForm(true)}
-                        className="w-full h-full border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-brand-primary hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-sm font-bold"
+                        className="w-full h-full border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-brand-primary hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-sm font-bold"
                     >
                         <Plus className="w-6 h-6" />
                         新增持股記錄
@@ -109,9 +109,9 @@ export default function PortfolioDashboard({ onStockClick }) {
             </div>
 
             {/* Position Table */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                    <h3 className="font-black text-gray-900 flex items-center gap-2">
+                    <h3 className="font-black text-gray-900 dark:text-gray-50 flex items-center gap-2">
                         <TrendingUp className="w-5 h-5 text-brand-primary" />
                         當前持股明細
                     </h3>
@@ -151,7 +151,7 @@ export default function PortfolioDashboard({ onStockClick }) {
                                                 <TrendingUp className="w-8 h-8 text-gray-200" />
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="font-bold text-gray-900">尚無持股記錄</p>
+                                                <p className="font-bold text-gray-900 dark:text-gray-50">尚無持股記錄</p>
                                                 <p className="text-xs text-gray-400">點擊上方「新增」按鈕來開始追蹤您的投資組合損益。</p>
                                             </div>
                                         </div>
@@ -165,7 +165,7 @@ export default function PortfolioDashboard({ onStockClick }) {
                                                 onClick={() => onStockClick?.({ symbol: h.symbol, name: h.name })}
                                                 className="flex flex-col text-left group/name"
                                             >
-                                                <div className="font-black text-gray-900 text-sm group-hover/name:text-brand-primary transition-colors flex items-center gap-1">
+                                                <div className="font-black text-gray-900 dark:text-gray-50 text-sm group-hover/name:text-brand-primary transition-colors flex items-center gap-1">
                                                     {h.name}
                                                     <ArrowUpRight className="w-3 h-3 opacity-0 group-hover/name:opacity-100 transition-all transform group-hover/name:translate-x-0.5 group-hover/name:-translate-y-0.5" />
                                                 </div>
@@ -179,7 +179,7 @@ export default function PortfolioDashboard({ onStockClick }) {
                                             ${Number(h.avg_cost).toLocaleString()}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="font-mono font-bold text-sm text-gray-900">${Number(h.current_price).toLocaleString()}</div>
+                                            <div className="font-mono font-bold text-sm text-gray-900 dark:text-gray-50">${Number(h.current_price).toLocaleString()}</div>
                                             <div className={`text-[10px] font-bold ${h.daily_change >= 0 ? 'text-red-500' : 'text-green-500'}`}>
                                                 {h.daily_change >= 0 ? '▲' : '▼'}{Math.abs(h.daily_change).toFixed(2)}%
                                             </div>
@@ -212,9 +212,9 @@ export default function PortfolioDashboard({ onStockClick }) {
             {/* Add/Edit Form Modal Overlay */}
             {showAddForm && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-white/20 animate-in zoom-in-95 duration-200 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl border border-white/20 animate-in zoom-in-95 duration-200 overflow-hidden">
                         <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex items-center justify-between">
-                            <h3 className="text-lg font-black text-gray-900 tracking-tight">新增持有倉位</h3>
+                            <h3 className="text-lg font-black text-gray-900 dark:text-gray-50 tracking-tight">新增持有倉位</h3>
                             <button onClick={() => setShowAddForm(false)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
                                 <X className="w-5 h-5 text-gray-500" />
                             </button>
@@ -250,7 +250,7 @@ export default function PortfolioDashboard({ onStockClick }) {
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">持有數量</label>
                                     <input 
                                         type="number"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                                        className="w-full bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-3 font-bold text-gray-900 dark:text-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
                                         placeholder="例如: 1000"
                                         value={newPosition.quantity}
                                         onChange={e => setNewPosition({...newPosition, quantity: e.target.value})}
@@ -262,7 +262,7 @@ export default function PortfolioDashboard({ onStockClick }) {
                                     <input 
                                         type="number"
                                         step="0.01"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                                        className="w-full bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-3 font-bold text-gray-900 dark:text-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
                                         placeholder="例如: 650"
                                         value={newPosition.avg_cost}
                                         onChange={e => setNewPosition({...newPosition, avg_cost: e.target.value})}

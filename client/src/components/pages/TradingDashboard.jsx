@@ -11,11 +11,12 @@ import {
     AlertCircle,
     CheckCircle2,
     MinusCircle,
-    ChevronUp,
     ChevronDown,
-    Zap
+    Zap,
+    X,
+    Trash2
 } from 'lucide-react';
-import { getMarketIndex, getRealtimeBatch, getRealtimeData, getRealtimeTicks, addStockToWatchlist } from '../../utils/api';
+import { getMarketIndex, getRealtimeBatch, getRealtimeData, getRealtimeTicks, addStockToWatchlist, removeStockFromWatchlist } from '../../utils/api';
 import MarketIndexCard from '../shared/MarketIndexCard';
 import StockChart from '../charts/StockChart';
 import StockSearchAutocomplete from '../forms/StockSearchAutocomplete';
@@ -132,15 +133,15 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
     // whaleTrades state is now calculated in useEffect based on the full dataset
 
     return (
-        <div className="flex-1 flex flex-col bg-white dark:bg-gray-950 overflow-hidden">
+        <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 dark:bg-gray-950 overflow-hidden">
              {/* Header Toolbar - Compact Stats included */}
-             <div className="p-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between bg-slate-100 dark:bg-slate-50 dark:bg-gray-900/40 shadow-lg">
+             <div className="p-4 border-b border-slate-200 dark:border-slate-800 dark:border-gray-800 flex items-center justify-between bg-slate-100 dark:bg-slate-800 dark:bg-slate-50 dark:bg-slate-800 dark:bg-gray-900/40 shadow-lg">
                 <div className="flex items-center gap-6">
                     <div className="flex items-baseline gap-3">
                         <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-lg font-black font-mono shadow-lg shadow-blue-900/30">{symbol}</span>
-                        <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">{stats?.name || ''}</h2>
+                        <h2 className="text-2xl font-black text-slate-900 dark:text-slate-50 dark:text-white tracking-tighter">{stats?.name || ''}</h2>
                     </div>
-                    <div className="h-8 w-px bg-white dark:bg-gray-800"></div>
+                    <div className="h-8 w-px bg-white dark:bg-slate-900 dark:bg-gray-800"></div>
                     <div className="flex items-baseline gap-4">
                         <div className={`text-3xl font-black tabular-nums tracking-tighter ${getPriceColor(stats?.price, stats?.previous_close)}`}>
                             {stats?.price || '--'}
@@ -153,7 +154,7 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                     </div>
                     
                     {/* Relocated Stats */}
-                    <div className="h-8 w-px bg-white dark:bg-gray-800"></div>
+                    <div className="h-8 w-px bg-white dark:bg-slate-900 dark:bg-gray-800"></div>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-1">
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] text-slate-400 dark:text-gray-500 font-black uppercase">開</span>
@@ -173,14 +174,14 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                         </div>
                     </div>
 
-                    <div className="h-8 w-px bg-white dark:bg-gray-800"></div>
+                    <div className="h-8 w-px bg-white dark:bg-slate-900 dark:bg-gray-800"></div>
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest">成交總量</span>
                         <span className="text-lg font-black text-blue-400 font-mono italic">{parseFloat(stats?.volume || 0).toLocaleString()} <span className="text-xs not-italic text-slate-400 dark:text-gray-500 font-sans ml-1">張</span></span>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 dark:bg-gray-900 border border-slate-200 dark:border-slate-800 dark:border-gray-800 rounded-xl">
                          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-red-500 shadow-[0_0_8px_#ef4444]'}`}></div>
                          <span className="text-[10px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-widest">{isConnected ? 'LIVE FEEDING' : 'DISCONNECTED'}</span>
                     </div>
@@ -188,18 +189,18 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
             </div>
 
             {/* Main Trading Area Content */}
-            <div className="flex-1 flex overflow-hidden border-t border-slate-200 dark:border-slate-200 dark:border-gray-800/50">
+            <div className="flex-1 flex overflow-hidden border-t border-slate-200 dark:border-slate-800 dark:border-slate-200 dark:border-slate-800 dark:border-gray-800/50">
                 {/* Left: Five Levels & Orderflow Radar */}
-                <div className="w-1/2 border-r border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-slate-50 dark:bg-gray-900/20 flex flex-col min-h-0 overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-slate-200 dark:border-gray-800 bg-slate-100 dark:bg-white dark:bg-gray-800/30 flex justify-between items-center shrink-0">
+                <div className="w-1/2 border-r border-slate-200 dark:border-slate-800 dark:border-gray-800 bg-slate-50 dark:bg-slate-800 dark:bg-slate-50 dark:bg-slate-800 dark:bg-gray-900/20 flex flex-col min-h-0 overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 dark:border-gray-800 bg-slate-100 dark:bg-slate-800 dark:bg-white dark:bg-slate-900 dark:bg-gray-800/30 flex justify-between items-center shrink-0">
                         <div className="flex items-center gap-2 text-yellow-400 font-black tracking-widest text-[11px] uppercase italic">
                             <Zap className="w-4 h-4 fill-yellow-400" />
                             市場買賣五檔 (Bid/Ask)
                         </div>
                     </div>
-                    <div className="bg-slate-50/50 dark:bg-white dark:bg-gray-950/20">
+                    <div className="bg-slate-50/50 dark:bg-white dark:bg-slate-900 dark:bg-gray-950/20">
                         <table className="w-full text-left">
-                            <thead className="bg-slate-50 dark:bg-gray-900 text-[10px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest border-b border-slate-200 dark:border-gray-800">
+                            <thead className="bg-slate-50 dark:bg-slate-800 dark:bg-gray-900 text-[10px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest border-b border-slate-200 dark:border-slate-800 dark:border-gray-800">
                                 <tr>
                                     <th className="px-6 py-2.5">買量</th>
                                     <th className="px-6 py-2.5">買價</th>
@@ -245,7 +246,7 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                     </div>
 
                     {/* Orderflow Strength Meter */}
-                    <div className="px-4 py-2.5 border-t border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/10 shrink-0">
+                    <div className="px-4 py-2.5 border-t border-slate-200 dark:border-slate-800 dark:border-gray-800 bg-slate-50 dark:bg-slate-800 dark:bg-gray-900/10 shrink-0">
                         <div className="flex justify-between items-center text-xs font-black text-slate-500 dark:text-gray-450 mb-2 uppercase tracking-widest">
                             <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-red-500 animate-pulse" /> 主動買盤 {buyPercent}%</span>
                             <span className="text-slate-400 dark:text-gray-500">盤中多空力道計</span>
@@ -259,7 +260,7 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                     </div>
 
                     {/* Intraday Volume Profile */}
-                    <div className="px-4 py-2.5 border-t border-slate-200 dark:border-gray-800 bg-slate-100/50 dark:bg-gray-900/30 flex flex-col justify-start shrink-0">
+                    <div className="px-4 py-2.5 border-t border-slate-200 dark:border-slate-800 dark:border-gray-800 bg-slate-100/50 dark:bg-gray-900/30 flex flex-col justify-start shrink-0">
                         <div className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                             <span className="flex h-2 w-2 relative">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -294,16 +295,16 @@ const TradingPanel = ({ symbol, tickInfo, isConnected }) => {
                 </div>
 
                 {/* Right: Ticks List */}
-                <div className="w-1/2 flex flex-col bg-slate-50/50 dark:bg-white dark:bg-gray-950/40 min-h-0 overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-slate-200 dark:border-gray-800 bg-slate-100 dark:bg-white dark:bg-gray-800/30 flex justify-between items-center shrink-0">
+                <div className="w-1/2 flex flex-col bg-slate-50/50 dark:bg-white dark:bg-slate-900 dark:bg-gray-950/40 min-h-0 overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 dark:border-gray-800 bg-slate-100 dark:bg-slate-800 dark:bg-white dark:bg-slate-900 dark:bg-gray-800/30 flex justify-between items-center shrink-0">
                         <div className="flex items-center gap-2 text-blue-400 font-black tracking-widest text-[11px] uppercase italic">
                             <Activity className="w-4 h-4" />
                             近期分時成交明細 (最新 10 筆)
                         </div>
                     </div>
-                    <div className="flex-1 shrink-0 overflow-y-auto custom-scrollbar-thin border-b border-slate-200 dark:border-gray-800">
+                    <div className="flex-1 shrink-0 overflow-y-auto custom-scrollbar-thin border-b border-slate-200 dark:border-slate-800 dark:border-gray-800">
                         <table className="w-full text-left">
-                            <thead className="sticky top-0 bg-slate-50 dark:bg-gray-900 text-[10px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest border-b border-slate-200 dark:border-gray-800">
+                            <thead className="sticky top-0 bg-slate-50 dark:bg-slate-800 dark:bg-gray-900 text-[10px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest border-b border-slate-200 dark:border-slate-800 dark:border-gray-800">
                                 <tr>
                                     <th className="px-6 py-2.5">時間</th>
                                     <th className="px-6 py-2.5 text-right">成交價</th>
@@ -349,6 +350,7 @@ const TradingDashboard = ({ watchlists = [], watchedSymbols = new Set(), onRefre
     const [selectedSymbol, setSelectedSymbol] = useState('2330');
     const [lastUpdateTime, setLastUpdateTime] = useState(null);
     const [watchSymbols, setWatchSymbols] = useState([]);
+    const [isEditingWatchlist, setIsEditingWatchlist] = useState(false);
 
     // Extract symbols from watchlists
     useEffect(() => {
@@ -425,20 +427,20 @@ const TradingDashboard = ({ watchlists = [], watchedSymbols = new Set(), onRefre
         const num = parseFloat(change);
         if (num > 0) return 'bg-red-500/10';
         if (num < 0) return 'bg-green-500/10';
-        return 'bg-slate-100 dark:bg-white dark:bg-gray-800/30';
+        return 'bg-slate-100 dark:bg-slate-800 dark:bg-white dark:bg-slate-900 dark:bg-gray-800/30';
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-gray-100 font-sans">
+        <div className="flex flex-col h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-800 dark:bg-gray-900 text-slate-900 dark:text-slate-50 dark:text-gray-100 font-sans">
             {/* Top Bar - Market Index */}
-            <div className="px-4 py-2 border-b border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-gray-900">
+            <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-800 dark:border-gray-800 bg-slate-50 dark:bg-slate-800 dark:bg-gray-900">
                 <MarketIndexCard data={marketIndex} loading={indexLoading} dark={false} layout="horizontal" />
             </div>
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Left Sidebar - Watchlist */}
-                <div className="w-80 border-r border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col shadow-2xl z-10">
-                    <div className="p-4 border-b border-slate-200 dark:border-gray-700 font-bold flex justify-between items-center bg-slate-100 dark:bg-slate-50 dark:bg-gray-900/50">
+                <div className="w-80 border-r border-slate-200 dark:border-slate-800 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-800 flex flex-col shadow-2xl z-10">
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 dark:border-gray-700 font-bold flex justify-between items-center bg-slate-100 dark:bg-slate-800 dark:bg-slate-50 dark:bg-slate-800 dark:bg-gray-900/50">
                         <span className="text-slate-700 dark:text-gray-300 text-sm font-black italic tracking-tighter">個股即時資訊</span>
                         <div className="flex items-center gap-2">
                             <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'} shadow-[0_0_8px_currentColor]`}></span>
@@ -447,7 +449,7 @@ const TradingDashboard = ({ watchlists = [], watchedSymbols = new Set(), onRefre
                     </div>
 
                     {/* Add Stock Search */}
-                    <div className="p-3 border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-slate-50 dark:bg-gray-900/20">
+                    <div className="p-3 border-b border-slate-200 dark:border-slate-800 dark:border-gray-700 bg-slate-50 dark:bg-slate-800 dark:bg-slate-50 dark:bg-slate-800 dark:bg-gray-900/20">
                         <StockSearchAutocomplete 
                             onSelectStock={async (stock) => {
                                 try {
@@ -473,9 +475,17 @@ const TradingDashboard = ({ watchlists = [], watchedSymbols = new Set(), onRefre
                         />
                     </div>
 
-                    <div className="p-3 bg-slate-50 dark:bg-slate-50 dark:bg-gray-900/30 border-b border-slate-200 dark:border-gray-700 text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em] flex justify-between items-center">
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800 dark:bg-slate-50 dark:bg-slate-800 dark:bg-gray-900/30 border-b border-slate-200 dark:border-slate-800 dark:border-gray-700 text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em] flex justify-between items-center">
                         <span>即時自選股</span>
-                        <span>{watchSymbols.length} 標的</span>
+                        <div className="flex items-center gap-3">
+                            <span>{watchSymbols.length} 標的</span>
+                            <button 
+                                onClick={() => setIsEditingWatchlist(!isEditingWatchlist)}
+                                className={`px-2 py-0.5 rounded transition-all ${isEditingWatchlist ? 'bg-red-500 text-white shadow-sm' : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600'}`}
+                            >
+                                {isEditingWatchlist ? '完成' : '編輯'}
+                            </button>
+                        </div>
                     </div>
                     
                     <div className="flex-1 overflow-y-auto custom-scrollbar-thin">
@@ -496,11 +506,11 @@ const TradingDashboard = ({ watchlists = [], watchedSymbols = new Set(), onRefre
                                     <div 
                                         key={sym}
                                         onClick={() => setSelectedSymbol(sym)}
-                                        className={`px-4 py-3 border-b border-slate-200 dark:border-slate-200 dark:border-gray-700/50 cursor-pointer transition-all hover:bg-slate-100 dark:bg-gray-700 flex justify-between items-center ${isSelected ? 'bg-blue-900/40 border-l-4 border-l-blue-500 shadow-inner' : ''}`}
+                                        className={`px-4 py-3 border-b border-slate-200 dark:border-slate-800 dark:border-slate-200 dark:border-slate-800 dark:border-gray-700/50 cursor-pointer transition-all hover:bg-slate-100 dark:hover:bg-slate-800 flex justify-between items-center ${isSelected ? 'bg-blue-900/40 border-l-4 border-l-blue-500 shadow-inner' : ''}`}
                                     >
                                         <div className="flex flex-col">
                                             <div className="flex items-baseline gap-2">
-                                                <span className="font-black text-slate-900 dark:text-gray-100 text-sm tracking-tighter">{sym}</span>
+                                                <span className="font-black text-slate-900 dark:text-slate-50 dark:text-gray-100 text-sm tracking-tighter">{sym}</span>
                                                 <span className="text-[10px] font-bold text-slate-400 dark:text-gray-500 truncate max-w-[80px]">{name}</span>
                                             </div>
                                             <div className="text-[9px] text-slate-400 dark:text-gray-600 font-mono mt-0.5">{tick?.time_str || '--:--:--'}</div>
@@ -517,11 +527,34 @@ const TradingDashboard = ({ watchlists = [], watchedSymbols = new Set(), onRefre
                                                 </div>
                                             </div>
                                             
-                                            <div className={`w-1 h-8 rounded-full ${getBgColor(change)}`}>
-                                                <div 
-                                                    className={`w-full rounded-full transition-all duration-700 ${parseFloat(change) >= 0 ? 'bg-red-500' : 'bg-green-500'}`} 
-                                                    style={{ height: `${Math.min(Math.abs(parseFloat(change)) * 10, 100)}%` }}
-                                                ></div>
+                                            <div className="flex items-center gap-2">
+                                                {!isEditingWatchlist ? (
+                                                    <div className={`w-1 h-8 rounded-full ${getBgColor(change)}`}>
+                                                        <div 
+                                                            className={`w-full rounded-full transition-all duration-700 ${parseFloat(change) >= 0 ? 'bg-red-500' : 'bg-green-500'}`} 
+                                                            style={{ height: `${Math.min(Math.abs(parseFloat(change)) * 10, 100)}%` }}
+                                                        ></div>
+                                                    </div>
+                                                ) : (
+                                                    <button 
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            try {
+                                                                if (watchlists.length > 0) {
+                                                                    await removeStockFromWatchlist(watchlists[0].id, sym);
+                                                                }
+                                                                setWatchSymbols(prev => prev.filter(s => s !== sym));
+                                                                if (onRefreshWatchlists) onRefreshWatchlists();
+                                                            } catch (err) {
+                                                                console.error('Failed to remove stock:', err);
+                                                            }
+                                                        }}
+                                                        className="p-2 rounded-lg text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 transition-all border border-red-100 dark:border-red-900/30"
+                                                        title="移除自選"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -530,7 +563,7 @@ const TradingDashboard = ({ watchlists = [], watchedSymbols = new Set(), onRefre
                         )}
                     </div>
 
-                    <div className="p-3 bg-slate-50 dark:bg-gray-900 border-t border-slate-200 dark:border-gray-700">
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800 dark:bg-gray-900 border-t border-slate-200 dark:border-slate-800 dark:border-gray-700">
                         <div className="flex items-center justify-between text-[9px] text-slate-400 dark:text-gray-600 font-mono uppercase tracking-widest">
                             <span>POLL: 5S</span>
                             <span>{lastUpdateTime?.toLocaleTimeString()}</span>

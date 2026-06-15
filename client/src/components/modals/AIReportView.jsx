@@ -23,7 +23,7 @@ function SentimentMeter({ score }) {
     else if (score <= 0.45) { sentimentText = '偏向看空'; sentimentColor = 'text-green-500'; bgGradient = 'from-green-400/10 to-green-300/5'; progressGradient = 'from-green-300 to-green-500'; Icon = TrendingDown; }
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
             <div className={`absolute inset-0 bg-gradient-to-r ${bgGradient} opacity-30`} />
             <div className="relative p-5 md:px-8 md:py-6 flex flex-col md:flex-row items-center gap-6 md:gap-12">
                 <div className="flex flex-col items-center md:items-start min-w-[120px]">
@@ -35,11 +35,11 @@ function SentimentMeter({ score }) {
                 <div className="flex-1 w-full">
                     <div className="flex justify-between items-end mb-2">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Market Sentiment Scale</span>
-                        <div className="text-2xl font-black text-slate-800 tabular-nums">
+                        <div className="text-2xl font-black text-slate-800 dark:text-slate-100 tabular-nums">
                             {(score * 100).toFixed(0)} <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">/ 100</span>
                         </div>
                     </div>
-                    <div className="relative w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
+                    <div className="relative w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800/50 shadow-inner">
                         <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-slate-300/50 z-10" />
                         <div className={`h-full rounded-full bg-gradient-to-r ${progressGradient} transition-all duration-1000 ease-out shadow-sm`} style={{ width: `${percentage}%` }} />
                     </div>
@@ -106,7 +106,7 @@ export default function AIReportView({ symbol, name }) {
                         <Sparkles className="w-6 h-6 text-indigo-600" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-black text-slate-900 tracking-tighter">AI 智能分析報告</h2>
+                        <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">AI 智能分析報告</h2>
                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Generative AI Insights</p>
                     </div>
                 </div>
@@ -121,10 +121,10 @@ export default function AIReportView({ symbol, name }) {
 
             {/* States */}
             {loading ? (
-                <div className="flex-1 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center items-center min-h-[400px]">
+                <div className="flex-1 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center items-center min-h-[400px]">
                     <div className="w-16 h-16 relative mb-6">
                         <div className="absolute inset-0 bg-indigo-500 rounded-full animate-ping opacity-20" />
-                        <div className="relative z-10 w-16 h-16 bg-white border-2 border-indigo-100 rounded-full flex items-center justify-center shadow-lg">
+                        <div className="relative z-10 w-16 h-16 bg-white dark:bg-slate-900 border-2 border-indigo-100 rounded-full flex items-center justify-center shadow-lg">
                             <Bot className="w-8 h-8 text-indigo-500 animate-pulse" />
                         </div>
                     </div>
@@ -134,7 +134,7 @@ export default function AIReportView({ symbol, name }) {
                     </p>
                 </div>
             ) : error ? (
-                <div className="flex-1 bg-white p-8 rounded-2xl border border-red-100 shadow-sm flex flex-col justify-center items-center text-red-500 min-h-[400px]">
+                <div className="flex-1 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-red-100 shadow-sm flex flex-col justify-center items-center text-red-500 min-h-[400px]">
                     <AlertCircle className="w-12 h-12 mb-4 opacity-50" />
                     <p className="font-bold">{error}</p>
                 </div>
@@ -154,7 +154,7 @@ export default function AIReportView({ symbol, name }) {
                     <StructuredReportView reportText={reportData.report} />
 
                     {/* Footer */}
-                    <div className="bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4">
+                    <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-4">
                         <p className="text-[11px] font-bold text-slate-400 leading-relaxed text-center">
                             此報告由 AI 智能即時生成，綜合考量了歷史價量、三大法人動向及最新新聞。AI 生成內容僅供參考，不構成投資建議。
                         </p>

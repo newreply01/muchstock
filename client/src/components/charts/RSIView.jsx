@@ -158,12 +158,12 @@ export default function RSIView({ symbol, period = '日K' }) {
                     <Activity className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tighter">RSI 相對強弱指標</h2>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">RSI 相對強弱指標</h2>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Relative Strength Index</p>
                 </div>
             </div>
 
-            <div className="flex-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col relative">
+            <div className="flex-1 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col relative">
                 {loading ? (
                     <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-2xl flex-col">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mb-4"></div>
@@ -191,7 +191,7 @@ export default function RSIView({ symbol, period = '日K' }) {
                 />
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed font-medium">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500 leading-relaxed font-medium">
                 RSI (相對強弱指標) 衡量一定期間內股價漲跌的相對強弱情況。數值範圍在 0 至 100 之間。一般認為 RSI 大於 70 進入「超買區」，隨時有回檔風險；RSI 小於 30 進入「超賣區」，有反彈契機。上方為日 K 線圖，下方為 RSI(14) 指標。
             </div>
         </div>

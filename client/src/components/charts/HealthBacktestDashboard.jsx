@@ -115,11 +115,11 @@ export default function HealthBacktestDashboard() {
     const grades = metrics.filter(m => m?.grade && !m?.smart_rating).sort((a, b) => (parseFloat(b.avg_return_pct) || 0) - (parseFloat(a.avg_return_pct) || 0));
 
     return (
-        <div className="space-y-8 p-6 bg-white animate-in fade-in duration-500">
+        <div className="space-y-8 p-6 bg-white dark:bg-slate-900 animate-in fade-in duration-500">
             {/* Header & Date Selector */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-3">
                         <Target className="w-8 h-8 text-teal-600" />
                         評分回測監控
                     </h2>
@@ -128,7 +128,7 @@ export default function HealthBacktestDashboard() {
                     </p>
                 </div>
                 <div className="flex flex-col md:flex-row items-end md:items-center gap-4">
-                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                         {[3, 5, 7].map(days => (
                             <button
                                 key={days}
@@ -139,12 +139,12 @@ export default function HealthBacktestDashboard() {
                             </button>
                         ))}
                     </div>
-                    <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                     {stats.map((d, i) => (
                         <button
                             key={i}
                             onClick={() => setSelectedDateIdx(i)}
-                            className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${selectedDateIdx === i ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${selectedDateIdx === i ? 'bg-white dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             {d?.test_date?.split('-')?.slice(1)?.join('/') || '---'}
                         </button>
@@ -154,16 +154,16 @@ export default function HealthBacktestDashboard() {
         </div>
 
             {/* Performance Trend Chart */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h3 className="text-lg font-black text-slate-800">歷史累計報酬趨勢</h3>
+                        <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">歷史累計報酬趨勢</h3>
                         <div className="flex gap-2 mt-2">
                             {["強力推薦", "推薦", "優秀", "良好"].map(t => (
                                 <button
                                     key={t}
                                     onClick={() => setChartTarget(t)}
-                                    className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all ${chartTarget === t ? 'bg-teal-600 text-white shadow-md' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                                    className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all ${chartTarget === t ? 'bg-teal-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-slate-200'}`}
                                 >
                                     {t}
                                 </button>
@@ -196,14 +196,14 @@ export default function HealthBacktestDashboard() {
             <div className="space-y-4">
                 <div className="flex items-center gap-2">
                     <Zap className="w-5 h-5 text-rose-500" />
-                    <h3 className="text-lg font-black text-slate-800">智慧評級回測 (Smart Rating)</h3>
+                    <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">智慧評級回測 (Smart Rating)</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                     {smartRatings.map((m, i) => (
                         <div 
                             key={i} 
                             onClick={() => fetchCategoryStocks(m)}
-                            className="bg-slate-50 border border-slate-100 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all group relative overflow-hidden cursor-pointer hover:bg-teal-50/50 hover:border-teal-100"
+                            className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all group relative overflow-hidden cursor-pointer hover:bg-teal-50/50 hover:border-teal-100"
                         >
                             {/* Performance vs Market Indicator */}
                             <div className={`absolute top-0 right-0 px-3 py-1 text-[8px] font-black uppercase tracking-tighter rounded-bl-xl ${m.avg_return_pct > currentDay.taiex_return ? 'bg-rose-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
@@ -214,7 +214,7 @@ export default function HealthBacktestDashboard() {
                                 <span className={`text-sm font-black ${SMART_RATING_COLORS[m.smart_rating] || 'text-slate-600'}`}>
                                     {m.smart_rating}
                                 </span>
-                                <span className="text-[10px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-full border border-slate-100 italic">
+                                <span className="text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full border border-slate-100 dark:border-slate-800 italic">
                                     N={m.count}
                                 </span>
                             </div>
@@ -243,14 +243,14 @@ export default function HealthBacktestDashboard() {
             <div className="space-y-4">
                 <div className="flex items-center gap-2">
                     <Award className="w-5 h-5 text-teal-500" />
-                    <h3 className="text-lg font-black text-slate-800">等級表現回測 (Overall Grade)</h3>
+                    <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">等級表現回測 (Overall Grade)</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {grades.map((m, i) => (
                         <div 
                             key={i} 
                             onClick={() => fetchCategoryStocks(m)}
-                            className={`bg-white border-2 p-5 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all cursor-pointer ${m.avg_return_pct > currentDay.taiex_return ? 'border-rose-100 bg-rose-50/20 hover:bg-rose-50' : 'border-slate-50 hover:bg-slate-50'}`}
+                            className={`bg-white dark:bg-slate-900 border-2 p-5 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all cursor-pointer ${m.avg_return_pct > currentDay.taiex_return ? 'border-rose-100 bg-rose-50/20 hover:bg-rose-50' : 'border-slate-50 hover:bg-slate-50 dark:bg-slate-800'}`}
                         >
                             <div className={`p-3 rounded-2xl ${m.avg_return_pct >= 0 ? 'bg-rose-50' : 'bg-emerald-50'}`}>
                                 {m.avg_return_pct >= 0 ? <TrendingUp className={`w-6 h-6 ${m.avg_return_pct >= 0 ? 'text-rose-500' : 'text-emerald-500'}`} /> : <TrendingDown className="w-6 h-6 text-emerald-500" />}
@@ -277,7 +277,7 @@ export default function HealthBacktestDashboard() {
 
             {/* Note */}
             <div className="bg-amber-50 border border-amber-100 p-6 rounded-[2rem] flex items-start gap-4">
-                <div className="p-3 bg-white rounded-2xl shadow-sm">
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-sm">
                     <Info className="w-6 h-6 text-amber-500" />
                 </div>
                 <div className="text-xs text-amber-700 font-medium leading-relaxed">
@@ -295,9 +295,9 @@ export default function HealthBacktestDashboard() {
             {/* Stock List (Inline) */}
             {(selectedCategory || categoryStocks.length > 0) && (
                 <div id="backtest-stock-list-container" className="mt-8 space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50 dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800">
                         <div>
-                            <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                            <h3 className="text-xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-2">
                                 <Activity className="w-6 h-6 text-teal-600" />
                                 {selectedCategory?.smart_rating || selectedCategory?.grade || '選定'} 相關個股
                             </h3>
@@ -310,13 +310,13 @@ export default function HealthBacktestDashboard() {
                                 setSelectedCategory(null);
                                 setCategoryStocks([]);
                             }}
-                            className="px-4 py-2 bg-white text-slate-400 hover:text-rose-500 rounded-xl text-xs font-black shadow-sm transition-all border border-slate-100"
+                            className="px-4 py-2 bg-white dark:bg-slate-900 text-slate-400 hover:text-rose-500 rounded-xl text-xs font-black shadow-sm transition-all border border-slate-100 dark:border-slate-800"
                         >
                             關閉清單
                         </button>
                     </div>
                     
-                    <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                         {listLoading ? (
                             <div className="h-64 flex items-center justify-center text-slate-400 font-bold bg-slate-50/30">讀取中...</div>
                         ) : categoryStocks.length === 0 ? (
@@ -325,7 +325,7 @@ export default function HealthBacktestDashboard() {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">
+                                        <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">
                                             <th className="px-6 py-4">股票</th>
                                             <th className="px-6 py-4 text-center">健診計算日</th>
                                             <th className="px-4 py-4 text-center">綜合</th>
@@ -369,7 +369,7 @@ export default function HealthBacktestDashboard() {
                                             return (
                                                 <tr key={stock.symbol} className="hover:bg-teal-50/30 transition-colors group">
                                                     <td className="px-6 py-4">
-                                                        <div className="font-black text-slate-800 group-hover:text-teal-700 transition-colors">{stock.name}</div>
+                                                        <div className="font-black text-slate-800 dark:text-slate-100 group-hover:text-teal-700 transition-colors">{stock.name}</div>
                                                         <div className="text-[10px] font-bold text-slate-400">{stock.symbol}</div>
                                                     </td>
                                                     <td className="px-6 py-4 text-center font-bold text-slate-500 tabular-nums text-xs">

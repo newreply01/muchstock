@@ -51,7 +51,7 @@ export default function QuickDiagnosisView({ symbol }) {
     const RATING_STYLES = {
         "強力買進": { bg: "bg-emerald-500", text: "text-white", border: "border-emerald-600", lightBg: "bg-emerald-50", lightText: "text-emerald-700" },
         "買進": { bg: "bg-green-500", text: "text-white", border: "border-green-600", lightBg: "bg-green-50", lightText: "text-green-700" },
-        "觀望": { bg: "bg-slate-500", text: "text-white", border: "border-slate-600", lightBg: "bg-slate-50", lightText: "text-slate-700" },
+        "觀望": { bg: "bg-slate-500", text: "text-white", border: "border-slate-600", lightBg: "bg-slate-50 dark:bg-slate-800", lightText: "text-slate-700" },
         "賣出": { bg: "bg-orange-500", text: "text-white", border: "border-orange-600", lightBg: "bg-orange-50", lightText: "text-orange-700" },
         "強力賣出": { bg: "bg-red-500", text: "text-white", border: "border-red-600", lightBg: "bg-red-50", lightText: "text-red-700" }
     };
@@ -70,7 +70,7 @@ export default function QuickDiagnosisView({ symbol }) {
                     <div className={`text-5xl font-black ${currentRating.lightText} leading-none mb-4`}>
                         {rating?.label || "觀望"}
                     </div>
-                    <div className="flex items-center gap-2 px-4 py-1.5 bg-white rounded-full shadow-sm">
+                    <div className="flex items-center gap-2 px-4 py-1.5 bg-white dark:bg-slate-900 rounded-full shadow-sm">
                         <TrendingUp className={`w-4 h-4 ${currentRating.lightText}`} />
                         <span className={`text-[11px] font-black ${currentRating.lightText}`}>SMART RATING</span>
                     </div>
@@ -81,8 +81,8 @@ export default function QuickDiagnosisView({ symbol }) {
                 </div>
 
                 {/* Rating Breakdown Card */}
-                <div className="lg:col-span-2 bg-white rounded-3xl p-8 border border-slate-100 shadow-sm flex flex-col justify-center">
-                    <div className="flex items-center gap-2 mb-6 text-slate-800">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-6 text-slate-800 dark:text-slate-100">
                         <Activity className="w-5 h-5 text-indigo-500" />
                         <span className="text-sm font-black tracking-widest uppercase">智慧評分維度</span>
                     </div>
@@ -106,7 +106,7 @@ export default function QuickDiagnosisView({ symbol }) {
                                             {item.value > 0 ? '+' : ''}{item.value.toFixed(2)}
                                         </span>
                                     </div>
-                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                         <div 
                                             className={`h-full ${item.color} transition-all duration-1000 ease-out`}
                                             style={{ width: `${percent}%` }}
@@ -136,8 +136,8 @@ export default function QuickDiagnosisView({ symbol }) {
                 </div>
 
                 {/* Technical Mini Stats */}
-                <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200">
-                    <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-200 pb-2">今日技術概況</div>
+                <div className="bg-slate-50 dark:bg-slate-800 rounded-3xl p-8 border border-slate-200 dark:border-slate-800">
+                    <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-200 dark:border-slate-800 pb-2">今日技術概況</div>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
                             <span className="text-xs font-bold text-slate-500">RSI (14)</span>
@@ -162,26 +162,26 @@ export default function QuickDiagnosisView({ symbol }) {
             </div>
 
             {/* Support/Resistance Visualization */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center justify-between mb-10">
                     <div className="flex items-center gap-3">
                         <div className="bg-indigo-50 p-2 rounded-xl">
                             <Target className="w-5 h-5 text-indigo-600" />
                         </div>
                         <div>
-                            <h3 className="font-black text-slate-800 tracking-tight">關鍵支撐壓力位</h3>
+                            <h3 className="font-black text-slate-800 dark:text-slate-100 tracking-tight">關鍵支撐壓力位</h3>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Support & Resistance Levels</p>
                         </div>
                     </div>
                     <div className="text-right">
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">當前股價</div>
-                        <div className="text-2xl font-black text-slate-900 tabular-nums">{latest_price}</div>
+                        <div className="text-2xl font-black text-slate-900 dark:text-slate-50 tabular-nums">{latest_price}</div>
                     </div>
                 </div>
 
                 <div className="relative pt-6 pb-2 px-4 mb-4">
                     {/* Horizontal Line Background */}
-                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 rounded-full"></div>
+                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-100 dark:bg-slate-800 -translate-y-1/2 rounded-full"></div>
                     
                     <div className="flex justify-between items-center relative">
                         {/* Support */}
@@ -216,7 +216,7 @@ export default function QuickDiagnosisView({ symbol }) {
                     </div>
                 </div>
                 
-                <div className="mt-8 flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="mt-8 flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-3">
                         <Activity className="w-4 h-4 text-slate-400" />
                         <span className="text-xs font-bold text-slate-500 leading-tight">

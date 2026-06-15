@@ -134,7 +134,7 @@ export default function AdminApiKeys() {
             </div>
 
             {/* Add Section */}
-            <div className="bg-white border border-amber-100 rounded-xl shadow-sm p-6 mb-8 flex flex-col lg:flex-row gap-6">
+            <div className="bg-white dark:bg-slate-900 border border-amber-100 rounded-xl shadow-sm p-6 mb-8 flex flex-col lg:flex-row gap-6">
                 <div className="flex-1">
                     <h3 className="text-amber-900 font-bold flex items-center gap-2 mb-4">
                         <Plus className="w-5 h-5 text-indigo-500" />
@@ -147,7 +147,7 @@ export default function AdminApiKeys() {
                             placeholder="服務名稱 (如: openai)"
                             value={formData.service_name}
                             onChange={(e) => setFormData({...formData, service_name: e.target.value})}
-                            className="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all text-slate-700"
+                            className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all text-slate-700"
                         />
                         <input 
                             type="text" 
@@ -155,12 +155,12 @@ export default function AdminApiKeys() {
                             placeholder="輸入 API_KEY..."
                             value={formData.api_key}
                             onChange={(e) => setFormData({...formData, api_key: e.target.value})}
-                            className="flex-[2] bg-slate-50 border border-slate-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all text-slate-700 font-mono"
+                            className="flex-[2] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all text-slate-700 font-mono"
                         />
                         <button 
                             type="submit"
                             disabled={submitLoading}
-                            className="bg-white border border-amber-600 text-amber-700 px-6 py-2 rounded-full font-bold text-sm hover:bg-amber-50 transition-colors flex items-center justify-center min-w-[100px]"
+                            className="bg-white dark:bg-slate-900 border border-amber-600 text-amber-700 px-6 py-2 rounded-full font-bold text-sm hover:bg-amber-50 transition-colors flex items-center justify-center min-w-[100px]"
                         >
                             {submitLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : '新增金鑰'}
                         </button>
@@ -212,7 +212,7 @@ export default function AdminApiKeys() {
                             </tr>
                         ) : (
                             keys.map(k => (
-                                <tr key={k.id} className="border-b border-slate-100 hover:bg-amber-50/50 transition-colors group">
+                                <tr key={k.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-amber-50/50 transition-colors group">
                                     <td className="py-4 px-4 text-sm text-slate-700 font-medium">{k.service_name}</td>
                                     <td className="py-4 px-4 text-sm font-mono text-slate-600">
                                         <div className="flex items-center gap-2">
@@ -245,7 +245,7 @@ export default function AdminApiKeys() {
                                             className={`text-[11px] font-bold px-2 py-1 rounded transition-colors flex items-center gap-1 ${
                                                 k.is_active 
                                                 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
-                                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200'
                                             }`}
                                         >
                                             <span className={`w-1.5 h-1.5 rounded-full ${k.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>

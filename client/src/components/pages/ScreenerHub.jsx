@@ -34,7 +34,7 @@ export default function ScreenerHub({
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-300 ${
                                 isActive 
                                     ? 'bg-brand-primary text-white shadow-md shadow-brand-primary/20' 
-                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-800 hover:text-slate-900 dark:text-slate-50 dark:hover:text-white'
                             }`}
                         >
                             <Icon className="w-4 h-4" />

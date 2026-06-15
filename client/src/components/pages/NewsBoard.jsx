@@ -46,7 +46,7 @@ export default function NewsBoard() {
     }
 
     return (
-        <div className="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden flex flex-col h-full">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-full">
             {/* Header */}
             <div className="bg-slate-900 px-5 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -91,11 +91,11 @@ export default function NewsBoard() {
                                 href={`https://news.cnyes.com/news/id/${item.news_id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group block p-4 hover:bg-slate-50 transition-colors"
+                                className="group block p-4 hover:bg-slate-50 dark:bg-slate-800 transition-colors"
                             >
                                 <div className="flex gap-4">
                                     {/* Image Thumbnail */}
-                                    <div className="flex-shrink-0 w-24 h-16 bg-slate-100 rounded overflow-hidden relative">
+                                    <div className="flex-shrink-0 w-24 h-16 bg-slate-100 dark:bg-slate-800 rounded overflow-hidden relative">
                                         {item.image_url ? (
                                             <img
                                                 src={item.image_url}
@@ -107,14 +107,14 @@ export default function NewsBoard() {
                                                 }}
                                             />
                                         ) : null}
-                                        <div className="absolute inset-0 flex items-center justify-center bg-slate-100" style={{ display: item.image_url ? 'none' : 'flex' }}>
+                                        <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800" style={{ display: item.image_url ? 'none' : 'flex' }}>
                                             <ImageIcon className="w-6 h-6 text-slate-300" />
                                         </div>
                                     </div>
 
                                     {/* Content */}
                                     <div className="flex-grow min-w-0">
-                                        <h4 className="text-base font-bold text-slate-800 leading-snug mb-2 group-hover:text-brand-primary transition-colors line-clamp-2">
+                                        <h4 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-snug mb-2 group-hover:text-brand-primary transition-colors line-clamp-2">
                                             {item.title}
                                         </h4>
                                         <div className="flex items-center gap-3 text-sm text-slate-500">
@@ -139,7 +139,7 @@ export default function NewsBoard() {
             </div>
 
             {/* Footer */}
-            <div className="p-3 bg-slate-50 border-t border-slate-200 text-center">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-800 text-center">
                 <a href="https://news.cnyes.com/" target="_blank" className="text-xs font-bold text-slate-400 hover:text-brand-primary transition-colors flex items-center justify-center gap-1">
                     查看更多MuchStock新聞 <ChevronRight className="w-4 h-4" />
                 </a>

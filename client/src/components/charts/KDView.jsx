@@ -179,12 +179,12 @@ export default function KDView({ symbol, period = '日K' }) {
                     <Activity className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tighter">KD 隨機指標</h2>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">KD 隨機指標</h2>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Stochastic Oscillator</p>
                 </div>
             </div>
 
-            <div className="flex-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col min-h-[500px] relative">
+            <div className="flex-1 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col min-h-[500px] relative">
                 {loading ? (
                     <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-2xl flex-col">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mb-4"></div>
@@ -210,7 +210,7 @@ export default function KDView({ symbol, period = '日K' }) {
                 />
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed font-medium">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500 leading-relaxed font-medium">
                 KD 指標 (隨機指標) 綜合了動量觀念、強弱指標與移動平均線的優點。K 向上突破 D (黃金交叉) 為買進訊號，跌破 (死亡交叉) 為賣出訊號。數值在 80 以上視為超買區 (紅虛線)，20 以下視為超賣區 (綠虛線)。
             </div>
         </div>

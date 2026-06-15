@@ -66,6 +66,17 @@ export default function MonitorPage() {
         });
     };
 
+    const getStaleThresholdDays = (datasetId) => {
+        const quarterly = ['TaiwanStockFinancialStatements', 'TaiwanStockBalanceSheet', 'TaiwanStockCashFlowsStatement', 'TaiwanStockDividend'];
+        const monthly = ['TaiwanStockMonthRevenue', 'TaiwanStockHoldingSharesPer'];
+        const staticData = ['TaiwanStockInfo', 'TaiwanStockDelisting', 'TaiwanStockTradingDate', 'TaiwanSecuritiesTraderInfo'];
+        
+        if (quarterly.includes(datasetId)) return 120; // 財報、股利約一季更新一次
+        if (monthly.includes(datasetId)) return 45;    // 營收、董監持股約一個月更新一次
+        if (staticData.includes(datasetId)) return 3650; // 基本資料、下市資訊等幾乎不更新
+        return 3; // 每日交易資料 (依需求維持為 3 天)
+    };
+
     // Maps FinMind dataset name → script name + badge colour
     const DATASET_SCRIPT_MAP = {
         'TaiwanStockPrice': { script: 'twse_fetcher.js', color: 'bg-blue-100 text-blue-800 border border-blue-200' },
@@ -73,11 +84,11 @@ export default function MonitorPage() {
         'TaiwanStockInstitutional': { script: 'twse_fetcher.js', color: 'bg-blue-100 text-blue-800 border border-blue-200' },
         'TaiwanStockInstitutionalInvestorsBuySell': { script: 'twse_fetcher.js', color: 'bg-blue-100 text-blue-800 border border-blue-200' },
         'TaiwanStockMarginPurchaseShortSale': { script: 'twse_fetcher.js', color: 'bg-blue-100 text-blue-800 border border-blue-200' },
-        'TaiwanStockDayTrading': { script: 'twse_fetcher.js', color: 'bg-blue-100 text-blue-800 border border-blue-200' },
+        'TaiwanStockDayTrading': { script: 'fast_daily_sync.js', color: 'bg-indigo-100 text-indigo-800 border border-indigo-200' },
         'TaiwanStockMonthRevenue': { script: 'finmind_fetcher.js', color: 'bg-purple-100 text-purple-800 border border-purple-200' },
         'TaiwanStockTotalInstitutionalInvestors': { script: 'finmind_fetcher.js', color: 'bg-purple-100 text-purple-800 border border-purple-200' },
         'TaiwanStockTotalMarginPurchaseShortSale': { script: 'finmind_fetcher.js', color: 'bg-purple-100 text-purple-800 border border-purple-200' },
-        'TaiwanStockTotalReturnIndex': { script: 'twse_fetcher.js', color: 'bg-blue-100 text-blue-800 border border-blue-200' },
+        'TaiwanStockTotalReturnIndex': { script: 'fast_daily_sync.js', color: 'bg-indigo-100 text-indigo-800 border border-indigo-200' },
         'TaiwanStockFinancialStatements': { script: 'finmind_fetcher.js', color: 'bg-purple-100 text-purple-800 border border-purple-200' },
         'TaiwanStockBalanceSheet': { script: 'finmind_fetcher.js', color: 'bg-purple-100 text-purple-800 border border-purple-200' },
         'TaiwanStockCashFlowsStatement': { script: 'finmind_fetcher.js', color: 'bg-purple-100 text-purple-800 border border-purple-200' },
@@ -110,10 +121,10 @@ export default function MonitorPage() {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 fade-in-20">
             {/* Header section */}
             <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl border shadow-sm transition-colors duration-300 ${
-                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-805'
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-gray-100 text-gray-805'
             }`}>
                 <div>
-                    <h1 className={`text-2xl font-bold tracking-tight flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    <h1 className={`text-2xl font-bold tracking-tight flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>
                         <Activity className="w-6 h-6 text-brand-primary" />
                         系統監控中心
                     </h1>
@@ -133,7 +144,7 @@ export default function MonitorPage() {
                         onClick={fetchData}
                         disabled={loading}
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                            isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                            isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700'
                         }`}
                     >
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -158,7 +169,7 @@ export default function MonitorPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Database Status */}
                     <div className={`p-5 rounded-2xl border shadow-sm flex flex-col pt-6 transition-colors duration-300 ${
-                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-850'
+                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-gray-100 text-gray-850'
                     }`}>
                         <div className="flex justify-between items-start mb-4">
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -169,12 +180,12 @@ export default function MonitorPage() {
                             <StatusBadge status={statusData.status.database} />
                         </div>
                         <h3 className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>資料庫狀態</h3>
-                        <p className={`text-xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>PostgreSQL</p>
+                        <p className={`text-xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>PostgreSQL</p>
                     </div>
 
                     {/* Backend API Status */}
                     <div className={`p-5 rounded-2xl border shadow-sm flex flex-col pt-6 transition-colors duration-300 ${
-                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-850'
+                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-gray-100 text-gray-850'
                     }`}>
                         <div className="flex justify-between items-start mb-4">
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -185,12 +196,12 @@ export default function MonitorPage() {
                             <StatusBadge status={statusData.status.backend} />
                         </div>
                         <h3 className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>後端 API 服務</h3>
-                        <p className={`text-xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>Node.js Express</p>
+                        <p className={`text-xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>Node.js Express</p>
                     </div>
 
                     {/* Scheduler Status */}
                     <div className={`p-5 rounded-2xl border shadow-sm flex flex-col pt-6 lg:col-span-2 transition-colors duration-300 ${
-                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-850'
+                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-gray-100 text-gray-850'
                     }`}>
                         <div className="flex justify-between items-start mb-4">
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -203,7 +214,7 @@ export default function MonitorPage() {
                         <div className="flex justify-between items-end">
                             <div>
                                 <h3 className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>背景排程系統 (Scheduler)</h3>
-                                <p className={`text-base font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>負責執行所有的自動化資料同步任務</p>
+                                <p className={`text-base font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>負責執行所有的自動化資料同步任務</p>
                             </div>
                             <div className="text-right">
                                 <div className={`text-xs ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>上次檢查</div>
@@ -216,18 +227,18 @@ export default function MonitorPage() {
 
             {/* Ingestion Stats Chart (Bar Chart visualization) */}
             <div className={`p-6 rounded-2xl border shadow-sm transition-colors duration-300 ${
-                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-805'
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-gray-100 text-gray-805'
             }`}>
                 <div className="flex items-center gap-2 mb-6">
                     <BarChart2 className="w-5 h-5 text-brand-primary" />
-                    <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>近 7 天資料擷取筆數 (寫入趨勢)</h2>
+                    <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>近 7 天資料擷取筆數 (寫入趨勢)</h2>
                 </div>
 
                 {statsData.length > 0 ? (
                     <div className="pt-10 pb-4 overflow-visible">
                         <div className="w-full">
                             <div className={`flex items-end gap-1 h-64 relative border-b pb-2 overflow-visible ${
-                                  isDark ? 'border-slate-800' : 'border-gray-200'
+                                  isDark ? 'border-slate-800' : 'border-gray-200 dark:border-slate-800'
                             }`}>
                                 {(() => {
                                     const maxVal = Math.max(1, ...statsData.map(d =>
@@ -271,7 +282,7 @@ export default function MonitorPage() {
                     </div>
                 ) : (
                     <div className={`h-64 flex items-center justify-center border border-dashed rounded-xl ${
-                        isDark ? 'text-slate-500 bg-slate-950/20 border-slate-800' : 'text-gray-400 bg-gray-50 border-gray-200'
+                        isDark ? 'text-slate-500 bg-slate-950/20 border-slate-800' : 'text-gray-400 bg-gray-50 border-gray-200 dark:border-slate-800'
                     }`}>
                         {loading ? '載入中...' : '無可用資料'}
                     </div>
@@ -280,17 +291,17 @@ export default function MonitorPage() {
 
             {/* Daily Ingestion Details Table */}
             <div className={`p-6 rounded-2xl border shadow-sm mt-6 transition-colors duration-300 ${
-                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-805'
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-gray-100 text-gray-805'
             }`}>
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Database className="w-5 h-5 text-blue-500" />
                     每日資料擷取詳情
                 </h2>
 
-                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200 dark:border-slate-800'}`}>
                     <table className={`w-full text-left text-sm ${isDark ? 'text-slate-300' : 'text-gray-655'}`}>
                         <thead className={`border-b text-gray-705 ${
-                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 text-gray-700'
+                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 dark:border-slate-800 text-gray-700'
                         }`}>
                             <tr>
                                 <th className="px-5 py-3 font-semibold">日期</th>
@@ -313,14 +324,14 @@ export default function MonitorPage() {
                                             ? (isWeekend ? 'bg-slate-950/20 hover:bg-slate-800/60' : 'hover:bg-slate-800/60') 
                                             : (isWeekend ? 'bg-gray-50/50 hover:bg-gray-50' : 'hover:bg-gray-50')
                                     }`}>
-                                        <td className={`px-5 py-3.5 font-medium flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                        <td className={`px-5 py-3.5 font-medium flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>
                                             {day.date}
                                             {isWeekend && <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
                                                 isDark ? 'bg-slate-800 text-slate-400' : 'bg-gray-200 text-gray-600'
                                             }`}>週末</span>}
                                         </td>
-                                        <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>{day.price_count.toLocaleString()}</td>
-                                        <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>{(day.inst_count + day.margin_count).toLocaleString()}</td>
+                                        <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>{day.price_count.toLocaleString()}</td>
+                                        <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>{(day.inst_count + day.margin_count).toLocaleString()}</td>
                                         <td className="px-5 py-3.5 text-right font-mono text-blue-500 font-bold">{(day.realtime_count || 0).toLocaleString()}</td>
                                         <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>{((day.stats_count || 0) + (day.health_count || 0)).toLocaleString()}</td>
                                         <td className={`px-5 py-3.5 text-right font-mono ${isDark ? 'text-slate-400' : 'text-gray-555'}`}>{(day.news_count || 0).toLocaleString()}</td>
@@ -340,17 +351,17 @@ export default function MonitorPage() {
 
             {/* Synchronization Details Table */}
             <div className={`p-6 rounded-2xl border shadow-sm mt-6 transition-colors duration-300 ${
-                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-850'
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-gray-100 text-gray-850'
             }`}>
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Database className="w-5 h-5 text-blue-500" />
                     各項資料來源同步進度
                 </h2>
 
-                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200 dark:border-slate-800'}`}>
                     <table className={`w-full text-left text-sm ${isDark ? 'text-slate-300' : 'text-gray-655'}`}>
                         <thead className={`border-b text-gray-705 ${
-                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 text-gray-700'
+                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 dark:border-slate-800 text-gray-700'
                         }`}>
                             <tr>
                                 <th className="px-5 py-3 font-semibold">資料集 (Dataset)</th>
@@ -363,7 +374,8 @@ export default function MonitorPage() {
                         </thead>
                         <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-gray-100'}`}>
                             {statusData?.sync_progress?.filter(d => DATASET_SCRIPT_MAP[d.id])?.map((item, idx) => {
-                                const isStale = new Date() - new Date(item.last_updated) > 3 * 24 * 60 * 60 * 1000;
+                                const staleThresholdDays = getStaleThresholdDays(item.id);
+                                const isStale = new Date() - new Date(item.last_updated) > staleThresholdDays * 24 * 60 * 60 * 1000;
                                 const scriptInfo = DATASET_SCRIPT_MAP[item.id] || { script: '未知', color: 'bg-gray-100 text-gray-605' };
 
                                 // 在深色模式下稍微調整標籤色彩
@@ -377,7 +389,7 @@ export default function MonitorPage() {
 
                                 return (
                                     <tr key={idx} className={`transition-colors ${isDark ? 'hover:bg-slate-800/60' : 'hover:bg-gray-50'}`}>
-                                        <td className={`px-5 py-3.5 font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.dataset}</td>
+                                        <td className={`px-5 py-3.5 font-medium ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>{item.dataset}</td>
                                         <td className="px-5 py-3.5">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${dynamicBadgeColor}`}>
                                                 {scriptInfo.script}
@@ -422,17 +434,17 @@ export default function MonitorPage() {
 
             {/* JS Script Monitoring Table */}
             <div className={`p-6 rounded-2xl border shadow-sm mt-6 transition-colors duration-300 ${
-                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-gray-100 text-gray-850'
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-gray-100 text-gray-850'
             }`}>
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Server className="w-5 h-5 text-indigo-500" />
                     各項背景擷取程式 (Script) 執行狀態
                 </h2>
 
-                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+                <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-slate-800' : 'border-gray-200 dark:border-slate-800'}`}>
                     <table className={`w-full text-left text-sm ${isDark ? 'text-slate-300' : 'text-gray-655'}`}>
                         <thead className={`border-b text-gray-705 ${
-                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 text-gray-700'
+                            isDark ? 'bg-slate-800/80 border-slate-850 text-slate-200 font-bold' : 'bg-gray-50 border-gray-200 dark:border-slate-800 text-gray-700'
                         }`}>
                             <tr>
                                 <th className="px-5 py-3 font-semibold">程式名稱 (.js)</th>
@@ -501,7 +513,7 @@ export default function MonitorPage() {
                                 return (
                                     <tr key={idx} className={`transition-colors ${isDark ? 'hover:bg-slate-800/60' : 'hover:bg-gray-50'}`}>
                                         <td className="px-5 py-4">
-                                            <div className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{def.script}</div>
+                                            <div className={`font-bold ${isDark ? 'text-white' : 'text-gray-900 dark:text-gray-50'}`}>{def.script}</div>
                                             <div className="mt-2">{liveBadge}</div>
                                         </td>
                                         <td className={`px-5 py-4 font-medium ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>{def.desc}</td>

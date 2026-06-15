@@ -97,7 +97,7 @@ const translateAccount = (account) => {
 export default function FinancialStatementsTable({ data, title, type }) {
     if (!data || data.length === 0) {
         return (
-            <div className="p-12 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <div className="p-12 text-center text-slate-400 italic bg-slate-50 dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                 暫無 {title} 數據
             </div>
         );
@@ -111,14 +111,14 @@ export default function FinancialStatementsTable({ data, title, type }) {
     const dates = Array.from(new Set(sortedData.map(d => d.date))).sort((a, b) => new Date(b) - new Date(a));
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300">
-            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                <h3 className="text-lg font-bold text-slate-800">{title}</h3>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden animate-in fade-in duration-300">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{title}</h3>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead>
-                        <tr className="bg-slate-50/30 border-b border-slate-100">
+                        <tr className="bg-slate-50/30 border-b border-slate-100 dark:border-slate-800">
                             <th className="px-6 py-4 font-bold text-slate-600 sticky left-0 bg-slate-50/30 z-10 backdrop-blur-sm">項目 \ 日期</th>
                             {dates.map(date => (
                                 <th key={date} className="px-6 py-4 font-bold text-slate-600">
@@ -129,8 +129,8 @@ export default function FinancialStatementsTable({ data, title, type }) {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {accounts.map(account => (
-                            <tr key={account} className="hover:bg-slate-50 transition-colors group">
-                                <td className="px-6 py-3.5 font-bold text-slate-700 sticky left-0 bg-white group-hover:bg-slate-50 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
+                            <tr key={account} className="hover:bg-slate-50 dark:bg-slate-800 transition-colors group">
+                                <td className="px-6 py-3.5 font-bold text-slate-700 sticky left-0 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:bg-slate-800 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
                                     {translateAccount(account)}
                                 </td>
                                 {dates.map(date => {

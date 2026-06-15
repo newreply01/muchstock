@@ -295,19 +295,19 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
     }, [financials?.eps]);
 
     const containerClasses = isInline
-        ? "w-full bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden"
+        ? "w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden"
         : "fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200";
 
     const contentClasses = isInline
         ? "flex flex-col w-full"
-        : "bg-white border border-slate-200 w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden";
+        : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden";
 
     return (
         <div className={containerClasses}>
             <div className={contentClasses}>
 
                 {/* Header with Integrated Search */}
-                <div className="p-6 border-b border-slate-100 flex flex-col sticky top-0 bg-white/95 backdrop-blur-md z-30 gap-6">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sticky top-0 bg-white/95 backdrop-blur-md z-30 gap-6">
                     {/* Top Row: Enlarged Search Bar */}
                     <div className="w-full max-w-2xl">
                         <div className="relative group">
@@ -325,7 +325,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                 <TrendingUp className="text-brand-primary w-6 h-6" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                                     {stock.name}
                                     <span className="text-slate-400 text-lg font-normal">{stock.symbol}</span>
                                 </h2>
@@ -346,7 +346,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                         {!isInline && (
                             <button
                                 onClick={onClose}
-                                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                                className="p-2 hover:bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -357,7 +357,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                 {/* Content */}
                 <div className="flex flex-col flex-1 overflow-hidden">
                     {/* Horizontal Tabs - Level 0 */}
-                    <div className="flex flex-row flex-nowrap overflow-x-auto border-b border-slate-100 bg-slate-50/50 flex-shrink-0 px-4 py-2 custom-scrollbar">
+                    <div className="flex flex-row flex-nowrap overflow-x-auto border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 flex-shrink-0 px-4 py-2 custom-scrollbar">
                         {SIDEBAR_MENU.map((item, idx) => {
                             if (item.type === 'header') {
                                 return (
@@ -387,7 +387,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                     }}
                                     className={`shrink-0 whitespace-nowrap flex items-center justify-center px-4 py-2 text-sm transition-all rounded-full mx-1 ${isActive
                                         ? 'bg-brand-primary text-white font-black shadow-md'
-                                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold'
+                                        : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 font-bold'
                                         }`}
                                 >
                                     {item.label}
@@ -398,7 +398,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
 
                     {/* Level 1 Tabs (SubTabs) */}
                     {SIDEBAR_MENU.find(m => m.id === activeTab)?.children && (
-                        <div className="flex flex-row flex-nowrap overflow-x-auto border-b border-slate-100 bg-white flex-shrink-0 px-6 py-2.5 gap-2 custom-scrollbar">
+                        <div className="flex flex-row flex-nowrap overflow-x-auto border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0 px-6 py-2.5 gap-2 custom-scrollbar">
                             {SIDEBAR_MENU.find(m => m.id === activeTab).children.map(subItem => {
                                 const isSubActive = activeSubTab === subItem.id;
                                 return (
@@ -414,7 +414,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                         }}
                                         className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${isSubActive
                                             ? 'bg-indigo-50 text-indigo-600 border border-indigo-200 ring-2 ring-indigo-500/10'
-                                            : 'text-slate-500 hover:bg-slate-50 border border-transparent'
+                                            : 'text-slate-500 hover:bg-slate-50 dark:bg-slate-800 border border-transparent'
                                             }`}
                                     >
                                         {subItem.label}
@@ -430,7 +430,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                         const activeSub = activeMain?.children?.find(s => s.id === activeSubTab);
                         if (activeSub?.children) {
                             return (
-                                <div className="flex flex-row flex-nowrap overflow-x-auto border-b border-slate-100 bg-slate-50/20 flex-shrink-0 px-8 py-2 gap-4 custom-scrollbar">
+                                <div className="flex flex-row flex-nowrap overflow-x-auto border-b border-slate-100 dark:border-slate-800 bg-slate-50/20 flex-shrink-0 px-8 py-2 gap-4 custom-scrollbar">
                                     {activeSub.children.map(subSubItem => {
                                         const isSubSubActive = activeSubSubTab === subSubItem.id;
                                         return (
@@ -453,7 +453,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                     })()}
 
                     {/* Main Scrollable Area */}
-                    <div className="flex-1 overflow-y-auto p-6 bg-white relative">
+                    <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-900 relative">
                         {activeTab === 'overview' ? (
                             <StockDashboard stock={stock} realtimeTick={realtimeTick} connectionStatus={connectionStatus} />
                         ) : activeTab === 'ai_report' ? (
@@ -462,7 +462,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                 <div className={`p-6 rounded-2xl border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors duration-300 ${
                                     isDark 
                                         ? 'bg-slate-900 border-slate-800 text-white' 
-                                        : 'bg-slate-50 border-slate-200 text-slate-800'
+                                        : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100'
                                 }`}>
                                     <div className="flex items-center gap-4">
                                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${
@@ -479,7 +479,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                                 <input 
                                                     type="date" 
                                                     className={`px-3 py-1 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 font-medium ${
-                                                        isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-gray-200 text-gray-805'
+                                                        isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-805'
                                                     }`}
                                                     value={reportDate}
                                                     onChange={(e) => setReportDate(e.target.value)}
@@ -492,7 +492,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                         <div className={`flex items-center gap-4 p-3 px-5 rounded-2xl border transition-all ${
                                             isDark 
                                                 ? 'bg-white/10 border-white/10' 
-                                                : 'bg-white border-slate-200 shadow-sm'
+                                                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm'
                                         }`}>
                                             <div className="text-right">
                                                 <div className={`text-[10px] uppercase tracking-wider font-bold transition-colors ${
@@ -521,7 +521,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                     </div>
                                 ) : reportData ? (
                                     <div className={`border rounded-2xl overflow-hidden shadow-sm flex flex-col transition-colors duration-300 ${
-                                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-150 text-slate-850'
+                                        isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-slate-150 text-slate-850'
                                     }`}>
                                         <div className={`p-6 md:p-8 flex-1 ${isDark ? 'bg-slate-950/20' : 'bg-slate-50/10'}`}>
                                             <div className="max-w-5xl mx-auto w-full">
@@ -536,7 +536,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                     </div>
                                 ) : (
                                     <div className={`flex-1 flex flex-col items-center justify-center p-12 text-center border border-dashed rounded-2xl min-h-[400px] ${
-                                        isDark ? 'bg-slate-900/40 border-slate-800 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-400'
+                                        isDark ? 'bg-slate-900/40 border-slate-800 text-slate-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-400'
                                     }`}>
                                         <div className="w-16 h-16 bg-red-50 dark:bg-red-950/20 rounded-full flex items-center justify-center mb-4">
                                             <FileText className="w-8 h-8 text-red-300 dark:text-red-800/60" />
@@ -569,17 +569,17 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                         ) : activeTab === 'technical' ? (
                             <div className="h-full w-full min-h-[600px] flex flex-col gap-6 animate-in fade-in duration-300">
                                 {/* K線週期切換與統計卡片控制欄 */}
-                                <div className="bg-slate-50 dark:bg-slate-900/40 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 space-y-4">
+                                <div className="bg-slate-50 dark:bg-slate-800 dark:bg-slate-900/40 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/60 dark:border-slate-800 space-y-4">
                                     {/* Control Bar */}
                                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                                        <div className="flex items-center gap-2 bg-white dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto no-scrollbar">
+                                        <div className="flex items-center gap-2 bg-white dark:bg-slate-900 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto no-scrollbar">
                                             {['日K', '週K', '月K'].map(p => (
                                                 <button
                                                     key={p}
                                                     onClick={() => setActivePeriod(p)}
                                                     className={`px-4 py-1.5 rounded-md text-xs md:text-sm font-black transition-colors whitespace-nowrap cursor-pointer ${activePeriod === p
                                                         ? 'bg-slate-800 dark:bg-slate-800 text-white font-bold shadow-sm'
-                                                        : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                                                        : 'text-slate-500 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-800'
                                                         }`}
                                                 >
                                                     {p}
@@ -598,10 +598,10 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                             <div
                                                 key={card.id}
                                                 onClick={() => setActiveFilter(prev => prev === card.id ? 'all' : card.id)}
-                                                className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${activeFilter === card.id ? card.activeBg : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm'}`}
+                                                className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${activeFilter === card.id ? card.activeBg : 'bg-white dark:bg-slate-900 dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm'}`}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900 flex items-center justify-center border border-slate-100 dark:border-slate-800`}>
+                                                    <div className={`p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 dark:bg-slate-900 flex items-center justify-center border border-slate-100 dark:border-slate-800`}>
                                                         <card.icon className={`w-5 h-5 ${card.color}`} />
                                                     </div>
                                                     <div>
@@ -646,7 +646,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                 <div className="space-y-4 mt-2">
                                     <div className="flex items-center gap-3 px-2">
                                         <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-slate-800 flex items-center justify-center text-white font-bold italic border border-slate-700">K</div>
-                                        <h2 className="text-lg font-black text-slate-800 dark:text-white tracking-tight">經典型態即時比對</h2>
+                                        <h2 className="text-lg font-black text-slate-800 dark:text-slate-100 dark:text-white tracking-tight">經典型態即時比對</h2>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                         {CLASSIC_PATTERNS.filter(p => {
@@ -670,10 +670,10 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                                             };
 
                                             return (
-                                                <div key={pat.id} className={`bg-white dark:bg-slate-850 border rounded-2xl p-5 transition-all relative overflow-hidden group shadow-sm ${isDetected ? colorTheme.border : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}>
+                                                <div key={pat.id} className={`bg-white dark:bg-slate-900 dark:bg-slate-850 border rounded-2xl p-5 transition-all relative overflow-hidden group shadow-sm ${isDetected ? colorTheme.border : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}>
                                                     <div className="flex justify-between items-start mb-4">
                                                         <div>
-                                                            <h3 className={`font-black text-base leading-tight transition-colors ${isDetected ? colorTheme.text : 'text-slate-800 dark:text-white'}`}>
+                                                            <h3 className={`font-black text-base leading-tight transition-colors ${isDetected ? colorTheme.text : 'text-slate-800 dark:text-slate-100 dark:text-white'}`}>
                                                                 {pat.name}
                                                             </h3>
                                                             <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5">{pat.en}</p>
@@ -699,7 +699,7 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                             </div>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-slate-400 min-h-[400px]">
-                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
+                                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800 shadow-sm">
                                     <BarChart3 className="w-8 h-8 text-slate-300" />
                                 </div>
                                 <h3 className="text-xl font-black text-slate-600 mb-2 tracking-tighter">{SIDEBAR_MENU.find(m => m.id === activeTab)?.label}</h3>

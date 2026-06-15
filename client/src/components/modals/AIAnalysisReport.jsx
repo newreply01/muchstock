@@ -10,7 +10,7 @@ export default function AIAnalysisReport({ report, loading }) {
     if (loading) {
         return (
             <div className={`h-full flex flex-col items-center justify-center space-y-4 rounded-2xl p-8 border border-dashed transition-colors ${
-                isDark ? 'bg-slate-900/40 border-slate-800 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-400'
+                isDark ? 'bg-slate-900/40 border-slate-800 text-slate-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-400'
             }`}>
                 <div className="relative">
                     <Bot className="w-12 h-12 animate-pulse" />
@@ -27,7 +27,7 @@ export default function AIAnalysisReport({ report, loading }) {
     if (!report) {
         return (
             <div className={`h-full flex items-center justify-center font-medium border border-dashed rounded-2xl transition-colors ${
-                isDark ? 'bg-slate-900/40 border-slate-800 text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-400'
+                isDark ? 'bg-slate-900/40 border-slate-800 text-slate-500' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-400'
             }`}>
                 請點擊右上角按鈕生成 AI 報告
             </div>
@@ -36,15 +36,15 @@ export default function AIAnalysisReport({ report, loading }) {
 
     return (
         <div className={`border rounded-2xl overflow-hidden shadow-sm h-full flex flex-col transition-colors duration-300 ${
-            isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-800'
+            isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100'
         }`}>
             {/* Header */}
             <div className={`px-6 py-4 border-b flex justify-between items-center transition-colors duration-300 ${
-                isDark ? 'bg-slate-950 border-slate-850 text-white' : 'bg-slate-50 border-slate-200/60 text-slate-800'
+                isDark ? 'bg-slate-950 border-slate-850 text-white' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800/60 text-slate-800 dark:text-slate-100'
             }`}>
                 <div className="flex items-center gap-2">
                     <Bot className="w-5 h-5 text-brand-primary" />
-                    <span className={`font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-800'}`}>muchStock AI 分析報告</span>
+                    <span className={`font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-800 dark:text-slate-100'}`}>muchStock AI 分析報告</span>
                 </div>
                 <div className="flex items-center gap-3">
                     <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Sentiment Score:</span>
@@ -72,7 +72,7 @@ export default function AIAnalysisReport({ report, loading }) {
 
             {/* Footer */}
             <div className={`px-6 py-3 border-t flex justify-end transition-colors ${
-                isDark ? 'bg-slate-950 border-slate-850' : 'bg-white border-slate-100'
+                isDark ? 'bg-slate-950 border-slate-850' : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800'
             }`}>
                 <p className={`text-[10px] font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>AI 生成內容僅供參考，不構成投資建議。</p>
             </div>

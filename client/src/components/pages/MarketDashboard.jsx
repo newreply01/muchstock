@@ -84,7 +84,7 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
         }
         if (!data || !data.success) {
             return (
-                <div className="lg:col-span-12 flex flex-col items-center justify-center h-48 bg-white/50 rounded-2xl border border-dashed border-gray-200 mt-4">
+                <div className="lg:col-span-12 flex flex-col items-center justify-center h-48 bg-white/50 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 mt-4">
                     <span className="font-bold text-gray-500">暫停提供大盤統計資料</span>
                 </div>
             );
@@ -116,13 +116,13 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
             {/* Header / Selector */}
             <GlobalFilterBar />
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100 shadow-inner">
                         <Activity className="w-6 h-6 text-brand-primary" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-black text-gray-900 tracking-tight">台股大盤觀測站</h2>
+                        <h2 className="text-xl font-black text-gray-900 dark:text-gray-50 tracking-tight">台股大盤觀測站</h2>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mt-0.5">Market Intelligence Dashboard</p>
                     </div>
                 </div>
@@ -140,10 +140,10 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                 {renderSummaryLoading() || (
                     <>
                         {/* 1. Price Distribution (Histogram) - 4 Cols */}
-                        <div className="lg:col-span-5 bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-6 flex flex-col">
+                        <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 md:p-6 flex flex-col">
                             <div className="flex items-center justify-between mb-8">
                                 <div>
-                                    <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
+                                    <h3 className="text-lg font-black text-gray-800 dark:text-gray-100 flex items-center gap-2">
                                         <BarChart3 className="w-5 h-5 text-indigo-500" />
                                         個股漲跌分佈
                                     </h3>
@@ -198,7 +198,7 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                                     return (
                                         <div key={i} className="flex-1 h-full flex flex-col items-center group cursor-pointer" onClick={handleBarClick}>
                                             <div className="relative w-full flex-1 flex flex-col items-center mb-2 justify-end">
-                                                <div className="absolute -top-6 text-[10px] font-black text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity bg-white px-1.5 py-0.5 rounded shadow-sm border border-gray-100 z-10 whitespace-nowrap">{countNum} 家</div>
+                                                <div className="absolute -top-6 text-[10px] font-black text-gray-800 dark:text-gray-100 opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded shadow-sm border border-gray-100 z-10 whitespace-nowrap">{countNum} 家</div>
                                                 <div
                                                     className={`w-full rounded-t-lg transition-all duration-700 ease-out shadow-sm ${bar.color} ${bar.hoverColor} group-hover:-translate-y-1`}
                                                     style={{ height: height, minHeight: countNum > 0 ? '4px' : '2px' }}
@@ -212,10 +212,10 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                         </div>
 
                         {/* 2. Industry Sector Performance - 7 Cols */}
-                        <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-6">
+                        <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 md:p-6">
                             <div className="flex items-center justify-between mb-6">
                                 <div>
-                                    <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
+                                    <h3 className="text-lg font-black text-gray-800 dark:text-gray-100 flex items-center gap-2">
                                         <TrendingUp className="w-5 h-5 text-red-500" />
                                         產業類股表現
                                     </h3>
@@ -259,18 +259,18 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                         </div>
 
                         {/* 3. Dynamic Ranking Charts - Split TWSE / TPEX */}
-                        <div className="lg:col-span-12 bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-6 mt-8">
+                        <div className="lg:col-span-12 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 md:p-6 mt-8">
                             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center border border-indigo-200">
                                         <Flame className="w-5 h-5 text-indigo-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-black text-gray-800 tracking-tight">盤中排行榜</h3>
+                                        <h3 className="text-lg font-black text-gray-800 dark:text-gray-100 tracking-tight">盤中排行榜</h3>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Top Market Leaders</p>
                                     </div>
                                 </div>
-                                <div className="flex flex-wrap bg-gray-100 p-1 rounded-xl shadow-inner border border-gray-200 overflow-x-auto no-scrollbar">
+                                <div className="flex flex-wrap bg-gray-100 p-1 rounded-xl shadow-inner border border-gray-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
                                     {[
                                         { id: 'gainers', label: '漲最多點數' },
                                         { id: 'losers', label: '跌最多點數' },
@@ -284,7 +284,7 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                                                     ? rank.id === 'gainers' ? 'bg-red-500 text-white shadow-md'
                                                         : rank.id === 'losers' ? 'bg-green-500 text-white shadow-md'
                                                             : 'bg-indigo-500 text-white shadow-md'
-                                                    : 'text-gray-500 hover:text-gray-900'}`}
+                                                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-50'}`}
                                         >
                                             {rank.label}
                                         </button>
@@ -323,9 +323,9 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                                                             const data = payload[0].payload;
                                                             const isUp = parseFloat(rankingType === 'volume' ? data.change_percent : data.change_amount) >= 0;
                                                             return (
-                                                                <div className="z-50 bg-white/95 backdrop-blur-sm p-3 border border-gray-200 shadow-lg rounded-xl">
-                                                                    <p className="font-black text-gray-800 text-sm mb-1">{data.name} ({data.symbol})</p>
-                                                                    <p className="font-bold text-gray-600 text-xs">成交價: <span className="text-gray-900">{data.close_price}</span></p>
+                                                                <div className="z-50 bg-white/95 backdrop-blur-sm p-3 border border-gray-200 dark:border-slate-800 shadow-lg rounded-xl">
+                                                                    <p className="font-black text-gray-800 dark:text-gray-100 text-sm mb-1">{data.name} ({data.symbol})</p>
+                                                                    <p className="font-bold text-gray-600 text-xs">成交價: <span className="text-gray-900 dark:text-gray-50">{data.close_price}</span></p>
                                                                     <p className="font-bold text-xs mt-0.5">漲跌: <span className={isUp ? 'text-red-500' : 'text-green-500'}>{isUp ? '+' : ''}{rankingType === 'volume' ? data.change_percent + '%' : data.change_amount}</span></p>
                                                                     <p className="font-bold text-indigo-500 text-xs mt-0.5">成交量: {(data.volume / 1000).toFixed(0)} 張</p>
                                                                 </div>
@@ -375,9 +375,9 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                                                             const data = payload[0].payload;
                                                             const isUp = parseFloat(rankingType === 'volume' ? data.change_percent : data.change_amount) >= 0;
                                                             return (
-                                                                <div className="z-50 bg-white/95 backdrop-blur-sm p-3 border border-gray-200 shadow-lg rounded-xl">
-                                                                    <p className="font-black text-gray-800 text-sm mb-1">{data.name} ({data.symbol})</p>
-                                                                    <p className="font-bold text-gray-600 text-xs">成交價: <span className="text-gray-900">{data.close_price}</span></p>
+                                                                <div className="z-50 bg-white/95 backdrop-blur-sm p-3 border border-gray-200 dark:border-slate-800 shadow-lg rounded-xl">
+                                                                    <p className="font-black text-gray-800 dark:text-gray-100 text-sm mb-1">{data.name} ({data.symbol})</p>
+                                                                    <p className="font-bold text-gray-600 text-xs">成交價: <span className="text-gray-900 dark:text-gray-50">{data.close_price}</span></p>
                                                                     <p className="font-bold text-xs mt-0.5">漲跌: <span className={isUp ? 'text-red-500' : 'text-green-500'}>{isUp ? '+' : ''}{rankingType === 'volume' ? data.change_percent + '%' : data.change_amount}</span></p>
                                                                     <p className="font-bold text-indigo-500 text-xs mt-0.5">成交量: {(data.volume / 1000).toFixed(0)} 張</p>
                                                                 </div>
@@ -402,14 +402,14 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                 )}
 
                 {/* 4. Embedded ResultTable */}
-                <div id="market-result-table" className="lg:col-span-12 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8">
+                <div id="market-result-table" className="lg:col-span-12 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden mt-8">
                     <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center border border-indigo-200">
                                 <Activity className="w-5 h-5 text-indigo-500" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-black text-gray-800 tracking-tight">盤中篩選結果</h3>
+                                <h3 className="text-lg font-black text-gray-800 dark:text-gray-100 tracking-tight">盤中篩選結果</h3>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Screening Results</p>
                             </div>
                         </div>
@@ -419,7 +419,7 @@ export default function MarketDashboard({ onStockSelect, watchedSymbols, onToggl
                                     setFilters({});
                                     setPage(1);
                                 }}
-                                className="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-xs font-black hover:border-brand-primary hover:text-brand-primary transition-all flex items-center gap-2 shadow-sm"
+                                className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-600 px-4 py-2 rounded-lg text-xs font-black hover:border-brand-primary hover:text-brand-primary transition-all flex items-center gap-2 shadow-sm"
                             >
                                 清除篩選
                             </button>

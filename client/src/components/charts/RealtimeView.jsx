@@ -68,9 +68,9 @@ export default function RealtimeView({ stock }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Five Levels (Bid/Ask) */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-black text-slate-800 flex items-center gap-2">
+                        <h3 className="font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
                             <Activity className="w-5 h-5 text-brand-primary" />
                             最佳五檔報價
                         </h3>
@@ -95,7 +95,7 @@ export default function RealtimeView({ stock }) {
                         </div>
 
                         {bidAskData.map((row, i) => (
-                            <div key={i} className="grid grid-cols-4 py-2 hover:bg-slate-50 transition-colors rounded-lg px-1">
+                            <div key={i} className="grid grid-cols-4 py-2 hover:bg-slate-50 dark:bg-slate-800 transition-colors rounded-lg px-1">
                                 <div className="text-sm font-bold text-slate-500">{row.bVol !== null ? row.bVol : '--'}</div>
                                 <div className="text-sm font-black text-red-500">{row.bid !== null ? row.bid.toFixed(2) : '--'}</div>
                                 <div className="text-sm font-black text-green-600 text-right">{row.ask !== null ? row.ask.toFixed(2) : '--'}</div>
@@ -107,7 +107,7 @@ export default function RealtimeView({ stock }) {
 
                 {/* Real-time Stats */}
                 <div className="space-y-4">
-                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
                         {/* Subtle highlight effect */}
                         <div className="absolute top-0 left-0 w-1 h-full bg-brand-primary"></div>
 
@@ -135,8 +135,8 @@ export default function RealtimeView({ stock }) {
                         </div>
                     </div>
 
-                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                        <h4 className="text-sm font-black text-slate-800 mb-4 flex items-center gap-2">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h4 className="text-sm font-black text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                             <BarChart2 className="w-4 h-4 text-blue-500" />
                             本日量能分配推估
                         </h4>
@@ -146,7 +146,7 @@ export default function RealtimeView({ stock }) {
                                     <span>內盤 (Sell Intensity)</span>
                                     <span>{displayData.sell_intensity || 50}%</span>
                                 </div>
-                                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                                     <div className="bg-green-500 h-full transition-all duration-1000" style={{ width: `${displayData.sell_intensity || 50}%` }}></div>
                                 </div>
                             </div>
@@ -155,11 +155,11 @@ export default function RealtimeView({ stock }) {
                                     <span>外盤 (Buy Intensity)</span>
                                     <span>{displayData.buy_intensity || 50}%</span>
                                 </div>
-                                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                                     <div className="bg-red-500 h-full transition-all duration-1000" style={{ width: `${displayData.buy_intensity || 50}%` }}></div>
                                 </div>
                             </div>
-                            <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-400 font-medium">
                                 <span>累積總量: <strong className="text-slate-600 font-bold">{displayData.volume !== undefined ? displayData.volume : '--'}</strong> 張</span>
                                 <span>單盤量: <strong className="text-brand-primary font-bold">{displayData.trade_volume !== undefined ? displayData.trade_volume : '--'}</strong> 張</span>
                             </div>

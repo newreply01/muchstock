@@ -10,7 +10,7 @@ export default function TechnicalFilters({ filters, onChange }) {
                     <Target className="w-3 h-3 text-brand-primary" />
                     股價與量能控制
                 </h3>
-                <div className="bg-white rounded-lg">
+                <div className="bg-white dark:bg-slate-900 rounded-lg">
                     <RangeInput label="收盤價階段 (元)" minKey="price_min" maxKey="price_max" filters={filters} onChange={onChange} />
                     <RangeInput label="當日漲跌幅 (%)" minKey="change_min" maxKey="change_max" filters={filters} onChange={onChange} />
                     <RangeInput label="成交張數 (1,000股)" minKey="volume_min" maxKey="volume_max" filters={filters} onChange={onChange} />
@@ -23,7 +23,7 @@ export default function TechnicalFilters({ filters, onChange }) {
                     <BarChart3 className="w-3 h-3 text-purple-500" />
                     技術指標過濾 (RSI / MACD / MA)
                 </h3>
-                <div className="bg-white rounded-lg">
+                <div className="bg-white dark:bg-slate-900 rounded-lg">
                     <RangeInput label="RSI (14日)" minKey="rsi_min" maxKey="rsi_max" filters={filters} onChange={onChange} />
                     <RangeInput label="MACD 柱狀體 (OSC)" minKey="macd_hist_min" maxKey="macd_hist_max" filters={filters} onChange={onChange} />
                     <RangeInput label="MA20 均線位置" minKey="ma20_min" maxKey="ma20_max" filters={filters} onChange={onChange} />
@@ -36,7 +36,7 @@ export default function TechnicalFilters({ filters, onChange }) {
                     <BarChart3 className="w-3 h-3 text-amber-500" />
                     進階動能與通道 (DMI / BB / WPR)
                 </h3>
-                <div className="bg-white rounded-lg border border-gray-100">
+                <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-100">
                     <RangeInput label="ADX 趨勢強度 (14日)" minKey="adx_min" maxKey="adx_max" filters={filters} onChange={onChange} />
                     <RangeInput label="布林通道寬度 (%)" minKey="bb_width_min" maxKey="bb_width_max" filters={filters} onChange={onChange} />
                     <RangeInput label="威廉指標 (WPR 14日)" minKey="wpr_min" maxKey="wpr_max" filters={filters} onChange={onChange} />

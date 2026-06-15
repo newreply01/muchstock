@@ -163,12 +163,12 @@ export default function DMIView({ symbol, period = '日K' }) {
                     <Activity className="w-6 h-6 text-orange-600" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tighter">DMI 動向指數 / ADX 趨勢指標</h2>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">DMI 動向指數 / ADX 趨勢指標</h2>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Directional Movement Index</p>
                 </div>
             </div>
 
-            <div className="flex-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col relative">
+            <div className="flex-1 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col relative">
                 {loading ? (
                     <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-2xl flex-col">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mb-4"></div>
@@ -198,7 +198,7 @@ export default function DMIView({ symbol, period = '日K' }) {
                 />
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed font-medium">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500 leading-relaxed font-medium">
                 DMI 透過分析股價上升與下跌趨勢的變化，來預測市場的未來動向。當 +DI (紅線) 大於 -DI (綠線) 時，表示多方力道較強。ADX (灰線) 則用以衡量趨勢的「強度」，ADX 越高代表趨勢越明顯。上方為日 K 線圖，下方為 DMI 與 ADX。
             </div>
         </div>

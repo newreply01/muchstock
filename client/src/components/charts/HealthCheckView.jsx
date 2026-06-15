@@ -22,7 +22,7 @@ const GRADE_STYLES = {
     blue: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', ring: 'ring-blue-400', glow: 'shadow-blue-200/50' },
     yellow: { bg: 'bg-amber-50', border: 'border-amber-300', text: 'text-amber-700', ring: 'ring-amber-400', glow: 'shadow-amber-200/50' },
     red: { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-700', ring: 'ring-red-400', glow: 'shadow-red-200/50' },
-    neutral: { bg: 'bg-slate-50', border: 'border-slate-300', text: 'text-slate-700', ring: 'ring-slate-400', glow: 'shadow-slate-200/50' }
+    neutral: { bg: 'bg-slate-50 dark:bg-slate-800', border: 'border-slate-300', text: 'text-slate-700', ring: 'ring-slate-400', glow: 'shadow-slate-200/50' }
 };
 
 function getScoreColor(score) {
@@ -125,7 +125,7 @@ export default function HealthCheckView({ symbol }) {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 p-8">
             <div className={`${style.bg} ${style.border} border-2 rounded-2xl p-6 shadow-lg ${style.glow} ring-1 ${style.ring}`}>
                 <div className="flex flex-col md:flex-row gap-8 items-center">
-                    <div className="flex items-center gap-6 border-r border-slate-200 pr-8">
+                    <div className="flex items-center gap-6 border-r border-slate-200 dark:border-slate-800 pr-8">
                         <div>
                             <div className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-widest">綜合健康評分</div>
                             <div className="flex items-baseline gap-3">
@@ -192,8 +192,8 @@ export default function HealthCheckView({ symbol }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 className="text-slate-800 font-bold mb-4 flex items-center gap-2 text-sm">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 className="text-slate-800 dark:text-slate-100 font-bold mb-4 flex items-center gap-2 text-sm">
                         <Shield className="w-4 h-4 text-teal-600" /> 七維雷達圖
                     </h3>
                     <div className="h-[300px]">
@@ -208,8 +208,8 @@ export default function HealthCheckView({ symbol }) {
                         </ResponsiveContainer>
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 className="text-slate-800 font-bold mb-4 flex items-center gap-2 text-sm">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 className="text-slate-800 dark:text-slate-100 font-bold mb-4 flex items-center gap-2 text-sm">
                         <Award className="w-4 h-4 text-indigo-600" /> 各面向評分
                     </h3>
                     <div className="h-[300px]">
@@ -236,20 +236,20 @@ export default function HealthCheckView({ symbol }) {
                     const color = getScoreColor(dim.score);
                     const label = getScoreLabel(dim.score);
                     return (
-                        <div key={index} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div key={index} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                     <div className="p-2 rounded-lg" style={{ backgroundColor: `${color}15` }}>
                                         <Icon className="w-4 h-4" style={{ color }} />
                                     </div>
-                                    <span className="font-bold text-slate-800 text-sm">{dim.name}</span>
+                                    <span className="font-bold text-slate-800 dark:text-slate-100 text-sm">{dim.name}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-2xl font-black tabular-nums" style={{ color }}>{dim.score}</span>
                                     <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: color }}>{label}</span>
                                 </div>
                             </div>
-                            <div className="w-full bg-slate-100 rounded-full h-2 mb-2">
+                            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 mb-2">
                                 <div className="h-2 rounded-full transition-all duration-1000" style={{ width: `${dim.score}%`, backgroundColor: color }}></div>
                             </div>
                             <p className="text-xs text-slate-500 font-medium">{dim.detail}</p>
@@ -258,13 +258,13 @@ export default function HealthCheckView({ symbol }) {
                 })}
             </div>
 
-            <div className="bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] relative overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 border-2 border-slate-900 rounded-3xl p-8 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] relative overflow-hidden">
                 <div className="flex items-center gap-3 mb-8">
                     <div className="bg-slate-900 p-2.5 rounded-2xl">
                         <CheckCircle2 className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tighter">存股健診指標清單</h3>
+                        <h3 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">存股健診指標清單</h3>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Investment Quality Checklist</p>
                     </div>
                 </div>
@@ -277,14 +277,14 @@ export default function HealthCheckView({ symbol }) {
                         { label: '籌碼優勢加持', desc: '法人近期明顯佈局且持股增加', checked: dimensions.find(d => d.name === '籌碼面')?.score >= 70, metric: `${metrics.totalBuy ? metrics.totalBuy + ' 張' : '法人持平'}` },
                         { label: '股利分配合理', desc: '殖利率具吸引力且穩定配息', checked: dimensions.find(d => d.name === '配息能力')?.score >= 70, metric: `殖利率: ${metrics.dy || '--'}%` }
                     ].map((item, idx) => (
-                        <div key={idx} className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all ${item.checked ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-100 bg-slate-50 opacity-60'}`}>
+                        <div key={idx} className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all ${item.checked ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 opacity-60'}`}>
                             <div className={`mt-1 h-6 w-6 rounded-full flex items-center justify-center shrink-0 ${item.checked ? 'bg-emerald-500 shadow-lg shadow-emerald-500/20' : 'bg-slate-200'}`}>
                                 {item.checked ? <CheckCircle2 className="w-4 h-4 text-white" /> : <Circle className="w-4 h-4 text-slate-400" />}
                             </div>
                             <div className="flex-1">
                                 <div className="flex items-center justify-between mb-0.5">
                                     <h4 className={`text-sm font-black ${item.checked ? 'text-emerald-900' : 'text-slate-500'}`}>{item.label}</h4>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.checked ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>{item.metric}</span>
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.checked ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>{item.metric}</span>
                                 </div>
                                 <p className={`text-[11px] font-medium leading-tight ${item.checked ? 'text-emerald-600' : 'text-slate-400'}`}>{item.desc}</p>
                             </div>
@@ -293,7 +293,7 @@ export default function HealthCheckView({ symbol }) {
                 </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
                     {[
                         { label: 'ROE', value: metrics?.latestROE ? `${Number(metrics.latestROE).toFixed(1)}%` : '--' },
@@ -304,7 +304,7 @@ export default function HealthCheckView({ symbol }) {
                     ].map((m, i) => (
                         <div key={i}>
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{m.label}</div>
-                            <div className="text-lg font-black text-slate-800 tabular-nums">{m.value}</div>
+                            <div className="text-lg font-black text-slate-800 dark:text-slate-100 tabular-nums">{m.value}</div>
                         </div>
                     ))}
                 </div>

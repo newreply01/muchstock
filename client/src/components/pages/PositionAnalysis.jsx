@@ -10,7 +10,7 @@ const SIGNAL_CONFIG = {
     HOLD:        { label: '持有/觀望', color: '#eab308', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', icon: Minus },
     SELL:        { label: '減碼/注意', color: '#f97316', bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', icon: TrendingDown },
     STRONG_SELL: { label: '建議賣出', color: '#ef4444', bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', icon: TrendingDown },
-    ERROR:       { label: '分析失敗', color: '#94a3b8', bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-500', icon: AlertTriangle }
+    ERROR:       { label: '分析失敗', color: '#94a3b8', bg: 'bg-slate-50 dark:bg-slate-800', border: 'border-slate-200 dark:border-slate-800', text: 'text-slate-500', icon: AlertTriangle }
 };
 
 const DIM_META = {
@@ -48,8 +48,8 @@ function DimensionCard({ dimKey, data }) {
     const barColor = score >= 70 ? 'bg-green-500' : score >= 45 ? 'bg-amber-500' : 'bg-red-500';
 
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <button onClick={() => setExpanded(!expanded)} className="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <button onClick={() => setExpanded(!expanded)} className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:bg-slate-800 transition-colors">
                 <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg" style={{ backgroundColor: meta.color + '15' }}>
                         <Icon className="w-5 h-5" style={{ color: meta.color }} />
@@ -60,7 +60,7 @@ function DimensionCard({ dimKey, data }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="w-24 bg-slate-100 rounded-full h-2">
+                    <div className="w-24 bg-slate-100 dark:bg-slate-800 rounded-full h-2">
                         <div className={`h-2 rounded-full ${barColor} transition-all duration-700`} style={{ width: `${score}%` }} />
                     </div>
                     <span className="text-lg font-black" style={{ color: meta.color }}>{score}</span>
@@ -68,7 +68,7 @@ function DimensionCard({ dimKey, data }) {
                 </div>
             </button>
             {expanded && data.details && (
-                <div className="border-t border-slate-100 p-4 bg-slate-50/50 space-y-2">
+                <div className="border-t border-slate-100 dark:border-slate-800 p-4 bg-slate-50/50 space-y-2">
                     {Object.entries(data.details).map(([key, val]) => {
                         if (key === 'note') return <p key={key} className="text-xs text-slate-400 italic">{val}</p>;
                         if (typeof val !== 'object') return null;
@@ -117,7 +117,7 @@ function ResultCard({ result, onSelect, isSelected }) {
         >
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <span className="text-base font-black text-slate-800">{result.symbol}</span>
+                    <span className="text-base font-black text-slate-800 dark:text-slate-100">{result.symbol}</span>
                     <span className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${config.bg} ${config.text} border ${config.border}`}>
                         <SignalIcon className="w-3 h-3" />{config.label}
                     </span>
@@ -207,13 +207,13 @@ function WeightSettingsPanel({ isOpen, onClose }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md mx-4 animate-in zoom-in-95 duration-300">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md mx-4 animate-in zoom-in-95 duration-300">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-2">
                         <Settings className="w-5 h-5 text-indigo-500" />
-                        <h3 className="text-base font-black text-slate-800">評分權重設定</h3>
+                        <h3 className="text-base font-black text-slate-800 dark:text-slate-100">評分權重設定</h3>
                     </div>
-                    <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                    <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:bg-slate-800 rounded-lg transition-colors">
                         <X className="w-5 h-5 text-slate-400" />
                     </button>
                 </div>
@@ -259,9 +259,9 @@ function WeightSettingsPanel({ isOpen, onClose }) {
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 px-6 py-4 border-t border-slate-100">
+                <div className="flex items-center gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800">
                     <button onClick={handleReset}
-                        className="flex-1 px-4 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                        className="flex-1 px-4 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl transition-colors">
                         還原預設
                     </button>
                     <button onClick={handleSave} disabled={saving || !isValid}
@@ -290,7 +290,7 @@ function ScoreHistoryChart({ symbol }) {
 
     if (loading) {
         return (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center justify-center h-48">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 flex items-center justify-center h-48">
                 <RefreshCcw className="w-6 h-6 text-indigo-400 animate-spin" />
             </div>
         );
@@ -298,7 +298,7 @@ function ScoreHistoryChart({ symbol }) {
 
     if (historyData.length === 0) {
         return (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5">
                 <div className="flex items-center gap-2 mb-3">
                     <History className="w-4 h-4 text-slate-400" />
                     <h4 className="text-sm font-black text-slate-600">歷史評分走勢</h4>
@@ -311,7 +311,7 @@ function ScoreHistoryChart({ symbol }) {
     }
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5">
             <div className="flex items-center gap-2 mb-3">
                 <History className="w-4 h-4 text-indigo-500" />
                 <h4 className="text-sm font-black text-slate-600">歷史評分走勢（近 {historyData.length} 日）</h4>
@@ -412,12 +412,12 @@ export default function PositionAnalysis() {
                         <BarChart3 className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">持倉分析</h2>
+                        <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight">持倉分析</h2>
                         <p className="text-xs text-slate-400 font-bold mt-0.5">多因子評分 · 進出場建議</p>
                     </div>
                 </div>
                 <button onClick={() => setShowSettings(true)}
-                    className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-indigo-200 transition-all shadow-sm group"
+                    className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:bg-slate-800 hover:border-indigo-200 transition-all shadow-sm group"
                     title="自訂評分權重">
                     <Settings className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
                 </button>
@@ -427,7 +427,7 @@ export default function PositionAnalysis() {
             <WeightSettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} />
 
             {/* Holdings Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 space-y-4">
                 <div className="flex items-center justify-between">
                     <h3 className="text-sm font-black text-slate-700 flex items-center gap-2">
                         <Wallet className="w-4 h-4 text-indigo-500" />我的持倉
@@ -446,7 +446,7 @@ export default function PositionAnalysis() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="text-xs text-slate-400 font-bold border-b border-slate-100">
+                                    <tr className="text-xs text-slate-400 font-bold border-b border-slate-100 dark:border-slate-800">
                                         <th className="text-left py-2 px-2">股票</th>
                                         <th className="text-left py-2 px-2">名稱</th>
                                         <th className="text-right py-2 px-2">持有股數</th>
@@ -457,17 +457,17 @@ export default function PositionAnalysis() {
                                 <tbody>
                                     {holdings.map(h => (
                                         <tr key={h.symbol} className="border-b border-slate-50 hover:bg-slate-50/50">
-                                            <td className="py-2 px-2 font-black text-slate-800">{h.symbol}</td>
+                                            <td className="py-2 px-2 font-black text-slate-800 dark:text-slate-100">{h.symbol}</td>
                                             <td className="py-2 px-2 text-slate-500 text-xs">{h.name || '-'}</td>
                                             <td className="py-2 px-2 text-right">
                                                 <input type="number" value={h.shares} min={0}
                                                     onChange={(e) => updateHoldingField(h.symbol, 'shares', parseInt(e.target.value) || 0)}
-                                                    className="w-24 text-right border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-200" />
+                                                    className="w-24 text-right border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-200" />
                                             </td>
                                             <td className="py-2 px-2 text-right">
                                                 <input type="number" value={h.avgCost} min={0} step={0.1}
                                                     onChange={(e) => updateHoldingField(h.symbol, 'avgCost', parseFloat(e.target.value) || 0)}
-                                                    className="w-24 text-right border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-200" />
+                                                    className="w-24 text-right border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-200" />
                                             </td>
                                             <td className="py-2 px-2 text-center">
                                                 <button onClick={() => removeHolding(h.symbol)} className="text-slate-300 hover:text-red-500 transition-colors">
@@ -514,7 +514,7 @@ export default function PositionAnalysis() {
                             <div className={`rounded-2xl border-2 p-6 ${SIGNAL_CONFIG[selectedResult.signal]?.bg} ${SIGNAL_CONFIG[selectedResult.signal]?.border}`}>
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h3 className="text-2xl font-black text-slate-800">{selectedResult.symbol}</h3>
+                                        <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100">{selectedResult.symbol}</h3>
                                         <p className={`text-lg font-black mt-1 ${SIGNAL_CONFIG[selectedResult.signal]?.text}`}>
                                             {selectedResult.recommendation}
                                         </p>
@@ -526,7 +526,7 @@ export default function PositionAnalysis() {
 
                             {/* Radar chart + Dimensions */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5">
                                     <h4 className="text-sm font-black text-slate-600 mb-3">四維雷達圖</h4>
                                     <ResponsiveContainer width="100%" height={260}>
                                         <RadarChart data={radarData}>
@@ -552,7 +552,7 @@ export default function PositionAnalysis() {
 
 
                             {/* Disclaimer */}
-                            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start gap-2">
+                            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex items-start gap-2">
                                 <Info className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
                                 <p className="text-[11px] text-slate-400 leading-relaxed">
                                     本系統僅供參考，不構成任何投資建議。投資人應獨立判斷，自負盈虧。過去績效不代表未來表現。
@@ -565,7 +565,7 @@ export default function PositionAnalysis() {
 
             {/* Empty state */}
             {analysisResults.length === 0 && !loading && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-12 text-center">
                     <BarChart3 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                     <h3 className="text-lg font-black text-slate-500">開始持倉分析</h3>
                     <p className="text-sm text-slate-400 mt-2">在上方搜尋框加入股票，然後點擊「開始分析」</p>

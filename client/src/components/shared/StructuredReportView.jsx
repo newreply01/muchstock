@@ -14,8 +14,8 @@ const SECTION_META = {
     1: {
         icon: FileText, label: '個股摘要',
         gradient: 'from-slate-600 to-slate-700',
-        accent: '#64748b', bg: 'bg-slate-50', border: 'border-slate-200',
-        lightBg: 'bg-slate-50', tag: 'SUMMARY'
+        accent: '#64748b', bg: 'bg-slate-50 dark:bg-slate-800', border: 'border-slate-200 dark:border-slate-800',
+        lightBg: 'bg-slate-50 dark:bg-slate-800', tag: 'SUMMARY'
     },
     2: {
         icon: BarChart3, label: '技術面分析',
@@ -208,7 +208,7 @@ function SubScoreBar({ name, score, max, isDark }) {
         return {
             bar: 'from-slate-400 to-slate-500',
             text: isDark ? 'text-slate-400' : 'text-slate-500',
-            bg: isDark ? 'bg-slate-800/50' : 'bg-slate-50',
+            bg: isDark ? 'bg-slate-800/50' : 'bg-slate-50 dark:bg-slate-800',
             num: isDark ? 'text-slate-300' : 'text-slate-600'
         };
     };
@@ -223,7 +223,7 @@ function SubScoreBar({ name, score, max, isDark }) {
                     <span className="text-slate-400">{max}</span>
                 </div>
             </div>
-            <div className={`h-2.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+            <div className={`h-2.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-100 dark:bg-slate-800'}`}>
                 <div className={`h-full rounded-full bg-gradient-to-r ${style.bar} transition-all duration-700 ease-out`}
                     style={{ width: `${pct}%` }} />
             </div>
@@ -294,7 +294,7 @@ function BulletContent({ content, isDark }) {
                     <div className="flex-1 min-w-0">
                         {item.keyword ? (
                             <p className={`text-sm md:text-base leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                                <span className={`font-black ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{item.keyword}：</span>
+                                <span className={`font-black ${isDark ? 'text-slate-100' : 'text-slate-900 dark:text-slate-50'}`}>{item.keyword}：</span>
                                 {item.text.replace(/\*\*/g, '')}
                             </p>
                         ) : (
@@ -303,7 +303,7 @@ function BulletContent({ content, isDark }) {
                             </p>
                         )}
                         {item.subs.length > 0 && (
-                            <ul className={`mt-2 space-y-2 pl-3 border-l-2 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+                            <ul className={`mt-2 space-y-2 pl-3 border-l-2 ${isDark ? 'border-slate-800' : 'border-slate-200 dark:border-slate-800'}`}>
                                 {item.subs.map((sub, si) => (
                                     <li key={si} className={`text-xs md:text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                                         {sub.replace(/\*\*/g, '')}
@@ -326,9 +326,9 @@ function SectionCard({ number, title, content, defaultOpen = true, isDark }) {
     const Icon = meta.icon;
     const cleanContent = content.replace(/>\s*\[!(TIP|IMPORTANT|NOTE|WARNING)\]\s*/g, '').replace(/^>\s*/gm, '');
 
-    const borderClass = isDark ? 'border-slate-800/80 bg-slate-900/20' : `${meta.border} bg-white`;
-    const headerBgClass = isDark ? 'bg-slate-900/60 text-slate-100 hover:bg-slate-900/80' : `${meta.lightBg} hover:brightness-95 text-slate-800`;
-    const bodyBgClass = isDark ? 'bg-slate-950/40 border-t border-slate-800/80 text-slate-300' : 'bg-white border-t border-slate-50 text-slate-700';
+    const borderClass = isDark ? 'border-slate-800/80 bg-slate-900/20' : `${meta.border} bg-white dark:bg-slate-900`;
+    const headerBgClass = isDark ? 'bg-slate-900/60 text-slate-100 hover:bg-slate-900/80' : `${meta.lightBg} hover:brightness-95 text-slate-800 dark:text-slate-100`;
+    const bodyBgClass = isDark ? 'bg-slate-950/40 border-t border-slate-800/80 text-slate-300' : 'bg-white dark:bg-slate-900 border-t border-slate-50 text-slate-700';
 
     return (
         <div className={`rounded-2xl border ${borderClass} overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group`}>
@@ -344,7 +344,7 @@ function SectionCard({ number, title, content, defaultOpen = true, isDark }) {
                     <div className="text-left">
                         <div className={`text-[9px] font-black tracking-[0.2em] uppercase mb-0.5 ${isDark ? 'text-slate-400' : ''}`}
                             style={isDark ? {} : { color: meta.accent }}>{meta.tag}</div>
-                        <h3 className={`font-black text-sm tracking-tight ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{title}</h3>
+                        <h3 className={`font-black text-sm tracking-tight ${isDark ? 'text-slate-100' : 'text-slate-800 dark:text-slate-100'}`}>{title}</h3>
                     </div>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
@@ -395,12 +395,12 @@ function TradingAdviceCard({ advice, isDark }) {
 
     const cardBgClass = isDark
         ? "bg-gradient-to-br from-slate-900 to-slate-800 border-slate-800 text-white"
-        : "bg-white border-slate-200 shadow-sm text-slate-800";
-    const headerBorderClass = isDark ? "border-white/10" : "border-slate-100 bg-slate-50/50";
-    const titleClass = isDark ? "text-white" : "text-slate-800";
+        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm text-slate-800 dark:text-slate-100";
+    const headerBorderClass = isDark ? "border-white/10" : "border-slate-100 dark:border-slate-800 bg-slate-50/50";
+    const titleClass = isDark ? "text-white" : "text-slate-800 dark:text-slate-100";
     const subTitleClass = isDark ? "text-slate-400" : "text-slate-500";
-    const gridBgClass = isDark ? "bg-white/5" : "bg-slate-100";
-    const itemBgClass = isDark ? "bg-slate-900/50" : "bg-white";
+    const gridBgClass = isDark ? "bg-white/5" : "bg-slate-100 dark:bg-slate-800";
+    const itemBgClass = isDark ? "bg-slate-900/50" : "bg-white dark:bg-slate-900";
 
     return (
         <div className={`rounded-2xl border ${cardBgClass} overflow-hidden shadow-md`}>
@@ -468,17 +468,17 @@ export default function StructuredReportView({ reportText, compact = false }) {
                     {/* ── Score overview card ── */}
                     {hasScores && (
                         <div className={`rounded-2xl border overflow-hidden shadow-sm transition-colors duration-300 ${
-                            isDark ? 'bg-slate-900/40 border-slate-800 text-white' : 'bg-white border-slate-200'
+                            isDark ? 'bg-slate-900/40 border-slate-800 text-white' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
                         }`}>
                             <div className={`flex items-center gap-3 px-5 py-3.5 border-b ${
-                                isDark ? 'border-slate-800 bg-gradient-to-r from-rose-950/20 to-slate-900/20' : 'border-slate-100 bg-gradient-to-r from-rose-50 to-white'
+                                isDark ? 'border-slate-800 bg-gradient-to-r from-rose-950/20 to-slate-900/20' : 'border-slate-100 dark:border-slate-800 bg-gradient-to-r from-rose-50 to-white'
                             }`}>
                                 <div className="p-2 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 shadow-sm">
                                     <Brain className="w-4 h-4 text-white" />
                                 </div>
                                 <div>
                                     <div className="text-[9px] font-black tracking-[0.2em] text-rose-400 uppercase">AI Score</div>
-                                    <h3 className={`font-black text-sm ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>多空評分總覽</h3>
+                                    <h3 className={`font-black text-sm ${isDark ? 'text-slate-100' : 'text-slate-800 dark:text-slate-100'}`}>多空評分總覽</h3>
                                 </div>
                             </div>
                             <div className="p-5 flex flex-col gap-6">

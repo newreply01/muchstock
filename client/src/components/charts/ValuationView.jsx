@@ -39,7 +39,7 @@ export default function ValuationView({ financials, loading, currentPe, currentP
     if (epsData.length === 0) {
         return (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 min-h-[400px]">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
+                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800 shadow-sm">
                     <Target className="w-8 h-8 text-slate-300" />
                 </div>
                 <h3 className="text-xl font-black text-slate-600 mb-2 tracking-tighter">暫無估值歷史數據</h3>
@@ -57,8 +57,8 @@ export default function ValuationView({ financials, loading, currentPe, currentP
     // Evaluate valuation status roughly
     let valuationStatus = '中性區間';
     let statusColor = 'text-slate-500';
-    let statusBg = 'bg-slate-50';
-    let statusBorder = 'border-slate-200';
+    let statusBg = 'bg-slate-50 dark:bg-slate-800';
+    let statusBorder = 'border-slate-200 dark:border-slate-800';
 
     if (hasValidPe) {
         if (peValue < 12) {
@@ -87,27 +87,27 @@ export default function ValuationView({ financials, loading, currentPe, currentP
                     <Target className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tighter">估值與獲利能力分析</h2>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">估值與獲利能力分析</h2>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Valuation & Profitability</p>
                 </div>
             </div>
 
             {/* Current Metrics Highlight */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
                     <div className="text-slate-500 text-xs mb-2 font-bold">目前本益比 (PE)</div>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-slate-800 tabular-nums">
+                        <span className="text-3xl font-black text-slate-800 dark:text-slate-100 tabular-nums">
                             {hasValidPe ? peValue.toFixed(2) : '-'}
                         </span>
                         <span className="text-sm font-bold text-slate-400">倍</span>
                     </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
                     <div className="text-slate-500 text-xs mb-2 font-bold">目前股價淨值比 (PB)</div>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-slate-800 tabular-nums">
+                        <span className="text-3xl font-black text-slate-800 dark:text-slate-100 tabular-nums">
                             {!isNaN(pbValue) ? pbValue.toFixed(2) : '-'}
                         </span>
                         <span className="text-sm font-bold text-slate-400">倍</span>
@@ -125,8 +125,8 @@ export default function ValuationView({ financials, loading, currentPe, currentP
             </div>
 
             {/* EPS Trend Chart */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[350px]">
-                <h3 className="text-slate-800 font-bold mb-6 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[350px]">
+                <h3 className="text-slate-800 dark:text-slate-100 font-bold mb-6 flex items-center gap-2">
                     <TrendingUp className="text-purple-600 w-5 h-5" />
                     近 8 季每股盈餘 (EPS) 走勢
                 </h3>
@@ -169,7 +169,7 @@ export default function ValuationView({ financials, loading, currentPe, currentP
                 </div>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed font-medium">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500 leading-relaxed font-medium">
                 註：EPS 為單季資料，本益比 (PE) 採用滾動近四季 EPS 計算。當前位階判定僅為簡易邏輯分類，實際估值應同時參考同業平均與歷史區間。
             </div>
         </div>

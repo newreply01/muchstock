@@ -98,11 +98,11 @@ const RealtimeExplorer = ({ onStockSelect }) => {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col h-[calc(100vh-80px)]">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-[calc(100vh-80px)]">
             {/* Header / Controls */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 mb-4 gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 dark:border-slate-800 pb-4 mb-4 gap-4">
                 <div>
-                    <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
                         🕰️ 盤中分時資料查詢 (1 分K)
                     </h2>
                     <div className="flex items-center gap-2 mt-1">
@@ -112,7 +112,7 @@ const RealtimeExplorer = ({ onStockSelect }) => {
                             </span>
                         )}
                         {industry && (
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-100 dark:border-slate-800">
                                 {industry}
                             </span>
                         )}
@@ -127,7 +127,7 @@ const RealtimeExplorer = ({ onStockSelect }) => {
                             setDate(e.target.value);
                             fetchData(symbol, e.target.value);
                         }}
-                        className="border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-primary/20 bg-white shadow-sm"
+                        className="border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-primary/20 bg-white dark:bg-slate-900 shadow-sm"
                     />
                     <div className="w-48">
                         <StockSearchAutocomplete
@@ -157,27 +157,27 @@ const RealtimeExplorer = ({ onStockSelect }) => {
                 <span className="font-black text-slate-700 text-lg uppercase tracking-tight">
                     {symbol}成交明細
                 </span>
-                <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-tighter">
+                <span className="text-[10px] font-black text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full uppercase tracking-tighter">
                     資料日期: {currentDate || date || 'N/A'}
                 </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto border border-slate-200 rounded-xl shadow-inner scroll-smooth custom-scrollbar">
+            <div className="flex-1 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-xl shadow-inner scroll-smooth custom-scrollbar">
                 <table className="w-full text-xs text-center border-collapse">
-                    <thead className="bg-slate-50 text-slate-500 sticky top-0 shadow-sm z-10">
+                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 sticky top-0 shadow-sm z-10">
                         <tr className="divide-x divide-slate-100">
-                            <th className="py-2 px-2 font-black border-b border-slate-200 w-24">時間</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">價格</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">昨收</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">漲跌</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">幅度</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">開盤</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">最高</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">最低</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">累計張</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">分盤張</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">內盤%</th>
-                            <th className="py-2 px-2 font-black border-b border-slate-200">外盤%</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800 w-24">時間</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">價格</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">昨收</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">漲跌</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">幅度</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">開盤</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">最高</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">最低</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">累計張</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">分盤張</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">內盤%</th>
+                            <th className="py-2 px-2 font-black border-b border-slate-200 dark:border-slate-800">外盤%</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -187,7 +187,7 @@ const RealtimeExplorer = ({ onStockSelect }) => {
                             </tr>
                         ) : data.length === 0 ? (
                             <tr>
-                                <td colSpan="12" className="py-24 bg-white text-center">
+                                <td colSpan="12" className="py-24 bg-white dark:bg-slate-900 text-center">
                                     <div className="flex flex-col items-center justify-center text-slate-500">
                                         <Search className="w-12 h-12 text-slate-200 mb-4" />
                                         <p className="font-black text-base mb-1">({symbol}) 無分時資料</p>
@@ -204,9 +204,9 @@ const RealtimeExplorer = ({ onStockSelect }) => {
                                 const diffSign = diff > 0 ? '▲' : (diff < 0 ? '▼' : '');
 
                                 return (
-                                    <tr key={i} className={`hover:bg-slate-50 transition-colors border-l-4 ${diff > 0 ? 'border-l-red-500' : (diff < 0 ? 'border-l-green-500' : 'border-l-transparent')} ${getRowColor(tick)}`}>
+                                    <tr key={i} className={`hover:bg-slate-50 dark:bg-slate-800 transition-colors border-l-4 ${diff > 0 ? 'border-l-red-500' : (diff < 0 ? 'border-l-green-500' : 'border-l-transparent')} ${getRowColor(tick)}`}>
                                         <td className="py-1 px-2 font-mono text-slate-400">{tick.time_str}</td>
-                                        <td className="py-1 px-2 font-black text-slate-800">{formatPrice(tick.price)}</td>
+                                        <td className="py-1 px-2 font-black text-slate-800 dark:text-slate-100">{formatPrice(tick.price)}</td>
                                         <td className="py-1 px-2 text-slate-400">{formatPrice(tick.previous_close)}</td>
                                         <td className={`py-1 px-2 ${diffColor}`}>
                                             {diff !== null ? `${diffSign}${Math.abs(diff).toFixed(2)}` : '--'}
@@ -232,7 +232,7 @@ const RealtimeExplorer = ({ onStockSelect }) => {
             <div className="mt-4 flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 <div className="flex items-center gap-4">
                     <span>共載入 {data.length} 筆筆資料</span>
-                    <span className="bg-slate-100 px-2 py-0.5 rounded">刷新頻率: 30S</span>
+                    <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">刷新頻率: 30S</span>
                 </div>
                 <span>* 點擊標題可重新排序</span>
             </div>

@@ -164,7 +164,7 @@ export default function AdminUserManagement() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500 relative">
             {/* Tab Navigation */}
-            <div className="flex border-b border-slate-200">
+            <div className="flex border-b border-slate-200 dark:border-slate-800">
                 <button 
                     onClick={() => setActiveTab('users')}
                     className={`px-6 py-3 text-sm font-black transition-all border-b-2 flex items-center gap-2 ${activeTab === 'users' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
@@ -181,9 +181,9 @@ export default function AdminUserManagement() {
 
             {activeTab === 'users' ? (
                 <>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+                        <h1 className="text-2xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-2">
                             <Users className="w-7 h-7 text-brand-primary" /> 使用者管理
                         </h1>
                         <p className="text-sm font-medium text-slate-500 mt-1">
@@ -199,13 +199,13 @@ export default function AdminUserManagement() {
                                 placeholder="搜尋 Email 或暱稱..." 
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-xl text-sm w-full md:w-64 transition-all"
+                                className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-xl text-sm w-full md:w-64 transition-all"
                             />
                         </div>
                         <select 
                             value={roleFilter}
                             onChange={(e) => setRoleFilter(e.target.value)}
-                            className="px-4 py-2 bg-slate-50 border border-slate-200 focus:border-brand-primary rounded-xl text-sm transition-all outline-none"
+                            className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 focus:border-brand-primary rounded-xl text-sm transition-all outline-none"
                         >
                             <option value="">所有角色</option>
                             <option value="user">一般用戶</option>
@@ -219,11 +219,11 @@ export default function AdminUserManagement() {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-slate-50 border-b border-slate-100">
+                                <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
                                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">使用者</th>
                                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">角色</th>
                                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">登入方式</th>
@@ -235,7 +235,7 @@ export default function AdminUserManagement() {
                                 {loading ? (
                                     Array.from({ length: 5 }).map((_, i) => (
                                         <tr key={i} className="animate-pulse">
-                                            <td colSpan="5" className="px-6 py-8"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                                            <td colSpan="5" className="px-6 py-8"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div></td>
                                         </tr>
                                     ))
                                 ) : users.length === 0 ? (
@@ -255,7 +255,7 @@ export default function AdminUserManagement() {
                                                     {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full rounded-full object-cover" /> : u.nickname?.[0] || u.email?.[0]}
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                                    <div className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                                                         {u.nickname || u.name}
                                                         {u.is_active === false && (
                                                             <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-100 text-red-600 font-bold tracking-widest uppercase">已停用</span>
@@ -269,7 +269,7 @@ export default function AdminUserManagement() {
                                             <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter border ${
                                                 u.role === 'admin' ? 'bg-blue-50 text-blue-600 border-blue-200' : 
                                                 u.role.startsWith('vip') ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                                                'bg-slate-100 text-slate-500 border-slate-200'
+                                                'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-800'
                                             }`}>
                                                 {u.role}
                                             </span>
@@ -299,18 +299,18 @@ export default function AdminUserManagement() {
                     </div>
 
                     {total > limit && (
-                        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                             <div className="text-xs text-slate-500 font-bold">顯示第 {page * limit + 1} 至 {Math.min((page + 1) * limit, total)} 筆，共 {total} 筆</div>
                             <div className="flex gap-2">
                                 <button 
                                     disabled={page === 0}
                                     onClick={() => setPage(p => p - 1)}
-                                    className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold disabled:opacity-50 hover:border-brand-primary transition-all"
+                                    className="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold disabled:opacity-50 hover:border-brand-primary transition-all"
                                 >上一頁</button>
                                 <button 
                                     disabled={(page + 1) * limit >= total}
                                     onClick={() => setPage(p => p + 1)}
-                                    className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold disabled:opacity-50 hover:border-brand-primary transition-all"
+                                    className="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold disabled:opacity-50 hover:border-brand-primary transition-all"
                                 >下一頁</button>
                             </div>
                         </div>
@@ -325,35 +325,35 @@ export default function AdminUserManagement() {
             {selectedUser && createPortal(
                 <div className="fixed inset-0 z-[100] flex justify-end animate-in fade-in duration-300">
                     <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setSelectedUser(null)}></div>
-                    <div className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-500">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                    <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-500">
+                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <h2 className="text-xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-2">
                                 <User className="w-6 h-6 text-brand-primary" /> 使用者詳情
                             </h2>
-                            <button onClick={() => setSelectedUser(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+                            <button onClick={() => setSelectedUser(null)} className="p-2 hover:bg-slate-100 dark:bg-slate-800 rounded-full transition-colors text-slate-400">
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 space-y-4">
+                            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 space-y-4">
                                 <div className="flex items-center gap-4">
                                     <div className="w-16 h-16 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-3xl text-brand-primary font-black">
                                         {selectedUser.nickname?.[0] || selectedUser.email?.[0]}
                                     </div>
                                     <div>
-                                        <div className="text-lg font-black text-slate-900">{selectedUser.nickname || selectedUser.name}</div>
+                                        <div className="text-lg font-black text-slate-900 dark:text-slate-50">{selectedUser.nickname || selectedUser.name}</div>
                                         <div className="text-sm text-slate-500 font-mono">{selectedUser.email}</div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                                     <div>
                                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">角色權限</div>
                                         <div className="mt-1">
                                             <select 
                                                 value={selectedUser.role}
                                                 onChange={(e) => handleUpdateUserRole(selectedUser.id, e.target.value)}
-                                                className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold outline-none focus:border-brand-primary"
+                                                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-xs font-bold outline-none focus:border-brand-primary"
                                             >
                                                 <option value="user">一般用戶 (User)</option>
                                                 <option value="admin">系統管理員 (Admin)</option>
@@ -379,13 +379,13 @@ export default function AdminUserManagement() {
                             </div>
 
                             <div className="space-y-4">
-                                <h3 className="text-md font-black text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <h3 className="text-md font-black text-slate-800 dark:text-slate-100 flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
                                     <Shield className="w-5 h-5 text-brand-primary" /> 自選股與清單
                                 </h3>
                                 
                                 {portfolioLoading ? (
                                     <div className="space-y-4">
-                                        {[1, 2].map(i => <div key={i} className="h-24 bg-slate-100 animate-pulse rounded-xl"></div>)}
+                                        {[1, 2].map(i => <div key={i} className="h-24 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl"></div>)}
                                     </div>
                                 ) : userPortfolio.length === 0 ? (
                                     <div className="py-10 text-center text-slate-400 text-sm italic">
@@ -394,8 +394,8 @@ export default function AdminUserManagement() {
                                 ) : (
                                     <div className="space-y-6">
                                         {userPortfolio.map(list => (
-                                            <div key={list.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                                                <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 flex justify-between items-center">
+                                            <div key={list.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                                                <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
                                                     <span className="text-sm font-black text-slate-700">{list.name}</span>
                                                     <span className="text-[10px] font-bold text-slate-400">{list.items.length} 標的</span>
                                                 </div>
@@ -403,7 +403,7 @@ export default function AdminUserManagement() {
                                                     {list.items.map(item => (
                                                         <div key={item.stock_symbol} className="flex items-center justify-between p-2 rounded-lg bg-slate-50/50 hover:bg-brand-primary/5 border border-transparent hover:border-brand-primary/20 transition-all group/item">
                                                             <div className="flex flex-col">
-                                                                <span className="text-xs font-black text-slate-800">{item.stock_symbol}</span>
+                                                                <span className="text-xs font-black text-slate-800 dark:text-slate-100">{item.stock_symbol}</span>
                                                                 <span className="text-[10px] text-slate-500 truncate max-w-[100px]">{item.stock_name}</span>
                                                             </div>
                                                             <ExternalLink className="w-3 h-3 text-slate-300 opacity-0 group-hover/item:opacity-100 transition-opacity" />
@@ -420,10 +420,10 @@ export default function AdminUserManagement() {
                             </div>
                         </div>
 
-                        <div className="p-6 border-t border-slate-100 bg-slate-50 flex gap-3">
+                        <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 flex gap-3">
                             <button 
                                 onClick={() => setSelectedUser(null)}
-                                className="flex-1 py-3 bg-white border border-slate-300 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors"
+                                className="flex-1 py-3 bg-white dark:bg-slate-900 border border-slate-300 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 dark:bg-slate-800 transition-colors"
                             >
                                 關閉面板
                             </button>

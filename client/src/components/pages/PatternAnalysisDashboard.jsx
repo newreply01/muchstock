@@ -115,7 +115,7 @@ export default function PatternAnalysisDashboard({
     return (
         <div className="space-y-6 w-full max-w-full overflow-hidden">
             {/* ... Navigation ... */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
                 <div className="flex overflow-x-auto no-scrollbar py-3 px-2 border-b border-gray-100">
                     {CATEGORIES.map(cat => (
                         <button
@@ -126,7 +126,7 @@ export default function PatternAnalysisDashboard({
                             }}
                             className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors mx-1 ${activeCategory === cat
                                 ? 'bg-brand-primary text-white shadow-md'
-                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-50'
                                 }`}
                         >
                             {cat}
@@ -135,7 +135,7 @@ export default function PatternAnalysisDashboard({
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50/50">
-                    <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-gray-200 shadow-sm mb-4 sm:mb-0">
+                    <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-lg border border-gray-200 dark:border-slate-800 shadow-sm mb-4 sm:mb-0">
                         {PERIODS.map(p => (
                             <button
                                 key={p}
@@ -156,13 +156,13 @@ export default function PatternAnalysisDashboard({
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => window.dispatchEvent(new CustomEvent('muchstock-view', { detail: 'institutional' }))}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-lg text-sm font-semibold hover:border-gray-400 hover:shadow-sm transition-all focus:outline-none"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white dark:bg-slate-900 text-gray-700 rounded-lg text-sm font-semibold hover:border-gray-400 hover:shadow-sm transition-all focus:outline-none"
                         >
                             <Activity className="w-4 h-4 text-brand-primary" /> 多股比較
                         </button>
                         <button
                             onClick={handleExportPDF}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-lg text-sm font-semibold hover:border-gray-400 hover:shadow-sm transition-all focus:outline-none"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white dark:bg-slate-900 text-gray-700 rounded-lg text-sm font-semibold hover:border-gray-400 hover:shadow-sm transition-all focus:outline-none"
                         >
                             <FileText className="w-4 h-4 text-red-500" /> 匯出 PDF
                         </button>
@@ -171,7 +171,7 @@ export default function PatternAnalysisDashboard({
                                 console.log('Dashboard: Export Excel clicked');
                                 handleExportExcel();
                             }}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-lg text-sm font-semibold hover:border-gray-400 hover:shadow-sm transition-all focus:outline-none"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white dark:bg-slate-900 text-gray-700 rounded-lg text-sm font-semibold hover:border-gray-400 hover:shadow-sm transition-all focus:outline-none"
                         >
                             <Download className="w-4 h-4 text-green-600" /> 匯出 Excel
                         </button>
@@ -182,8 +182,8 @@ export default function PatternAnalysisDashboard({
             {/* 3. Summary Cards (Real Counts for Selected Stock) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                    { id: 'bullish', label: '看漲型態偵測', count: bullishCount, icon: TrendingUp, color: 'text-red-500', activeBg: 'bg-red-50 border-red-200 ring-1 ring-red-500', countBg: bullishCount > 0 ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-400' },
-                    { id: 'bearish', label: '看跌型態偵測', count: bearishCount, icon: TrendingDown, color: 'text-green-600', activeBg: 'bg-green-50 border-green-200 ring-1 ring-green-600', countBg: bearishCount > 0 ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-400' },
+                    { id: 'bullish', label: '看漲型態偵測', count: bullishCount, icon: TrendingUp, color: 'text-red-500', activeBg: 'bg-red-50 border-red-200 ring-1 ring-red-500', countBg: bullishCount > 0 ? 'bg-red-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' },
+                    { id: 'bearish', label: '看跌型態偵測', count: bearishCount, icon: TrendingDown, color: 'text-green-600', activeBg: 'bg-green-50 border-green-200 ring-1 ring-green-600', countBg: bearishCount > 0 ? 'bg-green-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' },
                     { id: 'status', label: '技術指標狀態', count: 'Active', icon: Activity, color: 'text-blue-500', activeBg: 'bg-blue-50 border-blue-200', countBg: 'bg-blue-100 text-blue-700' },
                 ].map(card => (
                     <div
@@ -192,15 +192,15 @@ export default function PatternAnalysisDashboard({
                             console.log('Dashboard: Filter card clicked:', card.id);
                             setActiveFilter(prev => prev === card.id ? 'all' : card.id);
                         }}
-                        className={`flex items-center justify-between p-5 rounded-2xl border transition-all cursor-pointer ${activeFilter === card.id ? card.activeBg : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'}`}
+                        className={`flex items-center justify-between p-5 rounded-2xl border transition-all cursor-pointer ${activeFilter === card.id ? card.activeBg : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 shadow-sm'}`}
                     >
                         <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-xl bg-slate-50 flex items-center justify-center`}>
+                            <div className={`p-3 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center`}>
                                 <card.icon className={`w-6 h-6 ${card.color}`} />
                             </div>
                             <div>
                                 <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Stock Analysis</span>
-                                <span className="font-black text-slate-800 text-base">{card.label}</span>
+                                <span className="font-black text-slate-800 dark:text-slate-100 text-base">{card.label}</span>
                             </div>
                         </div>
                         <div className={`px-4 py-1.5 rounded-lg text-sm font-black transition-all ${card.countBg} shadow-sm`}>
@@ -217,10 +217,10 @@ export default function PatternAnalysisDashboard({
 
             <div className="flex flex-col gap-6">
                 {activeCategory === '籌碼面' ? (
-                    <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 h-[500px] flex flex-col">
+                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 h-[500px] flex flex-col">
                         <div className="flex justify-between items-center mb-6">
                             <div>
-                                <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
+                                <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
                                     <Users className="text-brand-primary w-6 h-6" />
                                     三大法人買賣超趨勢
                                 </h2>
@@ -256,8 +256,8 @@ export default function PatternAnalysisDashboard({
                     </div>
                 ) : (
                     <div className="flex flex-col gap-4">
-                        <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-4 flex items-center gap-4">
-                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-4 flex items-center gap-4">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                                 <Search className="w-5 h-5 text-slate-400" />
                             </div>
                             <div className="flex-1">
@@ -280,9 +280,9 @@ export default function PatternAnalysisDashboard({
                     </div>
                 )}
 
-                <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 min-h-[400px] flex flex-col">
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-sm rounded-xl p-6 min-h-[400px] flex flex-col">
                     {children ? children : (
-                        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
+                        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 bg-gray-50/50 rounded-lg border border-dashed border-gray-200 dark:border-slate-800">
                             <Activity className="w-12 h-12 mb-3 text-gray-300" />
                             <p className="font-medium text-lg text-gray-500">K線圖表區塊 / 數據表格 (開發中)</p>
                             <p className="text-sm mt-1">選中【{activeCategory}】與【{activePeriod}】資料渲染處</p>
@@ -296,7 +296,7 @@ export default function PatternAnalysisDashboard({
                     <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
                         <Search className="w-4 h-4 text-white" />
                     </div>
-                    <h2 className="text-xl font-black text-slate-800 tracking-tight">經典多日型態比對</h2>
+                    <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">經典多日型態比對</h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -321,10 +321,10 @@ export default function PatternAnalysisDashboard({
                         };
 
                         return (
-                            <div key={pat.id} className={`bg-white border rounded-2xl p-5 transition-all relative overflow-hidden group shadow-sm ${isDetected ? colorTheme.border : 'border-slate-200 hover:border-slate-300'}`}>
+                            <div key={pat.id} className={`bg-white dark:bg-slate-900 border rounded-2xl p-5 transition-all relative overflow-hidden group shadow-sm ${isDetected ? colorTheme.border : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'}`}>
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
-                                        <h3 className={`font-black text-lg leading-tight transition-colors ${isDetected ? colorTheme.text : 'text-slate-800'}`}>
+                                        <h3 className={`font-black text-lg leading-tight transition-colors ${isDetected ? colorTheme.text : 'text-slate-800 dark:text-slate-100'}`}>
                                             {pat.name}
                                         </h3>
                                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">{pat.en}</p>

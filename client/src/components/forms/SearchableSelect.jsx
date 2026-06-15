@@ -85,7 +85,7 @@ export default function SearchableSelect({
                 tabIndex={0}
                 className={`
                     flex items-center justify-between w-full px-4 py-2 bg-gray-50 border rounded-xl cursor-pointer transition-all
-                    ${isOpen ? 'border-brand-primary ring-2 ring-red-500/10' : 'border-gray-200 hover:border-gray-300'}
+                    ${isOpen ? 'border-brand-primary ring-2 ring-red-500/10' : 'border-gray-200 dark:border-slate-800 hover:border-gray-300'}
                 `}
             >
                 <div className="flex items-center gap-2 overflow-hidden">
@@ -108,7 +108,7 @@ export default function SearchableSelect({
 
             {/* Dropdown Panel */}
             {isOpen && (
-                <div className="absolute z-[100] mt-2 w-full min-w-[200px] bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute z-[100] mt-2 w-full min-w-[200px] bg-white dark:bg-slate-900 border border-gray-100 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                     {/* Search Field */}
                     <div className="p-3 border-b border-gray-50 bg-gray-50/50">
                         <div className="relative">
@@ -120,7 +120,7 @@ export default function SearchableSelect({
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 placeholder="搜尋產業名稱..."
-                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary placeholder:text-gray-400 font-medium"
+                                className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary placeholder:text-gray-400 font-medium"
                             />
                         </div>
                     </div>

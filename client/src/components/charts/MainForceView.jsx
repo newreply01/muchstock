@@ -91,7 +91,7 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                             {Math.round(latestInst?.trust_net || 0).toLocaleString()} <span className="text-[10px] font-bold text-slate-400">張</span>
                         </div>
                     </div>
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm transition-all hover:shadow-md">
+                    <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
                         <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1">
                             <BarChart3 className="w-3 h-3" /> 自營商
                         </div>
@@ -101,7 +101,7 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm min-h-[400px]">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm min-h-[400px]">
                     <h4 className="text-sm font-bold text-slate-700 mb-6 flex items-center gap-2">
                         <PieChart className="w-4 h-4 text-brand-primary" /> 三大法人持股比重與買賣趨勢
                     </h4>
@@ -130,20 +130,20 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                             <Activity className="w-5 h-5 text-orange-600" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-slate-800 tracking-tighter">主力分點進出明細</h3>
+                            <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 tracking-tighter">主力分點進出明細</h3>
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">數據更新日期: {brokerData.date || '---'}</p>
                         </div>
                     </div>
                     {/* Period Switcher & Control Ratio */}
                     <div className="flex items-center gap-3 self-end sm:self-center">
-                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-850 p-1 rounded-lg border border-slate-200 dark:border-slate-800 w-fit">
+                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-850 p-1 rounded-lg border border-slate-200 dark:border-slate-800 w-fit">
                             {['日K', '週K', '月K'].map(p => (
                                 <button
                                     key={p}
                                     onClick={() => setPeriod(p)}
                                     className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
                                         period === p
-                                            ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-sm'
+                                            ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 dark:text-white shadow-sm'
                                             : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                                     }`}
                                 >
@@ -151,7 +151,7 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                                 </button>
                             ))}
                         </div>
-                        <div className="bg-slate-50 dark:bg-slate-900/60 px-4 py-1.5 rounded-xl border border-slate-150 dark:border-slate-800 hidden md:block">
+                        <div className="bg-slate-50 dark:bg-slate-800 dark:bg-slate-900/60 px-4 py-1.5 rounded-xl border border-slate-150 dark:border-slate-800 hidden md:block">
                             <span className="text-[9px] font-black text-slate-400 block mb-0.5 leading-none">主力控盤度</span>
                             <span className="text-base font-black text-orange-600 leading-none">{controlRatio}%</span>
                         </div>
@@ -163,7 +163,7 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* 買超排行 */}
-                        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                             <div className="bg-red-50/50 px-4 py-3 border-b border-red-100 flex items-center gap-2">
                                 <ArrowUpCircle className="w-4 h-4 text-red-500" />
                                 <span className="text-xs font-black text-red-700">買超券商前15名</span>
@@ -191,7 +191,7 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                         </div>
 
                         {/* 賣超排行 */}
-                        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                             <div className="bg-green-50/50 px-4 py-3 border-b border-green-100 flex items-center gap-2">
                                 <ArrowDownCircle className="w-4 h-4 text-green-500" />
                                 <span className="text-xs font-black text-green-700">賣超券商前15名</span>
@@ -226,7 +226,7 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
     if (subTab === 'margin_trade') {
         return (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm min-h-[450px]">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm min-h-[450px]">
                     <h4 className="text-sm font-bold text-slate-700 mb-6 flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-brand-primary" /> 融資融券餘額趨勢 (近60日)
                     </h4>
@@ -282,19 +282,19 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
     if (subTab === 'broker_trace' || subTab === 'broker_track') {
         return (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm min-h-[450px]">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm min-h-[450px]">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <h4 className="text-sm font-bold text-slate-700 flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 text-brand-primary" /> 主力買賣超趨勢 (近60日)
                         </h4>
-                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-855 p-1 rounded-lg border border-slate-200 dark:border-slate-700 w-fit">
+                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-855 p-1 rounded-lg border border-slate-200 dark:border-slate-800 dark:border-slate-700 w-fit">
                             {['日K', '週K', '月K'].map(p => (
                                 <button
                                     key={p}
                                     onClick={() => setPeriod(p)}
                                     className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
                                         period === p
-                                            ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-sm'
+                                            ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 dark:text-white shadow-sm'
                                             : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                                     }`}
                                 >
@@ -340,7 +340,7 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
                             <div className="h-full flex items-center justify-center text-slate-300 text-xs font-bold">無歷史主力數據</div>
                         )}
                     </div>
-                    <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800">
                         <p className="text-[10px] text-slate-400 font-bold leading-relaxed">
                             💡 主力買賣超：彙總每日成交量前 15 名券商之淨買賣超張數。連續買超通常代表大戶正在佈局。
                         </p>
@@ -353,11 +353,11 @@ export default function MainForceView({ symbol, subTab, institutionalData, loadi
     // Default placeholder for other subtabs
     return (
         <div className="h-full flex flex-col items-center justify-center text-slate-400 min-h-[400px] animate-in fade-in duration-300">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 border border-slate-100 shadow-inner">
+            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 border border-slate-100 dark:border-slate-800 shadow-inner">
                 <Users className="w-10 h-10 text-slate-300" />
             </div>
             <h3 className="text-xl font-black text-slate-600 mb-2 tracking-tighter">功能模組開發中</h3>
-            <p className="text-xs font-bold tracking-widest uppercase text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+            <p className="text-xs font-bold tracking-widest uppercase text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
                 {subTab === 'broker_track' ? '分點進跡查詢' : '開發中...'}
             </p>
         </div>

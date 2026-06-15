@@ -103,9 +103,9 @@ export default function MarketFocus({ market, stockTypes, onStockSelect }) {
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 mb-6">
             <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
+                <h3 className="text-lg font-black text-gray-800 dark:text-gray-100 flex items-center gap-2">
                     <Target className="w-5 h-5 text-indigo-500" />
                     市場焦點個股
                     <AlertCircle className="w-4 h-4 text-gray-400 cursor-help" />
@@ -116,7 +116,7 @@ export default function MarketFocus({ market, stockTypes, onStockSelect }) {
                 <div className="min-w-[700px] flex">
 
                     {/* Y-Axis Labels */}
-                    <div className="flex flex-col text-xs font-black text-gray-400 w-8 border-r border-gray-200 relative shrink-0" style={{ height: CH_HEIGHT, marginTop: '32px' }}>
+                    <div className="flex flex-col text-xs font-black text-gray-400 w-8 border-r border-gray-200 dark:border-slate-800 relative shrink-0" style={{ height: CH_HEIGHT, marginTop: '32px' }}>
                         <span className="absolute right-2" style={{ top: '10%', transform: 'translateY(-50%)' }}>8%</span>
                         <span className="absolute right-2" style={{ top: '30%', transform: 'translateY(-50%)' }}>4%</span>
                         <span className="absolute right-2" style={{ top: '50%', transform: 'translateY(-50%)' }}>0%</span>

@@ -33,11 +33,11 @@ export default function EventCalendar({ symbol }) {
 
     if (events.length === 0) {
         return (
-            <div className="bg-slate-50 rounded-2xl p-8 border border-dashed border-slate-300 text-center">
-                <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-8 border border-dashed border-slate-300 text-center">
+                <div className="bg-white dark:bg-slate-900 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
                     <Calendar className="w-6 h-6 text-slate-300" />
                 </div>
-                <h3 className="text-slate-900 font-bold mb-1">近期無重大事件</h3>
+                <h3 className="text-slate-900 dark:text-slate-50 font-bold mb-1">近期無重大事件</h3>
                 <p className="text-slate-500 text-xs">該檔股票在未來一段時間內尚無已公佈的法說或配息計畫。</p>
             </div>
         );
@@ -51,7 +51,7 @@ export default function EventCalendar({ symbol }) {
                         <Bell className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-black text-slate-900 tracking-tighter">近期大事記</h2>
+                        <h2 className="text-lg font-black text-slate-900 dark:text-slate-50 tracking-tighter">近期大事記</h2>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stock Events Timeline</p>
                     </div>
                 </div>
@@ -67,7 +67,7 @@ export default function EventCalendar({ symbol }) {
                             {/* Dot */}
                             <div className={`absolute -left-[22px] top-1.5 w-4 h-4 rounded-full border-4 border-white shadow-sm ring-1 ${isUpcoming ? 'ring-amber-400 bg-amber-500' : 'ring-slate-300 bg-slate-400'}`}></div>
                             
-                            <div className={`p-4 rounded-2xl border transition-all duration-300 ${isUpcoming ? 'bg-white border-amber-100 shadow-md shadow-amber-500/5 hover:-translate-y-1' : 'bg-slate-50 border-slate-200 opacity-80'}`}>
+                            <div className={`p-4 rounded-2xl border transition-all duration-300 ${isUpcoming ? 'bg-white dark:bg-slate-900 border-amber-100 shadow-md shadow-amber-500/5 hover:-translate-y-1' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800 opacity-80'}`}>
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
@@ -79,9 +79,9 @@ export default function EventCalendar({ symbol }) {
                                                 {event.date}
                                             </span>
                                         </div>
-                                        <h4 className="text-sm font-black text-slate-900 mb-1">{event.description}</h4>
+                                        <h4 className="text-sm font-black text-slate-900 dark:text-slate-50 mb-1">{event.description}</h4>
                                     </div>
-                                    <div className={`p-2 rounded-xl ${isUpcoming ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-400'}`}>
+                                    <div className={`p-2 rounded-xl ${isUpcoming ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
                                         <ChevronRight className="w-4 h-4" />
                                     </div>
                                 </div>

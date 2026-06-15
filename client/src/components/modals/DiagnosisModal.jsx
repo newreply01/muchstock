@@ -70,7 +70,7 @@ export default function DiagnosisModal({ isOpen, onClose, stock }) {
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
             
             {/* Modal Content */}
-            <div className="relative bg-white border border-slate-100 w-full max-w-4xl max-h-[95vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 w-full max-w-4xl max-h-[95vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
                 
                 {/* Header */}
                 <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
@@ -80,7 +80,7 @@ export default function DiagnosisModal({ isOpen, onClose, stock }) {
                         </div>
                         <div>
                             <div className="flex flex-wrap items-center gap-3">
-                                <h2 className="text-2xl font-black text-slate-900 tracking-tighter">診斷報告：{stock.name} ({stock.symbol})</h2>
+                                <h2 className="text-2xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">診斷報告：{stock.name} ({stock.symbol})</h2>
                                 <span className={`${sentimentColor} text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-sm`}>
                                     AI 指標：{Math.round((reportData?.sentiment_score || 0.5) * 100)}分
                                 </span>
@@ -126,7 +126,7 @@ export default function DiagnosisModal({ isOpen, onClose, stock }) {
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">AI-Powered Strategic & Technical Analysis</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-slate-600">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
@@ -135,7 +135,7 @@ export default function DiagnosisModal({ isOpen, onClose, stock }) {
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar-thin space-y-8">
                     
                     {/* Visual Trend Section */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 shadow-inner">
+                    <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-inner">
                          <div className="mb-6">
                             <div className="flex items-center gap-2 text-indigo-600 mb-4">
                                 <TrendingUp className="w-4 h-4" />
@@ -146,35 +146,35 @@ export default function DiagnosisModal({ isOpen, onClose, stock }) {
                             <div className="flex flex-wrap items-center gap-3">
                                 <button 
                                     onClick={() => toggleLine('ma20')}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.ma20 ? 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm' : 'bg-white border-slate-200 text-slate-400 grayscale'}`}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.ma20 ? 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 grayscale'}`}
                                 >
                                     <div className="w-4 h-1 bg-emerald-500 rounded-full"></div>
                                     <span className="text-[10px] font-black tracking-tighter">MA20 (月線)</span>
                                 </button>
                                 <button 
                                     onClick={() => toggleLine('ma5')}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.ma5 ? 'bg-orange-50 border-orange-200 text-orange-700 shadow-sm' : 'bg-white border-slate-200 text-slate-400 grayscale'}`}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.ma5 ? 'bg-orange-50 border-orange-200 text-orange-700 shadow-sm' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 grayscale'}`}
                                 >
                                     <div className="w-4 h-1 bg-orange-500 rounded-full border-dashed border-t"></div>
                                     <span className="text-[10px] font-black tracking-tighter">MA5 (周線)</span>
                                 </button>
                                 <button 
                                     onClick={() => toggleLine('price')}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.price ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm' : 'bg-white border-slate-200 text-slate-400 grayscale'}`}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.price ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 grayscale'}`}
                                 >
                                     <div className="w-4 h-1 bg-indigo-500 rounded-full"></div>
                                     <span className="text-[10px] font-black tracking-tighter">收盤價</span>
                                 </button>
                                 <button 
                                     onClick={() => toggleLine('pressure')}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.pressure ? 'bg-rose-50 border-rose-200 text-rose-700 shadow-sm' : 'bg-white border-slate-200 text-slate-400 grayscale'}`}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.pressure ? 'bg-rose-50 border-rose-200 text-rose-700 shadow-sm' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 grayscale'}`}
                                 >
                                     <div className="w-4 h-1 border-t-2 border-rose-400 border-dashed"></div>
                                     <span className="text-[10px] font-black tracking-tighter">壓力線(近20日高)</span>
                                 </button>
                                 <button 
                                     onClick={() => toggleLine('support')}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.support ? 'bg-teal-50 border-teal-200 text-teal-700 shadow-sm' : 'bg-white border-slate-200 text-slate-400 grayscale'}`}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${visibleLines.support ? 'bg-teal-50 border-teal-200 text-teal-700 shadow-sm' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 grayscale'}`}
                                 >
                                     <div className="w-4 h-1 border-t-2 border-teal-400 border-dashed"></div>
                                     <span className="text-[10px] font-black tracking-tighter">支撐線(近20日低)</span>
@@ -304,18 +304,18 @@ export default function DiagnosisModal({ isOpen, onClose, stock }) {
                     </div>
 
                     {/* Target Prices */}
-                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 shadow-sm">
+                    <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
                         <div className="flex items-center gap-2 mb-6 text-slate-400">
                             <Target className="w-4 h-4" />
                             <span className="text-xs font-black tracking-widest uppercase">AI 演算目標價設定</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 text-slate-900 font-black">
+                        <div className="grid grid-cols-3 gap-4 text-slate-900 dark:text-slate-50 font-black">
                              <div className="text-center p-4">
                                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">停利目標 1</div>
                                  <div className="text-2xl font-black text-emerald-600 tabular-nums">{stock.target1}</div>
                                  <div className="text-[10px] font-bold text-emerald-600/60 mt-1">預計獲利: +5.2%</div>
                              </div>
-                             <div className="text-center p-4 border-x border-slate-100">
+                             <div className="text-center p-4 border-x border-slate-100 dark:border-slate-800">
                                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">停利目標 2</div>
                                  <div className="text-2xl font-black text-emerald-500 tabular-nums">{stock.target2}</div>
                                  <div className="text-[10px] font-bold text-emerald-500/60 mt-1">預計獲利: +8.5%</div>
@@ -329,7 +329,7 @@ export default function DiagnosisModal({ isOpen, onClose, stock }) {
                     </div>
 
                     {/* Footer Warning */}
-                    <div className="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div className="flex items-start gap-4 p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
                         <AlertCircle className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
                         <p className="text-[11px] font-medium text-slate-400 leading-relaxed">
                             本診斷評估內容係由 AI 根據技術面、籌碼面模型自動生成，並未考慮您的個人財務狀況。投資涉及風險，歷史表現不保證未來結果，請依照個人風險承受能力審慎評估。
@@ -338,10 +338,10 @@ export default function DiagnosisModal({ isOpen, onClose, stock }) {
                 </div>
 
                 {/* Footer Action */}
-                <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-center">
+                <div className="p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-800 flex justify-center">
                     <button 
                         onClick={onClose}
-                        className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-900 px-12 py-3 rounded-2xl font-black tracking-widest shadow-sm transition-all uppercase text-xs active:scale-95"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-50 px-12 py-3 rounded-2xl font-black tracking-widest shadow-sm transition-all uppercase text-xs active:scale-95"
                     >
                         返回看盤
                     </button>
