@@ -587,83 +587,6 @@ ${promptTemplate}
     return finalPrompt;
 }
 
-/**
- * Generate report using Ollama
- */
-async function generateOllamaReport(symbol, context, promptTemplate, modelOverride = null) {
-    const ollamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
-    const modelName = (modelOverride && modelOverride !== 'none') ? modelOverride : (process.env.OLLAMA_MODEL || "qwen3.5:9b");
-
-    const sentimentText = context.newsSentiment && context.newsSentiment.count > 0 
-        ? `新聞情緒 (近 3 天, 時效加權): ${context.newsSentiment.sentimentLabel} (利多: ${context.newsSentiment.bullishCount} 則, 利空: ${context.newsSentiment.bearishCount} 則, 加權分數: ${context.newsSentiment.avgScore})`
-        : "新聞情緒: 近期無顯著新聞情緒數據";
-
-    const now = getTaiwanDate();
-    const newsFormatted = formatNewsWithRecency(context.news, now);
-    const enrichedData = buildEnrichedDataSection(context);
-
-    const finalPrompt = `
-你是一位專業的台灣股票投資分析師。請根據以下完整的個股數據與新聞情感分析，按照【報表模板】格式，生成一份深度投資分析報告。
-
-⚠️ 重要指示：
-1. **禁止輸出任何開場白、思考過程、分析筆記或對指令的重複。**
-2. **直接從報表的第一個章節開始輸出，不要有任何前導文字。**
-3. 所有數據已完整提供，請直接引用數據分析，不要說「資料未提供」或「資料缺失」。
-4. 近24小時內的新聞對明日股價影響最大，請在評分和分析中給予顯著權重。
-5. 請根據近期價格走勢判斷趨勢方向，不要只看單日數據。
-6. 操盤建議需給出具體價格區間（進場/目標/停損）。
-
-${enrichedData}
-
-【新聞情緒分析】
-${sentimentText}
-
-${newsFormatted}
-
-【報表模板】:
-${promptTemplate}
-
-請嚴格按照模板結構填寫內容。直接從標題開始。
-`;
-
-    try {
-        logger.info(`[AI Service] Ollama Start: ${symbol} using ${modelName}...`);
-        const startTime = Date.now();
-        
-        const response = await fetch(`${ollamaUrl}/api/generate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: modelName,
-                prompt: finalPrompt,
-                stream: false,
-                options: {
-                    temperature: 0.7,
-                    num_predict: 3072,
-                    num_ctx: 8192
-                }
-            }),
-            signal: AbortSignal.timeout(600000) // Increase to 10 minutes for large models
-        });
-
-        if (!response.ok) {
-            throw new Error(`Ollama API error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-        logger.info(`[AI Service] Ollama Finished: ${symbol} in ${duration}s`);
-        
-        return data.response;
-    } catch (err) {
-        if (err.name === 'TimeoutError') {
-            logger.error(`[AI Service] Ollama Timeout for ${symbol} after 10 minutes.`);
-        } else {
-            logger.error(`[AI Service] Ollama Generation error for ${symbol}: ${err.message}`);
-        }
-        throw err;
-    }
-}
 
 // Prompt template 記憶體快取 (避免每次查 DB)
 let _templateCache = {};
@@ -718,12 +641,12 @@ async function generateAIReport(symbol, modelOverride = null, templateName = 'st
         let promptTemplate = await getPromptTemplate(templateName, DEFAULT_TEMPLATE);
 
         const geminiInfo = await getGenAIInstanceAsync();
-        const hasOllama = process.env.OLLAMA_URL && process.env.OLLAMA_URL.length > 5;
         
         let finalContent = "";
         let sentimentScore = 50;
         let generationMode = "none";
         let usedModelName = "none";
+        let apiSuccess = false;
 
         if (geminiInfo) {
             // Priority 1: Gemini
@@ -766,7 +689,7 @@ ${promptTemplate}
                 const { instance: retryGenAI, keyHint: retryHint, keyIndex, dbId } = await getGenAIInstanceAsync();
                 const callStart = Date.now();
                 try {
-                    const modelName = "models/gemma-4-31b-it";
+                    const modelName = "gemini-1.5-pro";
                     const model = retryGenAI.getGenerativeModel({ model: modelName });
                     const result = await model.generateContent(finalPrompt);
                     
@@ -788,7 +711,7 @@ ${promptTemplate}
                     updateKeyMetrics(dbId, true, false, latency);
                     
                     finalContent = actualContent.trim();
-                    gemmaSuccess = true;
+                    apiSuccess = true;
                     break;
                 } catch (keyErr) {
                     const latency = Date.now() - callStart;
@@ -806,25 +729,17 @@ ${promptTemplate}
                     throw keyErr; // 其他錯誤直接拋出
                 }
             }
-            if (!gemmaSuccess) {
-                logger.warn('[AI Service] 所有 Gemini API 金鑰均無法存取或已超限，自動降級至 Ollama 或 Smart Engine...');
+            if (!apiSuccess) {
+                logger.warn('[AI Service] 所有 Gemini API 金鑰均無法存取或已超限，降級至 Smart Engine...');
             }
         }
 
-        // 如果沒有啟用 Gemini 或是 Gemini 呼叫全部失敗，則降級至 Ollama 或 Smart Engine
-        if (!gemmaSuccess) {
-            if (hasOllama) {
-                // Priority 2: Local Ollama
-                generationMode = "ollama";
-                const targetModel = (modelOverride && modelOverride !== 'none') ? modelOverride : (process.env.OLLAMA_MODEL || "qwen3.5:9b");
-                logger.info(`[AI Service] Using Local Ollama (${targetModel}) for ${symbol}`);
-                finalContent = await generateOllamaReport(symbol, context, promptTemplate, targetModel);
-            } else {
-                // Priority 3: Smart Engine (Rule-based)
-                generationMode = "smart_engine";
-                logger.info(`[AI Service] Using Smart Engine for ${symbol}`);
-                finalContent = generateSmartEngineReport(symbol, context, promptTemplate);
-            }
+        // 如果 Gemini 呼叫全部失敗，則降級至 Smart Engine
+        if (!apiSuccess) {
+            // Priority 2: Smart Engine (Rule-based)
+            generationMode = "smart_engine";
+            logger.info(`[AI Service] Using Smart Engine for ${symbol}`);
+            finalContent = generateSmartEngineReport(symbol, context, promptTemplate);
         }
 
         // --- 後處理：移除 AI 可能輸出的思考過程、開場白等垃圾資訊 ---
@@ -873,7 +788,7 @@ ${promptTemplate}
             content: finalContent,
             sentimentScore: scoreVal,
             generationMode,
-            modelName: generationMode === 'gemini' ? 'models/gemma-4-31b-it' : ((modelOverride && modelOverride !== 'none') ? modelOverride : (process.env.OLLAMA_MODEL || "qwen3.5:9b"))
+            modelName: generationMode === 'gemini' ? 'gemini-1.5-pro' : 'smart_engine'
         };
     } catch (err) {
         logger.error(`AI/Engine Report Generation Error: ${err.message}`);
@@ -881,4 +796,4 @@ ${promptTemplate}
     }
 }
 
-module.exports = { generateAIReport, generateSmartEngineReport, gatherStockContext, generateOllamaReport, buildEnrichedDataSection };
+module.exports = { generateAIReport, generateSmartEngineReport, gatherStockContext, buildEnrichedDataSection };

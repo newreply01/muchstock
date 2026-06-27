@@ -20,6 +20,78 @@ const formatLocalDate = (date) => {
     return `${year}-${month}-${day}`;
 };
 
+// GET /api/stock/compare?symbols=2330,2303
+router.get('/compare', async (req, res) => {
+    try {
+        const symbolsStr = req.query.symbols;
+        if (!symbolsStr) return res.status(400).json({ success: false, error: 'Missing symbols parameter' });
+        
+        const symbols = symbolsStr.split(',').map(s => s.trim()).filter(Boolean);
+        if (symbols.length === 0 || symbols.length > 5) {
+            return res.status(400).json({ success: false, error: 'Please provide 1 to 5 symbols' });
+        }
+
+        // Fetch basic info and latest indicators
+        const placeholders = symbols.map((_, i) => `$${i + 1}`).join(',');
+        const basicSql = `
+            SELECT s.symbol, s.name, s.industry, s.market,
+                   i.pe_ratio, i.pb_ratio, i.dividend_yield,
+                   (SELECT close_price FROM daily_prices dp WHERE dp.symbol = s.symbol ORDER BY trade_date DESC LIMIT 1) as latest_price
+            FROM stocks s
+            LEFT JOIN indicators i ON s.symbol = i.symbol
+            WHERE s.symbol IN (${placeholders})
+            AND (i.trade_date = (SELECT MAX(trade_date) FROM indicators WHERE symbol = s.symbol) OR i.trade_date IS NULL)
+        `;
+        const basicRes = await query(basicSql, symbols);
+
+        // Fetch historical prices for the last 120 trading days
+        const historySql = `
+            SELECT symbol, TO_CHAR(trade_date, 'YYYY-MM-DD') as date, close_price
+            FROM daily_prices
+            WHERE symbol IN (${placeholders})
+            AND trade_date >= (CURRENT_DATE - INTERVAL '6 months')
+            ORDER BY trade_date ASC
+        `;
+        const historyRes = await query(historySql, symbols);
+
+        // Group history by symbol to make it easier for Lightweight Charts
+        const seriesData = {};
+        symbols.forEach(sym => { seriesData[sym] = []; });
+        
+        // Populate seriesData with { time, value }
+        historyRes.rows.forEach(row => {
+            if (seriesData[row.symbol]) {
+                seriesData[row.symbol].push({
+                    time: row.date,
+                    close: parseFloat(row.close_price)
+                });
+            }
+        });
+
+        // Calculate compare_percent relative to the first available date for each symbol
+        symbols.forEach(sym => {
+            const series = seriesData[sym];
+            if (series && series.length > 0) {
+                const basePrice = series[0].close;
+                series.forEach(point => {
+                    point.compare_percent = basePrice > 0 ? ((point.close - basePrice) / basePrice) * 100 : 0;
+                });
+            }
+        });
+
+        res.json({
+            success: true,
+            data: {
+                info: basicRes.rows,
+                chart: seriesData
+            }
+        });
+    } catch (err) {
+        console.error('Failed to fetch comparison data:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 router.get('/stock/:symbol/quick-diagnosis', async (req, res) => {
     console.log(`DEBUG: Quick diagnosis for ${req.params.symbol} triggered`);
     try {
@@ -75,7 +147,6 @@ router.get('/stock/:symbol/quick-diagnosis', async (req, res) => {
         let aiSummary = "尚無 AI 診斷報告";
         if (aiRes.rows.length > 0) {
             const fullReport = aiRes.rows[0].report;
-            // 嘗試提取「總結」或「結論」部分，若沒找到則取前 150 字
             const conclusionMatch = fullReport.match(/【總結】|【結論】|投資建議\s*[:：]\s*(.*)/);
             if (conclusionMatch) {
                 aiSummary = conclusionMatch[0].substring(0, 150) + "...";
@@ -88,8 +159,8 @@ router.get('/stock/:symbol/quick-diagnosis', async (req, res) => {
         let techScore = 0;
         if (techData.rsi_14) {
             const rsi = parseFloat(techData.rsi_14);
-            if (rsi > 70) techScore -= 0.3; // 超買
-            else if (rsi < 30) techScore += 0.3; // 超跌
+            if (rsi > 70) techScore -= 0.3;
+            else if (rsi < 30) techScore += 0.3;
         }
         if (techData.macd_hist) {
             techScore += parseFloat(techData.macd_hist) > 0 ? 0.2 : -0.2;
@@ -102,15 +173,14 @@ router.get('/stock/:symbol/quick-diagnosis', async (req, res) => {
         const distResistance = priceData?.high_20 > 0 ? ((priceData.high_20 - priceData.latest_price) / priceData.latest_price * 100) : null;
         const distSupport = priceData?.low_20 > 0 ? ((priceData.latest_price - priceData.low_20) / priceData.latest_price * 100) : null;
         
-        if (distSupport !== null && distSupport < 2) priceLevelScore += 0.4; // 接近支撐
+        if (distSupport !== null && distSupport < 2) priceLevelScore += 0.4;
         else if (distSupport !== null && distSupport < 5) priceLevelScore += 0.2;
         
-        if (distResistance !== null && distResistance < 2) priceLevelScore -= 0.4; // 接近壓力
+        if (distResistance !== null && distResistance < 2) priceLevelScore -= 0.4;
         else if (distResistance !== null && distResistance < 5) priceLevelScore -= 0.2;
 
-        let sentimentScore = score ? (score - 50) / 50 : 0; // 基於健康分 (-1 to 1)
+        let sentimentScore = score ? (score - 50) / 50 : 0;
 
-        // 綜合權重: 技術 40%, 價格位置 30%, 情緒 30%
         const compositeScore = (techScore * 0.4) + (priceLevelScore * 0.3) + (sentimentScore * 0.3);
         
         let ratingLabel = "中立";
@@ -121,7 +191,6 @@ router.get('/stock/:symbol/quick-diagnosis', async (req, res) => {
         else if (compositeScore < -0.25) ratingLabel = "減碼";
         else if (compositeScore < -0.05) ratingLabel = "偏空觀察";
 
-        // 整合數據
         const result = {
             symbol,
             latest_price: parseFloat(priceData?.latest_price || 0),
@@ -158,7 +227,6 @@ router.get('/stock/:symbol/quick-diagnosis', async (req, res) => {
     }
 });
 
-// GET /api/stock/:symbol/events - 獲取個股大事記 (法說會、除權息等)
 router.get('/stock/:symbol/events', async (req, res) => {
     try {
         const { symbol } = req.params;
@@ -196,12 +264,9 @@ router.get('/stock/:symbol/events', async (req, res) => {
     }
 });
 
-// GET /api/stock/:symbol/chart-data - 獲取診斷線圖所需的 60 日數據
 router.get('/stock/:symbol/chart-data', async (req, res) => {
     try {
         const { symbol } = req.params;
-        
-        // 1. 獲取數據，計算全歷史窗口函數後再擷取近 60 日，確保指標曲線完整
         const result = await query(`
             SELECT 
                 TO_CHAR(trade_date, 'YYYY/MM/DD') as date,
@@ -233,7 +298,6 @@ router.get('/stock/:symbol/chart-data', async (req, res) => {
             LIMIT 60
         `, [symbol]);
 
-        // 反轉數組以按時間順序顯示 (Recharts 需要)
         const chartData = result.rows.reverse().map(row => ({
             ...row,
             price: parseFloat(row.price),
@@ -254,9 +318,7 @@ router.get('/stock/:symbol/chart-data', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
-// --- AI Prompt Management APIs ---
 
-// GET /api/history/:symbol
 router.get('/history/:symbol', async (req, res) => {
     try {
         const { symbol } = req.params;
@@ -296,6 +358,5 @@ TO_CHAR(trade_date, 'YYYY-MM-DD') as time,
         res.status(500).json({ error: err.message });
     }
 });
-
 
 module.exports = router;

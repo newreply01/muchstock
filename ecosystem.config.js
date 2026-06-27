@@ -32,14 +32,7 @@ module.exports = {
             cwd: '/home/xg/muchstock',
             autorestart: true,
             watch: false
-        },
-        {
-            name: 'sync-supabase',
-            script: 'node',
-            args: 'server/scripts/sync_realtime_supabase.js',
-            cwd: '/home/xg/muchstock',
-            autorestart: true,
-            watch: false
+
         },
         {
             name: 'finmind-daily-crawler',

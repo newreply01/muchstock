@@ -12,6 +12,7 @@ const stockRoutes = require('./routes/stock');
 const institutionalRoutes = require('./routes/institutional');
 const financialsRoutes = require('./routes/financials');
 const aiReportRoutes = require('./routes/ai_report');
+const aiRoutes = require('./routes/ai');
 const marketRoutes = require('./routes/market');
 const positionRoutes = require('./routes/position');
 
@@ -131,11 +132,11 @@ app.use('/api/stream', streamRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/broker', brokerRoutes);
 
-// 新拆分的模組
 app.use('/api', stockRoutes);
 app.use('/api', institutionalRoutes);
 app.use('/api', financialsRoutes);
 app.use('/api', aiReportRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api', marketRoutes);
 app.use('/api', positionRoutes);
 

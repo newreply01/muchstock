@@ -19,7 +19,7 @@ try {
 }
 const { pool, query } = require('./db');
 const DataLCM = require('./scripts/data_lcm');
-const { sync: syncToSupabase } = require('./scripts/sync_realtime_supabase');
+
 
 async function logScriptStatus(serviceName, status, message) {
     try {
@@ -252,7 +252,7 @@ function startScheduler() {
     });
     initTaskTracking('pre_market_news_scan', preMarketNewsTask);
 
-    // 執行 Supabase 即時同步 (每 10 分鐘)
+    // 系統狀態檢查 (每 10 分鐘)
     cron.schedule('*/10 * * * *', async () => {
         try {
             // 檢查資料庫是否存活
@@ -260,23 +260,8 @@ function startScheduler() {
 
             // 寫入健康紀錄
             await logScriptStatus('scheduler', 'UP', 'Scheduler is running normally');
-
-            const now = new Date();
-            const tpeTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
-            const hours = tpeTime.getHours();
-            const minutes = tpeTime.getMinutes();
-            const day = tpeTime.getDay();
-            const timeInMinutes = hours * 60 + minutes;
-
-            // 交易時段 (週一至五 09:00 - 15:40) - 暫時停用同步以測試本地效能
-            /*
-            if (day >= 1 && day <= 5 && timeInMinutes >= 9 * 60 && timeInMinutes <= 15 * 60 + 40) {
-                console.log('[Sync] Triggering Supabase tick sync...');
-                await syncToSupabase();
-            }
-            */
         } catch (err) {
-            console.error('系統狀態檢查或同步失敗:', err.message);
+            console.error('系統狀態檢查失敗:', err.message);
         }
     });
 

@@ -394,7 +394,11 @@ async function startCrawler() {
             }
 
             if (batchData.length > 0) {
-                totalUpserted += await bulkUpsert(batchData);
+                try {
+                    totalUpserted += await bulkUpsert(batchData);
+                } catch (upsertErr) {
+                    console.error(`[Crawler] Batch upsert failed, skipping this batch to prevent crash: ${upsertErr.message}`);
+                }
             }
 
             // 微小隨機延遲（降低封阻風險）

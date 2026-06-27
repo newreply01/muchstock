@@ -27,9 +27,9 @@ router.get('/realtime-ticks', async (req, res) => {
                 const latestRes = await query(`
                     SELECT MAX((trade_time AT TIME ZONE 'Asia/Taipei')::date) as latest 
                     FROM (
-                        SELECT trade_time FROM realtime_ticks LIMIT 100
+                        (SELECT trade_time FROM realtime_ticks LIMIT 100)
                         UNION ALL
-                        SELECT trade_time FROM realtime_ticks_history ORDER BY trade_time DESC LIMIT 1
+                        (SELECT trade_time FROM realtime_ticks_history ORDER BY trade_time DESC LIMIT 1)
                     ) s
                 `);
                 

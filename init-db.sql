@@ -209,3 +209,34 @@ BEGIN
         ALTER TABLE saved_filters ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
     END IF;
 END $$;
+
+-- AI Reports
+CREATE TABLE IF NOT EXISTS public.ai_reports (
+    symbol character varying(20) NOT NULL PRIMARY KEY,
+    content text,
+    sentiment_score integer,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+-- News Stock Sentiment
+CREATE TABLE IF NOT EXISTS public.news_stock_sentiment (
+    id SERIAL PRIMARY KEY,
+    news_id BIGINT REFERENCES news(news_id) ON DELETE CASCADE,
+    symbol VARCHAR(20) NOT NULL,
+    sentiment VARCHAR(20),
+    score NUMERIC,
+    method VARCHAR(20) DEFAULT 'rule',
+    reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(news_id, symbol)
+);
+
+-- Alter indicators
+ALTER TABLE indicators 
+ADD COLUMN IF NOT EXISTS k_value NUMERIC(10,2),
+ADD COLUMN IF NOT EXISTS d_value NUMERIC(10,2),
+ADD COLUMN IF NOT EXISTS upper_band NUMERIC(10,2),
+ADD COLUMN IF NOT EXISTS lower_band NUMERIC(10,2),
+ADD COLUMN IF NOT EXISTS ibs NUMERIC(10,4),
+ADD COLUMN IF NOT EXISTS volume_ratio NUMERIC(10,2);

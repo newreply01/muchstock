@@ -211,7 +211,7 @@ async function fetchTPEx(dateObj) {
             if (!isValidSymbol(symbol)) continue;
 
             await ensureStock(symbol, name);
-            await query(`INSERT INTO stocks (symbol, name, market) VALUES ($1, $2, 'tpex') ON CONFLICT (symbol) DO NOTHING`, [symbol, name]);
+            await query(`INSERT INTO stocks (symbol, name, market) VALUES ($1, $2, 'tpex') ON CONFLICT (symbol) DO UPDATE SET market = EXCLUDED.market`, [symbol, name]);
 
             const close = parseNumber(row[2]);
             const change = parseNumber(row[3]);

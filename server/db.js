@@ -4,9 +4,8 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 // 在 WSL/開發環境中，優先使用本地資料庫，除非明確設定 NODE_ENV=production 且沒有 localhost 轉發
-// 原本優先使用 SUPABASE_URL 會導致本地爬蟲寫入到雲端，造成延遲
 const dbUrl = (process.env.NODE_ENV === 'production' && !(process.env.DB_HOST || '').includes('localhost')) 
-    ? (process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.SUPABASE_URL)
+    ? (process.env.DATABASE_URL || process.env.POSTGRES_URL)
     : null;
 
 const host = process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost';

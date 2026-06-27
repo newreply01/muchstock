@@ -52,6 +52,7 @@ import EventCalendar from '../shared/EventCalendar'
 import BrokerTracking from '../charts/BrokerTracking'
 import QuickDiagnosisView from '../charts/QuickDiagnosisView'
 import StockNewsEventsView from '../shared/StockNewsEventsView'
+import SafetyCheck from '../widgets/SafetyCheck'
 import { useSSE } from '../../hooks/useSSE'
 
 const SIDEBAR_MENU = [
@@ -455,7 +456,10 @@ export default function StockDetail({ stock, onClose, isInline = false }) {
                     {/* Main Scrollable Area */}
                     <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-900 relative">
                         {activeTab === 'overview' ? (
-                            <StockDashboard stock={stock} realtimeTick={realtimeTick} connectionStatus={connectionStatus} />
+                            <div className="flex flex-col gap-6">
+                                <SafetyCheck symbol={stock.symbol} />
+                                <StockDashboard stock={stock} realtimeTick={realtimeTick} connectionStatus={connectionStatus} />
+                            </div>
                         ) : activeTab === 'ai_report' ? (
                             <div className="h-full flex flex-col gap-6 animate-in fade-in duration-300">
                                 {/* AI Report Date and Score Header */}

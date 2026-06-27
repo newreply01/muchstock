@@ -17,7 +17,6 @@ const helpMessage = `
 可用命令:
   verify-keys   - 檢測當前 GEMINI_API_KEYS 中的所有金鑰狀態與額度
   reset-queue   - 將處理逾時 (卡死 > 15 分鐘) 的 AI 佇列任務重置為 pending
-  sync-supabase - 手動觸發本地 AI 報告與歷史紀錄同步到 Supabase 遠端資料庫
   data-lcm      - 執行資料庫生命週期管理 (LCM)，自動清洗與格式化 AI 報告內容
   help          - 顯示此說明訊息
 
@@ -91,91 +90,7 @@ async function handleResetQueue() {
     console.log(`=============================================\n`);
 }
 
-async function handleSyncSupabase() {
-    console.log(`\n=============================================`);
-    console.log(`🚀 正在同步本地數據至 Supabase 遠端...`);
-    console.log(`=============================================`);
-    
-    if (!process.env.SUPABASE_URL) {
-        console.error(`❌ 未設定 SUPABASE_URL 環境變數，無法同步至遠端。`);
-        return;
-    }
 
-    const { Pool } = require('pg');
-    const remotePool = new Pool({
-        connectionString: process.env.SUPABASE_URL,
-        ssl: { rejectUnauthorized: false }
-    });
-
-    try {
-        // 1. 同步 ai_reports
-        const localReports = await pool.query("SELECT * FROM ai_reports");
-        console.log(`📥 讀取到本地 ai_reports 共有 ${localReports.rows.length} 筆資料...`);
-
-        let reportSyncCount = 0;
-        for (let i = 0; i < localReports.rows.length; i += 100) {
-            const batch = localReports.rows.slice(i, i + 100);
-            const values = [];
-            const placeholders = [];
-            let idx = 1;
-
-            for (const row of batch) {
-                values.push(row.symbol, row.content, row.sentiment_score, row.updated_at);
-                placeholders.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++})`);
-            }
-
-            if (batch.length > 0) {
-                const sql = `
-                    INSERT INTO ai_reports (symbol, content, sentiment_score, updated_at)
-                    VALUES ${placeholders.join(', ')}
-                    ON CONFLICT (symbol) DO UPDATE SET
-                        content = EXCLUDED.content,
-                        sentiment_score = EXCLUDED.sentiment_score,
-                        updated_at = EXCLUDED.updated_at
-                `;
-                await remotePool.query(sql, values);
-                reportSyncCount += batch.length;
-            }
-        }
-        console.log(`✅ 已同步 ${reportSyncCount} 筆最新報告到遠端。`);
-
-        // 2. 同步 ai_reports_history
-        const localHistory = await pool.query("SELECT * FROM ai_reports_history");
-        console.log(`📥 讀取到本地 ai_reports_history 共有 ${localHistory.rows.length} 筆資料...`);
-
-        let historySyncCount = 0;
-        for (let i = 0; i < localHistory.rows.length; i += 100) {
-            const batch = localHistory.rows.slice(i, i + 100);
-            const values = [];
-            const placeholders = [];
-            let idx = 1;
-
-            for (const row of batch) {
-                values.push(row.symbol, row.report_date, row.content, row.sentiment_score);
-                placeholders.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++})`);
-            }
-
-            if (batch.length > 0) {
-                const sql = `
-                    INSERT INTO ai_reports_history (symbol, report_date, content, sentiment_score)
-                    VALUES ${placeholders.join(', ')}
-                    ON CONFLICT (symbol, report_date) DO UPDATE SET
-                        content = EXCLUDED.content,
-                        sentiment_score = EXCLUDED.sentiment_score
-                `;
-                await remotePool.query(sql, values);
-                historySyncCount += batch.length;
-            }
-        }
-        console.log(`✅ 已同步 ${historySyncCount} 筆歷史報告到遠端。`);
-        console.log(`✨ Supabase 數據同步全部完成！`);
-    } catch (err) {
-        console.error(`❌ 同步失敗: ${err.message}`);
-    } finally {
-        await remotePool.end();
-    }
-    console.log(`=============================================\n`);
-}
 
 async function handleDataLcm() {
     console.log(`\n=============================================`);
@@ -266,9 +181,7 @@ async function main() {
         case 'reset-queue':
             await handleResetQueue();
             break;
-        case 'sync-supabase':
-            await handleSyncSupabase();
-            break;
+
         case 'data-lcm':
             await handleDataLcm();
             break;

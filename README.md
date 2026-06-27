@@ -154,32 +154,7 @@ npx jest --testPathPattern='server/tests/auth.test.js'
 -   **時區處理**: 系統核心邏輯已強制轉換為 `Asia/Taipei`（台灣時間）。
 -   **Vercel 部署**: 支援 Vercel 雲端執行，請參考 `vercel.json` 配置。
 
-## 9. 資料庫維護與雲端同步 (Slim DB & Cloud Sync)
 
-為了符合雲端環境 (如 Supabase) 的空間與效能限制，本專案提供「Slim DB」方案，將本地數 GB 的資料縮減至約 **250MB** 內，並透過優化後的策略進行同步。
-
-### 📊 Slim DB 數據規格 (方案 A - 全面補強版)
-*   **時間區間**：2024-01-01 至今。
-*   **標的篩選**：僅保留 4 位數代號個股與 00 開頭之 ETF。
-*   **籌碼數據補強**：
-    *   **個股法人**：包含 2024 年至今所有標的三大法人每日買賣細節 (`institutional`)。
-    *   **個股資券**：包含近 2.5 年個股融資融券、資券餘額明細 (`fm_margin_trading`)。
-    *   **大盤籌碼**：包含大盤法人與資券統計。
-
-### 🔧 同步技術實作
-為了確保跨雲端同步的穩定性，系統採用以下技術：
-1.  **架構平面化 (Architecture Flattening)**：雲端 DB (Supabase) 的 `daily_prices` 與 `institutional` 會從本地的「分割表 (Partitioned Tables)」轉化為**「一般資料表」**。這能極大規避分割表在同步時的主鍵衝突與元數據報錯。
-2.  **年度分段導出 (Yearly Chunking)**：大型表格會按年度分拆導出，以規避 Supabase 的 Statement Timeout 限制。
-3.  **單向流式上傳**：透過管道將 SQL 內容直接流向 `psql` 終端，並設置 `ON_ERROR_STOP=1` 確保錯誤即時報警。
-
-### 🚀 同步操作流程
-```bash
-# 1. 產生平面化 SQL 備份
-node server/scripts/gen_refined_slim_v2.js
-
-# 2. 執行雲端同步 (包含硬重設與連線優化)
-bash upload_to_supabase.sh
-```
 
 ## 10. 標的篩選邏輯 (Target Filtering)
 
@@ -201,8 +176,7 @@ bash upload_to_supabase.sh
 
 ### 分流規則 (Model Selection)
 系統每日 22:30 初始化任務時，會依據當日 **成交量 (Volume)** 進行全市場排名：
-- **第一梯隊 (Top 300)**: 成交量排名前 300 檔之熱門股，使用 **`gpt-oss:20b`** 模型。提供最高品質的邏輯推理與深度分析。
-- **第二梯隊 (Others)**: 其餘 1,800+ 檔標的，自動分配給 **`qwen3.5:9b`** 模型。具備極快的生成速度，確保每日開盤前完成全市場掃描。
+- **全市場**: 自動分配給 Google Gemini API (`gemini-1.5-pro`) 模型。具備良好的生成速度與品質。
 
 ### 任務佇列機制 (Queue System)
 - **資料表**: `ai_generation_queue`
@@ -249,7 +223,7 @@ SMTP_FROM_NAME=Stock Screener (系統名稱)
 ### 核心功能
 1. **全市場標點識別**: 自動辨識 **台灣個股 (4位數)** 及 **熱門 ETF (5-6位數)**。
 2. **多股關聯技術**: 單一新聞提及多檔股票時，自動分離並產出各別的情緒指標。
-3. **AI 語義分析**: 使用 Ollama (qwen3.5:9b) 進行利多/利空定性，產出 -1.0 至 +1.0 之情緒值。
+3. **AI 語義分析**: 使用 Gemini API 進行利多/利空定性，產出 -1.0 至 +1.0 之情緒值。
 4. **近期熱度匯總 (3天)**: AI 報表生成時，會彙整過去 **3 天** 內該個股的所有情緒紀錄。
 
 ## 14. 資料庫優化與生命週期管理 (Database Optimization & Data LCM)
