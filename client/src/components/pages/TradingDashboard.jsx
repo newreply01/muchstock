@@ -469,6 +469,7 @@ const TradingDashboard = ({ watchlists = [], watchedSymbols = new Set(), onRefre
                                     if (onRefreshWatchlists) onRefreshWatchlists();
                                 } catch (e) {
                                     console.error('Add stock failed:', e);
+                                    alert(`新增自選股失敗: ${e.message}`);
                                 }
                             }}
                             placeholder="輸入代碼新增至自選..."

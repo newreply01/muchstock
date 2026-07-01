@@ -7,10 +7,20 @@ const { logActivity } = require('../utils/audit_logger');
 // GET /api/watchlists — 取得使用者的自選股清單
 router.get('/', requireAuth, async (req, res) => {
     try {
-        const listsRes = await query(
+        let listsRes = await query(
             'SELECT * FROM watchlists WHERE user_id = $1 ORDER BY created_at ASC',
             [req.user.id]
         );
+
+        // 如果該使用者沒有任何自選股清單（可能是舊版資料未建立），自動建立一個
+        if (listsRes.rows.length === 0) {
+            await query('INSERT INTO watchlists (name, user_id) VALUES ($1, $2)', ['我的自選股', req.user.id]);
+            listsRes = await query(
+                'SELECT * FROM watchlists WHERE user_id = $1 ORDER BY created_at ASC',
+                [req.user.id]
+            );
+        }
+
         const watchlists = listsRes.rows;
 
         for (let wl of watchlists) {
